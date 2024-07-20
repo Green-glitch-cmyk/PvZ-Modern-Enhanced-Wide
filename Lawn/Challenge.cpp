@@ -1513,7 +1513,7 @@ void Challenge::UpdateBeghouled()
 
 	if (mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST && mChallengeState == STATECHALLENGE_NORMAL)
 	{
-		if (BeghouledTwistSquareFromMouse(mApp->mWidgetManager->mLastMouseX, mApp->mWidgetManager->mLastMouseY, mChallengeGridX, mChallengeGridY))
+		if (BeghouledTwistSquareFromMouse(mApp->mWidgetManager->mLastMouseX - BOARD_ADDITIONAL_WIDTH, mApp->mWidgetManager->mLastMouseY - BOARD_OFFSET_Y, mChallengeGridX, mChallengeGridY))
 		{
 			BeghouledBoardState aBoardState;
 			LoadBeghouledBoardState(&aBoardState);
@@ -2294,8 +2294,8 @@ void Challenge::DrawBeghouled(Graphics* g)
 		mBoard->MouseHitTest(mApp->mWidgetManager->mLastMouseX, mApp->mWidgetManager->mLastMouseY, &aHitResult);
 		if (mChallengeGridX != -1 && mChallengeGridY != -1 && aHitResult.mObjectType != OBJECT_TYPE_COIN)
 		{
-			float aPixelX = mBoard->GridToPixelX(mChallengeGridX, mChallengeGridY) + 80;
-			float aPixelY = mBoard->GridToPixelY(mChallengeGridX, mChallengeGridY) + 100;
+			float aPixelX = mBoard->GridToPixelX(mChallengeGridX, mChallengeGridY) + 80 + BOARD_ADDITIONAL_WIDTH;
+			float aPixelY = mBoard->GridToPixelY(mChallengeGridX, mChallengeGridY) + 100 + BOARD_OFFSET_Y;
 
 			SexyTransform2D aTransform;
 			TodScaleRotateTransformMatrix(aTransform, aPixelX, aPixelY, -mBoard->mMainCounter * 2 * PI * 0.01f, 1, 1);
@@ -5073,12 +5073,12 @@ void Challenge::LastStandUpdate()
 
 		if (mSurvivalStage == 0)
 		{
-			aButton->SetLabel("[START_ONSLAUGHT]");
+			aButton->mLabel = _S("[START_ONSLAUGHT]");
 			aButton->Resize(300, 559, 210, 46);
 		}
 		else
 		{
-			aButton->SetLabel("[CONTINUE_ONSLAUGHT]");
+			aButton->mLabel = _S("[CONTINUE_ONSLAUGHT]");
 			aButton->Resize(270, 559, 257, 46);
 		}
 	}
@@ -5493,7 +5493,7 @@ void Challenge::TreeOfWisdomOpenStore()
 {
 	TreeOfWisdomLeave();
 	StoreScreen* aStore = mApp->ShowStoreScreen();
-	aStore->mBackButton->SetLabel(_S("[STORE_BACK_TO_GAME]"));
+	aStore->mBackButton->mLabel = _S("[STORE_BACK_TO_GAME]");
 	aStore->mPage = STORE_PAGE_ZEN2;
 	aStore->WaitForResult(true);
 	mApp->mMusic->MakeSureMusicIsPlaying(MUSIC_TUNE_ZEN_GARDEN);

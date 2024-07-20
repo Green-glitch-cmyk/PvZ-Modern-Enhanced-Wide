@@ -15,7 +15,6 @@ constexpr const int				ALMANAC_INDEXPLANT_POSITION_Y	= 255 + BOARD_OFFSET_Y;
 constexpr const float			ALMANAC_INDEXZOMBIE_POSITION_X	= 535.0f + BOARD_ADDITIONAL_WIDTH;
 constexpr const float			ALMANAC_INDEXZOMBIE_POSITION_Y	= 215.0f + BOARD_OFFSET_Y;
 constexpr const int				ALMANAC_DESCRIPTION_MIN_HEIGHT	= 20;
-constexpr const int				WEIRD_CHARACTERS_COUNT			= 1;
 
 class Plant;
 class Zombie;

@@ -313,6 +313,9 @@ namespace Sexy
 		int						mQuickLevel;
 		bool					mCrazySeeds;
 		bool					mIs3dAccel;
+		std::string				mLanguage;
+		int						mLanguageIndex;
+		std::map<std::string, StringWStringMap> mLanguages;
 		bool					mSoftVSyncWait;
 		bool					mUserChanged3DSetting;
 		bool					mAutoEnable3D;
@@ -583,6 +586,9 @@ namespace Sexy
 		virtual bool			AppCanRestore();
 		virtual void			ShowFPS(bool show);
 		static LRESULT CALLBACK	WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+		
+		void					SwitchLanguage();
+		void					LoadCurrentLanguage();
 	};
 
 	extern SexyAppBase* gSexyAppBase;

@@ -18,16 +18,13 @@
 
 int gZombieDefeated[NUM_ZOMBIE_TYPES] = { false };
 const Rect cSeedClipRect = Rect(0, 90 + BOARD_OFFSET_Y, BOARD_WIDTH, 463);
-const int zombieHeight = 80;
-const int zombieOffsetY = 6;
-const Rect cZombieClipRect = Rect(0, zombieHeight + zombieOffsetY + BOARD_OFFSET_Y, BOARD_WIDTH, 474);
-const int seedPacketRows = 8;
-const int seedPacketHeight = SEED_PACKET_HEIGHT + 8;
-const int zombieRows = 5;
-const char* weirdCharacters[WEIRD_CHARACTERS_COUNT] = 
-{
-	"®"
-};
+const int cZombieHeight = 80;
+const int cZombieOffsetY = 6;
+const Rect cZombieClipRect = Rect(0, cZombieHeight + cZombieOffsetY + BOARD_OFFSET_Y, BOARD_WIDTH, 474);
+const int cSeedPacketRows = 8;
+const int cSeedPacketHeight = SEED_PACKET_HEIGHT + 8;
+const int cZombieRows = 5;
+const char* cWeirdCharacters[] = {"®"};
 
 AlmanacDialog::AlmanacDialog(LawnApp* theApp) : LawnDialog(theApp, DIALOG_ALMANAC, true, _S("Almanac"), _S(""), _S(""), BUTTONS_NONE)
 {
@@ -50,7 +47,7 @@ AlmanacDialog::AlmanacDialog(LawnApp* theApp) : LawnDialog(theApp, DIALOG_ALMANA
 	LawnDialog::Resize(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
 
 	mCloseButton = new GameButton(AlmanacDialog::ALMANAC_BUTTON_CLOSE);
-	mCloseButton->SetLabel(_S("[CLOSE_BUTTON]"));
+	mCloseButton->mLabel = _S("[CLOSE_BUTTON]");
 	mCloseButton->mButtonImage = Sexy::IMAGE_ALMANAC_CLOSEBUTTON;
 	mCloseButton->mOverImage = Sexy::IMAGE_ALMANAC_CLOSEBUTTONHIGHLIGHT;
 	mCloseButton->mDownImage = nullptr;
@@ -59,12 +56,12 @@ AlmanacDialog::AlmanacDialog(LawnApp* theApp) : LawnDialog(theApp, DIALOG_ALMANA
 	mCloseButton->mColors[ButtonWidget::COLOR_LABEL] = aColor;
 	mCloseButton->mColors[ButtonWidget::COLOR_LABEL_HILITE] = aColor;
 	mCloseButton->Resize(676 + BOARD_ADDITIONAL_WIDTH, 567 + BOARD_OFFSET_Y, 89, 26);
-	mCloseButton->mParentWidget = this;
 	mCloseButton->mTextOffsetX = -8;
 	mCloseButton->mTextOffsetY = 1;
+	mCloseButton->mParentWidget = this;
 
 	mIndexButton = new GameButton(AlmanacDialog::ALMANAC_BUTTON_INDEX);
-	mIndexButton->SetLabel(_S("[ALMANAC_INDEX]"));
+	mIndexButton->mLabel = _S("[ALMANAC_INDEX]");
 	mIndexButton->mButtonImage = Sexy::IMAGE_ALMANAC_INDEXBUTTON;
 	mIndexButton->mOverImage = Sexy::IMAGE_ALMANAC_INDEXBUTTONHIGHLIGHT;
 	mIndexButton->mDownImage = nullptr;
@@ -72,12 +69,12 @@ AlmanacDialog::AlmanacDialog(LawnApp* theApp) : LawnDialog(theApp, DIALOG_ALMANA
 	mIndexButton->mColors[ButtonWidget::COLOR_LABEL] = aColor;
 	mIndexButton->mColors[ButtonWidget::COLOR_LABEL_HILITE] = aColor;
 	mIndexButton->Resize(32 + BOARD_ADDITIONAL_WIDTH, 567 + BOARD_OFFSET_Y, 164, 26);
-	mIndexButton->mParentWidget = this;
 	mIndexButton->mTextOffsetX = 8;
 	mIndexButton->mTextOffsetY = 1;
+	mIndexButton->mParentWidget = this;
 
 	mPlantButton = new GameButton(AlmanacDialog::ALMANAC_BUTTON_PLANT);
-	mPlantButton->SetLabel(_S("[VIEW_PLANTS]"));
+	mPlantButton->mLabel = _S("[VIEW_PLANTS]");
 	mPlantButton->mButtonImage = Sexy::IMAGE_SEEDCHOOSER_BUTTON;
 	mPlantButton->mOverImage = nullptr;
 	mPlantButton->mDownImage = nullptr;
@@ -91,7 +88,7 @@ AlmanacDialog::AlmanacDialog(LawnApp* theApp) : LawnDialog(theApp, DIALOG_ALMANA
 	mPlantButton->mParentWidget = this;
 
 	mZombieButton = new GameButton(AlmanacDialog::ALMANAC_BUTTON_ZOMBIE);
-	mZombieButton->SetLabel(_S("[VIEW_ZOMBIES]"));
+	mZombieButton->mLabel = _S("[VIEW_ZOMBIES]");
 	mZombieButton->Resize(487 + BOARD_ADDITIONAL_WIDTH, 345 + BOARD_OFFSET_Y, 210, 48);
 	mZombieButton->mDrawStoneButton = true;
 	mZombieButton->mParentWidget = this;
@@ -265,7 +262,7 @@ void AlmanacDialog::Update()
 
 	if (mOpenPage == ALMANAC_PAGE_PLANTS)
 	{
-		mMaxScrollPosition = seedPacketHeight * ((cSeedClipRect.mHeight % SEED_PACKET_HEIGHT == 0 ? 1 : 0) - (cSeedClipRect.mHeight / seedPacketHeight) + ((NUM_SEEDS_IN_CHOOSER - 2) / seedPacketRows));
+		mMaxScrollPosition = cSeedPacketHeight * ((cSeedClipRect.mHeight % SEED_PACKET_HEIGHT == 0 ? 1 : 0) - (cSeedClipRect.mHeight / cSeedPacketHeight) + ((NUM_SEEDS_IN_CHOOSER - 2) / cSeedPacketRows));
 		float aScrollSpeed = mBaseScrollSpeed + abs(mScrollAmount) * mScrollAccel;
 		mScrollPosition = ClampFloat(mScrollPosition += mScrollAmount * aScrollSpeed, 0, mMaxScrollPosition);
 		mScrollAmount *= (1.0f - mScrollAccel);
@@ -273,7 +270,7 @@ void AlmanacDialog::Update()
 	}
 	else if (mOpenPage == ALMANAC_PAGE_ZOMBIES)
 	{
-		mMaxScrollPosition = zombieHeight * ((cZombieClipRect.mHeight % zombieHeight == 0 ? 1 : 0) - (cZombieClipRect.mHeight / zombieHeight) + ((NUM_ZOMBIES_IN_ALMANAC - 1) / zombieRows));
+		mMaxScrollPosition = cZombieHeight * ((cZombieClipRect.mHeight % cZombieHeight == 0 ? 1 : 0) - (cZombieClipRect.mHeight / cZombieHeight) + ((NUM_ZOMBIES_IN_ALMANAC - 1) / cZombieRows));
 		float aScrollSpeed = mBaseScrollSpeed + abs(mScrollAmount) * mScrollAccel;
 		mScrollPosition += mScrollAmount * aScrollSpeed;
 		mScrollPosition = ClampFloat(mScrollPosition, 0, mMaxScrollPosition);
@@ -697,8 +694,8 @@ void AlmanacDialog::GetSeedPosition(SeedType theSeedType, int& x, int& y)
 		int aFinalSeedType = aPlantIndex;
 		int width = SEED_PACKET_WIDTH + 2;
 		int offsetY = 14;
-		x = aFinalSeedType % seedPacketRows * width + (width / 2) + BOARD_ADDITIONAL_WIDTH;
-		y = aFinalSeedType / seedPacketRows * seedPacketHeight + (seedPacketHeight + offsetY) - mScrollPosition + BOARD_OFFSET_Y;
+		x = aFinalSeedType % cSeedPacketRows * width + (width / 2) + BOARD_ADDITIONAL_WIDTH;
+		y = aFinalSeedType / cSeedPacketRows * cSeedPacketHeight + (cSeedPacketHeight + offsetY) - mScrollPosition + BOARD_OFFSET_Y;
 	}
 }
 
@@ -776,8 +773,8 @@ int AlmanacDialog::ZombieHasDescription(ZombieType theZombieType)
 
 void AlmanacDialog::GetZombiePosition(ZombieType theZombieType, int& x, int& y)
 {
-	x = theZombieType % zombieRows * 85 + 22 + BOARD_ADDITIONAL_WIDTH;
-	y = theZombieType / zombieRows * zombieHeight + (zombieHeight + zombieOffsetY) - mScrollPosition + BOARD_OFFSET_Y;
+	x = theZombieType % cZombieRows * 85 + 22 + BOARD_ADDITIONAL_WIDTH;
+	y = theZombieType / cZombieRows * cZombieHeight + (cZombieHeight + cZombieOffsetY) - mScrollPosition + BOARD_OFFSET_Y;
 }
 
 ZombieType AlmanacDialog::ZombieHitTest(int x, int y)
@@ -921,8 +918,8 @@ void AlmanacDialog::SliderVal(int theId, double theVal)
 SexyString AlmanacDialog::TranslateAndSanitize(SexyString str)
 {
 	SexyString ret = TodStringTranslate(str);
-	for (int i = 0; i < WEIRD_CHARACTERS_COUNT; ++i) {
-		char weirdChar = weirdCharacters[i][0];
+	for (int i = 0; i < sizeof(cWeirdCharacters) / sizeof(cWeirdCharacters[0]); ++i) {
+		char weirdChar = cWeirdCharacters[i][0];
 		int pos = 0;
 		while ((pos = ret.find(weirdChar, pos)) != SexyString::npos) {
 			if (pos > 0) {
