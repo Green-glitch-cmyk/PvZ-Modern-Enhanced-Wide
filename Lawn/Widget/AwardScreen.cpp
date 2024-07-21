@@ -481,7 +481,7 @@ void AwardScreen::KeyChar(char theChar)
 
 void AwardScreen::ExitScreen()
 {
-    if (mApp->mPlayedQuickplay)
+    if (mApp->mPlayingQuickplay)
     {
         mApp->KillGameSelector();
         mApp->ShowGameSelector();

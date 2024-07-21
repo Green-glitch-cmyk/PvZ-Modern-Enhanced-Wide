@@ -135,7 +135,7 @@ public:
 	SexyString						mVersion;
 	SexyString						mReconVersion;
 	SexyString						mGitCommit;
-	bool							mPlayedQuickplay;
+	bool							mPlayingQuickplay;
 	bool							mCrazySeeds;
 	time_t							mStartTime;
 	SexyString                      mDetails;
@@ -345,7 +345,7 @@ public:
 	virtual void					ToggleDebugMode();
 	static /*inline*/ void			CenterDialog(Dialog* theDialog, int theWidth, int theHeight);
 	void							GetAchievement(AchievementType theAchievementType);
-	void							UpdateDiscordState(SexyString def = "");
+	void							UpdateDiscordState(SexyString theState = "");
 	bool							Is3dAccel();
 };
 
