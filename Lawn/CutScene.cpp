@@ -989,10 +989,6 @@ void CutScene::CancelIntro()
 		{
 			mBoard->mChallenge->PlayBossEnter();
 		}
-		if (!mApp->IsChallengeWithoutSeedBank())
-		{
-			mBoard->mSeedBank->Move(0, 0);
-		}
 
 		mBoard->mEnableGraveStones = true;
 		ShowShovel();

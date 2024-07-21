@@ -29,7 +29,6 @@
 #include "../SexyAppFramework/ButtonWidget.h"
 #include "../SexyAppFramework/WidgetManager.h"
 #include "../SexyAppFramework/SoundInstance.h"
-#include "Widget/AlmanacDialog.h"
 
 #define SEXY_PERF_ENABLED
 #include "../SexyAppFramework/PerfTimer.h"
