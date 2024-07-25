@@ -241,7 +241,7 @@ void MessageWidget::DrawReanimatedText(Graphics* g, Font* theFont, const Color& 
 		Color aFinalColor(theColor);
 		aFinalColor.mAlpha = anAlpha;
 
-		aTransform.mTransX += aTextReanim->mOverlayMatrix.m02 + BOARD_ADDITIONAL_WIDTH;
+		aTransform.mTransX += aTextReanim->mOverlayMatrix.m02;
 		aTransform.mTransY += aTextReanim->mOverlayMatrix.m12 + thePosY - BOARD_HEIGHT / 2;
 		if (mReanimType == ReanimationType::REANIM_TEXT_FADE_ON && mDisplayTime - mDuration < mSlideOffTime)
 		{
@@ -294,7 +294,7 @@ void MessageWidget::Draw(Graphics* g)
 	Font* aFont = GetFont();
 	Font* aOutlineFont = nullptr;
 	int aPosX = BOARD_WIDTH / 2;
-	int aPosY = 596;
+	int aPosY = 596 + BOARD_OFFSET_Y;
 	int aTextOffsetY = 0;
 	int aRectHeight = 0;
 	int aMinAlpha = 255;
@@ -310,7 +310,7 @@ void MessageWidget::Draw(Graphics* g)
 	{
 	case MessageStyle::MESSAGE_STYLE_TUTORIAL_LEVEL1:
 	case MessageStyle::MESSAGE_STYLE_TUTORIAL_LEVEL1_STAY:
-		aPosY = 400 + BOARD_OFFSET_Y;
+		aPosY = 400;
 		aRectHeight = 110;
 		aTextOffsetY = -4;
 		aColor = Color(253, 245, 173);
@@ -349,19 +349,19 @@ void MessageWidget::Draw(Graphics* g)
 		break;
 
 	case MessageStyle::MESSAGE_STYLE_HOUSE_NAME:
-		aPosY = 550 + BOARD_OFFSET_Y;
+		aPosY = 550;
 		aColor = Color(255, 255, 255, 255);
 		aFadeOut = true;
 		break;
 
 	case MessageStyle::MESSAGE_STYLE_HUGE_WAVE:
-		aPosY = 371 + BOARD_OFFSET_Y;
+		aPosY = 371;
 		aColor = Color(255, 0, 0);
 		break;
 
 	case MessageStyle::MESSAGE_STYLE_SLOT_MACHINE:
 		aPosY = 93;
-		aPosX = 330 + BOARD_ADDITIONAL_WIDTH;
+		aPosX = 330;
 		aMinAlpha = 64;
 		break;
 
@@ -402,7 +402,7 @@ void MessageWidget::Draw(Graphics* g)
 		if (aRectHeight > 0)
 		{
 			aOutlineColor = Color(0, 0, 0, 128);
-			Rect aRect(-BOARD_ADDITIONAL_WIDTH, aPosY, BOARD_WIDTH, aRectHeight);
+			Rect aRect(0, aPosY, BOARD_WIDTH, aRectHeight);
 			g->SetColor(aOutlineColor);
 			g->FillRect(aRect);
 

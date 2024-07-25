@@ -3542,14 +3542,14 @@ void Board::MouseDownWithPlant(int x, int y, int theClickCount)
 		return;
 	}
 
+	x -= BOARD_ADDITIONAL_WIDTH;
+	y -= BOARD_OFFSET_Y;
 	if (mApp->IsIZombieLevel())
 	{
 		mChallenge->IZombieMouseDownWithZombie(x, y, theClickCount);
 		return;
 	}
 
-	x -= BOARD_ADDITIONAL_WIDTH;
-	y -= BOARD_OFFSET_Y;
 	SeedType aPlantingSeedType = GetSeedTypeInCursor();
 	int aGridX = PlantingPixelToGridX(x, y, aPlantingSeedType);
 	int aGridY = PlantingPixelToGridY(x, y, aPlantingSeedType);
@@ -7280,15 +7280,16 @@ void Board::DrawTopRightUI(Graphics* g)
 {
 	if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN)
 	{
+		int aButtonOffsetX = BOARD_ADDITIONAL_WIDTH + BOARD_OFFSET_X;
 		if (mChallenge->mChallengeState == STATECHALLENGE_ZEN_FADING)
 		{
 			mMenuButton->mY = TodAnimateCurve(50, 0, mChallenge->mChallengeStateCounter, -10, -50, TodCurves::CURVE_EASE_IN_OUT);
-			mStoreButton->mX = TodAnimateCurve(50, 0, mChallenge->mChallengeStateCounter, 678, BOARD_WIDTH, TodCurves::CURVE_EASE_IN_OUT);
+			mStoreButton->mX = TodAnimateCurve(50, 0, mChallenge->mChallengeStateCounter, 678 + aButtonOffsetX, BOARD_WIDTH, TodCurves::CURVE_EASE_IN_OUT);
 		}
 		else
 		{
 			mMenuButton->mY = -10;
-			mStoreButton->mX = 678;
+			mStoreButton->mX = 678 + aButtonOffsetX;
 		}
 	}
 
