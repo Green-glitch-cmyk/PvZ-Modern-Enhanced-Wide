@@ -37,10 +37,23 @@
 //#include "../SexyAppFramework/memmgr.h"
 
 bool gShownMoreSunTutorial = false;
-const int bushXPos[] = { 710, 722, 728, 732, 724, 740 };
-const int bushYPos[] = { -20, 108, 198, 318, 399, 450 };
-const int bushXPos6Rows[] = { 712, 724, 728, 734, 726, 739 };
-const int bushYPos6Rows[] = { -18, 110, 198, 320, 401, 449 };
+
+const int cBushPos[][2] = {
+	{ 950, 40 },
+	{ 962, 168 },
+	{ 968, 258 },
+	{ 972, 378 },
+	{ 964, 459 },
+	{ 980, 510 }
+};
+const int cBushPos6Rows[][2] = {
+	{ 952, 42 },
+	{ 964, 170 },
+	{ 968, 258 },
+	{ 974, 380 },
+	{ 966, 461 },
+	{ 979, 509 }
+};
 
 Board::Board(LawnApp* theApp)
 {
@@ -51,9 +64,8 @@ Board::Board(LawnApp* theApp)
 
 	mZombies.DataArrayInitialize(1024U, "zombies");
 	mBushes.DataArrayInitialize(32U, "bushes");
-	for (int i = 0; i < MAX_GRID_SIZE_Y; i++) {
+	for (int i = 0; i < MAX_GRID_SIZE_Y; i++)
 		mBushList[i] = mBushes.DataArrayAlloc();
-	}
 	mPlants.DataArrayInitialize(1024U, "plants");
 	mProjectiles.DataArrayInitialize(1024U, "projectiles");
 	mCoins.DataArrayInitialize(1024U, "coins");
@@ -169,8 +181,9 @@ Board::Board(LawnApp* theApp)
 	mMenuButton = new GameButton(0);
 	mMenuButton->mDrawStoneButton = true;
 	mMenuButton->mParentWidget = this;
+	int aButtonOffsetX = BOARD_ADDITIONAL_WIDTH + BOARD_OFFSET_X;
 	mFastButton = new GameButton(2);
-	mFastButton->Resize(798, -1, IMAGE_FASTBUTTON->mWidth, 46);
+	mFastButton->Resize(740 + aButtonOffsetX, 30, IMAGE_FASTBUTTON->mWidth, 46);
 	mFastButton->mParentWidget = this;
 	mStoreButton = nullptr;
 	mIgnoreMouseUp = false;
@@ -182,25 +195,25 @@ Board::Board(LawnApp* theApp)
 	mCoinFaded = false;
 	mAchievementCoinCount = 0;
 	mGargantuarsKilled = 0;
-	mRoofPoleOffset = WIDE_BOARD_WIDTH - BOARD_ADDITIONAL_WIDTH + 70;
-	mRoofTreeOffset = WIDE_BOARD_WIDTH - BOARD_ADDITIONAL_WIDTH + 130;
+	mRoofPoleOffset = WIDE_BOARD_WIDTH + 70 - BOARD_ADDITIONAL_WIDTH;
+	mRoofTreeOffset = WIDE_BOARD_WIDTH + 130 - BOARD_ADDITIONAL_WIDTH;
 
 	if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN || mApp->mGameMode == GameMode::GAMEMODE_TREE_OF_WISDOM)
 	{
 		mMenuButton->mLabel = _S("[MAIN_MENU_BUTTON]");
-		mMenuButton->Resize(628, 0, 163, 46);
+		mMenuButton->Resize(628 + aButtonOffsetX, -10, 163, 46);
 
 		mStoreButton = new GameButton(1);
 		mStoreButton->mButtonImage = IMAGE_ZENSHOPBUTTON;
 		mStoreButton->mOverImage = IMAGE_ZENSHOPBUTTON_HIGHLIGHT;
 		mStoreButton->mDownImage = IMAGE_ZENSHOPBUTTON_HIGHLIGHT;
-		mStoreButton->Resize(678, 43, IMAGE_ZENSHOPBUTTON->mWidth, 40);
+		mStoreButton->Resize(678 + aButtonOffsetX, 33, IMAGE_ZENSHOPBUTTON->mWidth, 40);
 		mStoreButton->mParentWidget = this;
 	}
 	else
 	{
 		mMenuButton->mLabel = _S("[MENU_BUTTON]");
-		mMenuButton->Resize(681, 0, 117, 46);
+		mMenuButton->Resize(681 + aButtonOffsetX, -10, 117, 46);
 		mFastButton->mBtnNoDraw = true;
 	}
 
@@ -216,7 +229,7 @@ Board::Board(LawnApp* theApp)
 	if (mApp->mGameMode == GameMode::GAMEMODE_UPSELL)
 	{
 		mMenuButton->mLabel = _S("[MAIN_MENU_BUTTON]");
-		mMenuButton->Resize(628, -10, 163, 46);
+		mMenuButton->Resize(628 + aButtonOffsetX, -10, 163, 46);
 
 		mStoreButton = new GameButton(1);
 		mStoreButton->mDrawStoneButton = true;
@@ -854,7 +867,6 @@ void Board::LoadBackgroundImages()
 		TOD_ASSERT();
 		break;
 	}
-
 }
 
 void Board::PickBackground()
@@ -1154,23 +1166,10 @@ void Board::PickBackground()
 		AddBushes();
 }
 
-void Board::AddBushes() {
+void Board::AddBushes() 
+{
 	for (int i = 0; i < MAX_GRID_SIZE_Y; i++)
-	{
-		int bushX;
-		int bushY;
-		if (StageHas6Rows()) 
-		{
-			bushX = bushXPos6Rows[i];
-			bushY = bushYPos6Rows[i];
-		}
-		else 
-		{
-			bushX = bushXPos[i];
-			bushY = bushYPos[i];
-		}
-		mBushList[i]->BushInitialize(bushX, bushY, i + 1, StageIsNight());
-	}
+		mBushList[i]->BushInitialize(StageHas6Rows() ? cBushPos6Rows[i][0] : cBushPos[i][0], StageHas6Rows() ? cBushPos6Rows[i][1] : cBushPos[i][1], i + 1, StageIsNight());
 }
 
 void Board::InitZombieWavesForLevel(int theForLevel)
@@ -1313,7 +1312,7 @@ void Board::InitSurvivalStage()
 
 Rect Board::GetShovelButtonRect()
 {
-	Rect aRect(GetSeedBankExtraWidth() + 446, 0, Sexy::IMAGE_SHOVELBANK->GetWidth(), Sexy::IMAGE_SEEDBANK->GetHeight());
+	Rect aRect(GetSeedBankExtraWidth() + 456, 0, Sexy::IMAGE_SHOVELBANK->GetWidth(), Sexy::IMAGE_SEEDBANK->GetHeight());
 	if (mApp->IsSlotMachineLevel() || mApp->IsSquirrelLevel())
 	{
 		aRect.mX = 600;
@@ -1367,10 +1366,7 @@ void Board::InitLevel()
 	mSodPosition = 0;
 	mPrevBoardResult = mApp->mBoardResult;
 	if (mApp->mPlayingQuickplay)
-	{
-		mApp->mGameMode = GameMode::GAMEMODE_ADVENTURE;
 		mLevel = mApp->mQuickLevel;
-	}
 	else
 		mLevel = mApp->IsAdventureMode() ? mApp->mPlayerInfo->mLevel : 0;
 	GameMode aGameMode = mApp->mGameMode;
@@ -1956,7 +1952,7 @@ void Board::FadeOutLevel()
 			mIceTimer[aRow] = mNextSurvivalStageCounter;
 		}
 	}
-	mApp->isFastMode = false;
+	mApp->mIsFastMode = false;
 	mApp->SetCursor(CURSOR_POINTER);
 }
 
@@ -3552,6 +3548,8 @@ void Board::MouseDownWithPlant(int x, int y, int theClickCount)
 		return;
 	}
 
+	x -= BOARD_ADDITIONAL_WIDTH;
+	y -= BOARD_OFFSET_Y;
 	SeedType aPlantingSeedType = GetSeedTypeInCursor();
 	int aGridX = PlantingPixelToGridX(x, y, aPlantingSeedType);
 	int aGridY = PlantingPixelToGridY(x, y, aPlantingSeedType);
@@ -4567,7 +4565,7 @@ void Board::MouseUp(int x, int y, int theClickCount)
 			mFastButton->mIsOver = false;
 			mFastButton->mIsDown = false;
 			UpdateCursor();
-			mApp->isFastMode = !mApp->isFastMode;
+			mApp->mIsFastMode = !mApp->mIsFastMode;
 		}
 		else if(mStoreButton && mStoreButton->IsMouseOver())
 		{
@@ -5009,7 +5007,7 @@ void Board::PuzzleSaveStreak()
 
 void Board::ZombiesWon(Zombie* theZombie)
 {
-	mApp->isFastMode = false;
+	mApp->mIsFastMode = false;
 	if (mApp->mGameScene == GameScenes::SCENE_ZOMBIES_WON)
 		return;
 
@@ -5170,7 +5168,7 @@ void Board::UpdateSunSpawning()
 	mNumSunsFallen++;
 	mSunCountDown = min(SUN_COUNTDOWN_MAX, SUN_COUNTDOWN + mNumSunsFallen * 10) + Rand(SUN_COUNTDOWN_RANGE);
 	CoinType aSunType = mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_SUNNY_DAY ? CoinType::COIN_LARGESUN : CoinType::COIN_SUN;
-	AddCoin(RandRangeInt(100, 649), 60, aSunType, CoinMotion::COIN_MOTION_FROM_SKY);
+	AddCoin(RandRangeInt(100 + BOARD_ADDITIONAL_WIDTH, 649 + BOARD_ADDITIONAL_WIDTH), 60, aSunType, CoinMotion::COIN_MOTION_FROM_SKY);
 }
 
 void Board::NextWaveComing()
@@ -5653,14 +5651,14 @@ void Board::Update()
 	Widget::Update();
 	MarkDirty();
 
-	if (mPaused && mApp->isFastMode)
-			mApp->isFastMode = false;
+	if (mPaused && mApp->mIsFastMode)
+		mApp->mIsFastMode = false;
 
 	if (mFastButton != nullptr && !mFastButton->mBtnNoDraw)
 	{
-		mFastButton->mButtonImage = !mApp->isFastMode ? IMAGE_FASTBUTTON : IMAGE_FASTBUTTON_HIGHLIGHT;
-		mFastButton->mOverImage = !mApp->isFastMode ? IMAGE_FASTBUTTON : IMAGE_FASTBUTTON_HIGHLIGHT;
-		mFastButton->mDownImage = !mApp->isFastMode ? IMAGE_FASTBUTTON_HIGHLIGHT : IMAGE_FASTBUTTON;
+		mFastButton->mButtonImage = !mApp->mIsFastMode ? IMAGE_FASTBUTTON : IMAGE_FASTBUTTON_HIGHLIGHT;
+		mFastButton->mOverImage = !mApp->mIsFastMode ? IMAGE_FASTBUTTON : IMAGE_FASTBUTTON_HIGHLIGHT;
+		mFastButton->mDownImage = !mApp->mIsFastMode ? IMAGE_FASTBUTTON_HIGHLIGHT : IMAGE_FASTBUTTON;
 	}
 
 	SexyString aDetails;
@@ -5721,7 +5719,8 @@ void Board::Update()
 	{
 		mFastButton->mDisabled = aDisabled;
 	}
-	mFastButton->Update();
+	if (HAS_FAST_FORWARD_BUTTON)
+		mFastButton->Update();
 	if (mStoreButton)
 	{
 		mStoreButton->mDisabled = aDisabled;
@@ -5745,8 +5744,8 @@ void Board::Update()
 		mShakeCounter--;
 		if (mShakeCounter == 0)
 		{
-			mX = BOARD_ADDITIONAL_WIDTH;
-			mY = BOARD_OFFSET_Y;
+			mX = 0;
+			mY = 0;
 		}
 		else
 		{
@@ -5754,8 +5753,8 @@ void Board::Update()
 			{
 				mShakeAmountX = -mShakeAmountX;
 			}
-			mX = TodAnimateCurve(12, 0, mShakeCounter, BOARD_ADDITIONAL_WIDTH, BOARD_ADDITIONAL_WIDTH + mShakeAmountX, TodCurves::CURVE_BOUNCE);
-			mY = TodAnimateCurve(12, 0, mShakeCounter, BOARD_OFFSET_Y, BOARD_OFFSET_Y + mShakeAmountY, TodCurves::CURVE_BOUNCE);
+			mX = TodAnimateCurve(12, 0, mShakeCounter, 0, mShakeAmountX, TodCurves::CURVE_BOUNCE);
+			mY = TodAnimateCurve(12, 0, mShakeCounter, 0, mShakeAmountY, TodCurves::CURVE_BOUNCE);
 		}
 	}
 	if (mCoinBankFadeCount > 0 && mApp->GetDialog(Dialogs::DIALOG_PURCHASE_PACKET_SLOT) == nullptr)
@@ -5866,14 +5865,14 @@ void Board::DrawBackdrop(Graphics* g)
 
 	if (mLevel == 1 && mApp->IsFirstTimeAdventureMode())
 	{
-		g->DrawImage(Sexy::IMAGE_BACKGROUND1UNSODDED, -(BOARD_OFFSET_X + BOARD_ADDITIONAL_WIDTH), -BOARD_OFFSET_Y);
+		g->DrawImage(Sexy::IMAGE_BACKGROUND1UNSODDED, -BOARD_OFFSET_X, 0);
 		int aWidth = TodAnimateCurve(0, 1000, mSodPosition, 0, Sexy::IMAGE_SOD1ROW->GetWidth(), TodCurves::CURVE_LINEAR);
 		Rect aSrcRect(0, 0, aWidth, Sexy::IMAGE_SOD1ROW->GetHeight());
 		g->DrawImage(Sexy::IMAGE_SOD1ROW, 239 - BOARD_OFFSET_X, 265, aSrcRect);
 	}
 	else if (((mLevel == 2 || mLevel == 3) && mApp->IsFirstTimeAdventureMode()) || mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_RESODDED)
 	{
-		g->DrawImage(Sexy::IMAGE_BACKGROUND1UNSODDED, -(BOARD_OFFSET_X + BOARD_ADDITIONAL_WIDTH), -BOARD_OFFSET_Y);
+		g->DrawImage(Sexy::IMAGE_BACKGROUND1UNSODDED, -BOARD_OFFSET_X, 0);
 		g->DrawImage(Sexy::IMAGE_SOD1ROW, 239 - BOARD_OFFSET_X, 265);
 		int aWidth = TodAnimateCurve(0, 1000, mSodPosition, 0, Sexy::IMAGE_SOD3ROW->GetWidth(), TodCurves::CURVE_LINEAR);
 		Rect aSrcRect(0, 0, aWidth, Sexy::IMAGE_SOD3ROW->GetHeight());
@@ -5881,21 +5880,21 @@ void Board::DrawBackdrop(Graphics* g)
 	}
 	else if (mLevel == 4 && mApp->IsFirstTimeAdventureMode())
 	{
-		g->DrawImage(Sexy::IMAGE_BACKGROUND1UNSODDED, -(BOARD_OFFSET_X + BOARD_ADDITIONAL_WIDTH), -BOARD_OFFSET_Y);
+		g->DrawImage(Sexy::IMAGE_BACKGROUND1UNSODDED, -BOARD_OFFSET_X, 0);
 		g->DrawImage(Sexy::IMAGE_SOD3ROW, 235 - BOARD_OFFSET_X, 149);
 		int aWidth = TodAnimateCurve(0, 1350, mSodPosition, 240, 1280, TodCurves::CURVE_LINEAR);
 		Rect aSrcRect(232, 0, aWidth, Sexy::IMAGE_BACKGROUND1->GetHeight());
-		g->DrawImage(Sexy::IMAGE_BACKGROUND1, 232 - (BOARD_OFFSET_X + BOARD_ADDITIONAL_WIDTH), -BOARD_OFFSET_Y, aSrcRect);
+		g->DrawImage(Sexy::IMAGE_BACKGROUND1, 232 - BOARD_OFFSET_X, 0, aSrcRect);
 	}
 	else if (aBgImage)
 	{
 		if (aBgImage == Sexy::IMAGE_BACKGROUND_MUSHROOMGARDEN || aBgImage == Sexy::IMAGE_BACKGROUND_GREENHOUSE || aBgImage == Sexy::IMAGE_AQUARIUM1)
 		{
-			g->DrawImage(aBgImage, -BOARD_ADDITIONAL_WIDTH, -BOARD_OFFSET_Y);
+			g->DrawImage(aBgImage, 0, 0);
 		}
 		else
 		{
-			g->DrawImage(aBgImage, -(BOARD_OFFSET_X + BOARD_ADDITIONAL_WIDTH), -BOARD_OFFSET_Y);
+			g->DrawImage(aBgImage, -BOARD_OFFSET_X, 0);
 		}
 	}
 
@@ -6312,8 +6311,6 @@ void Board::DrawGameObjects(Graphics* g)
 	std::sort(aRenderList, aRenderList + aRenderItemCount, RenderItemSortFunc);
 
 	TodHesitationTrace("end sort, start draw");
-	bool hasSeedBankOffset = mApp->mGameScene == GameScenes::SCENE_LEVEL_INTRO && mApp->mCrazyDaveReanimID != REANIMATIONID_NULL
-		&& (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN || mApp->mGameMode == GameMode::GAMEMODE_TREE_OF_WISDOM);
 	for (int i = 0; i < aRenderItemCount; i++)
 	{
 		RenderItem& aRenderItem = aRenderList[i];
@@ -6321,31 +6318,23 @@ void Board::DrawGameObjects(Graphics* g)
 		{
 		case RenderObjectType::RENDER_ITEM_PLANT:
 		{
-			if (hasSeedBankOffset)
-				g->mTransY -= mSeedBank->mY;
 			Plant* aPlant = aRenderItem.mPlant;
 			if (aPlant->BeginDraw(g))
 			{
 				aPlant->Draw(g);
 				aPlant->EndDraw(g);
 			}
-			if (hasSeedBankOffset)
-				g->mTransY += mSeedBank->mY;
 			break;
 		}
 
 		case RenderObjectType::RENDER_ITEM_PLANT_OVERLAY:
 		{
-			if (hasSeedBankOffset)
-				g->mTransY -= mSeedBank->mY;
 			Plant* aPlant = aRenderItem.mPlant;
 			if (aPlant->BeginDraw(g))
 			{
 				mApp->mZenGarden->DrawPlantOverlay(g, aPlant);
 				aPlant->EndDraw(g);
 			}
-			if (hasSeedBankOffset)
-				g->mTransY += mSeedBank->mY;
 			break;
 		}
 
@@ -6500,11 +6489,7 @@ void Board::DrawGameObjects(Graphics* g)
 			break;
 		
 		case RenderObjectType::RENDER_ITEM_TOP_UI:
-			if (hasSeedBankOffset)
-				g->mTransY -= mSeedBank->mY;
 			DrawUITop(g);
-			if (hasSeedBankOffset)
-				g->mTransY += mSeedBank->mY;
 			break;
 			
 		case RenderObjectType::RENDER_ITEM_BUSH:
@@ -6859,7 +6844,7 @@ void Board::DrawZenButtons(Graphics* g)
 	int aOffsetY = 0;
 	if (mChallenge->mChallengeState == ChallengeState::STATECHALLENGE_ZEN_FADING)
 	{
-		aOffsetY = TodAnimateCurve(50, 0, mChallenge->mChallengeStateCounter, 0, -72 - BOARD_OFFSET_Y, TodCurves::CURVE_EASE_IN_OUT);
+		aOffsetY = TodAnimateCurve(50, 0, mChallenge->mChallengeStateCounter, 0, -72, TodCurves::CURVE_EASE_IN_OUT);
 	}
 
 	for (GameObjectType aTool = GameObjectType::OBJECT_TYPE_WATERING_CAN; aTool <= GameObjectType::OBJECT_TYPE_NEXT_GARDEN; aTool = (GameObjectType)(aTool + 1))
@@ -7262,7 +7247,7 @@ void Board::DrawFadeOut(Graphics* g)
 	{
 		g->SetColor(Color(255, 255, 255, anAlpha));
 	}
-	g->FillRect(-BOARD_ADDITIONAL_WIDTH, -BOARD_OFFSET_Y, mWidth + BOARD_ADDITIONAL_WIDTH, mHeight + BOARD_OFFSET_Y);
+	g->FillRect(0, 0, mWidth, mHeight);
 }
 
 void Board::DrawCover(Graphics* g)
@@ -7270,24 +7255,24 @@ void Board::DrawCover(Graphics* g)
 	switch (mBackground)
 	{
 	case BACKGROUND_1_DAY:
-		g->DrawImage(Sexy::IMAGE_BACKGROUND1_COVER, 685, 557);
+		g->DrawImage(Sexy::IMAGE_BACKGROUND1_COVER, 685 + BOARD_ADDITIONAL_WIDTH, 557 + BOARD_OFFSET_Y);
 		break;
 	case BACKGROUND_2_NIGHT:
-		g->DrawImage(Sexy::IMAGE_BACKGROUND2_COVER, 685, 557);
+		g->DrawImage(Sexy::IMAGE_BACKGROUND2_COVER, 685 + BOARD_ADDITIONAL_WIDTH, 557 + BOARD_OFFSET_Y);
 		break;
 	case BACKGROUND_3_POOL:
-		g->DrawImage(Sexy::IMAGE_BACKGROUND3_COVER, 671, 613);
+		g->DrawImage(Sexy::IMAGE_BACKGROUND3_COVER, 671 + BOARD_ADDITIONAL_WIDTH, 613 + BOARD_OFFSET_Y);
 		break;
 	case BACKGROUND_4_FOG:
-		g->DrawImage(Sexy::IMAGE_BACKGROUND4_COVER, 671, 613);
+		g->DrawImage(Sexy::IMAGE_BACKGROUND4_COVER, 671 + BOARD_ADDITIONAL_WIDTH, 613 + BOARD_OFFSET_Y);
 		break;
 	case BACKGROUND_5_ROOF:
-		g->DrawImage(Sexy::IMAGE_BACKGROUND5_TREES, mRoofTreeOffset, -60);
-		g->DrawImage(Sexy::IMAGE_BACKGROUND5_POLE, mRoofPoleOffset, -60);
+		g->DrawImage(Sexy::IMAGE_BACKGROUND5_TREES, mRoofTreeOffset, 0);
+		g->DrawImage(Sexy::IMAGE_BACKGROUND5_POLE, mRoofPoleOffset, 0);
 		break;
 	case BACKGROUND_6_BOSS:
-		g->DrawImage(Sexy::IMAGE_BACKGROUND6_TREES, mRoofTreeOffset, -60);
-		g->DrawImage(Sexy::IMAGE_BACKGROUND6_POLE, mRoofPoleOffset, -60);
+		g->DrawImage(Sexy::IMAGE_BACKGROUND6_TREES, mRoofTreeOffset, 0);
+		g->DrawImage(Sexy::IMAGE_BACKGROUND6_POLE, mRoofPoleOffset, 0);
 		break;
 	}
 }
@@ -7297,12 +7282,12 @@ void Board::DrawTopRightUI(Graphics* g)
 	{
 		if (mChallenge->mChallengeState == STATECHALLENGE_ZEN_FADING)
 		{
-			mMenuButton->mY = TodAnimateCurve(50, 0, mChallenge->mChallengeStateCounter, 0, -50 - BOARD_OFFSET_Y, TodCurves::CURVE_EASE_IN_OUT);
+			mMenuButton->mY = TodAnimateCurve(50, 0, mChallenge->mChallengeStateCounter, -10, -50, TodCurves::CURVE_EASE_IN_OUT);
 			mStoreButton->mX = TodAnimateCurve(50, 0, mChallenge->mChallengeStateCounter, 678, BOARD_WIDTH, TodCurves::CURVE_EASE_IN_OUT);
 		}
 		else
 		{
-			mMenuButton->mY = 0;
+			mMenuButton->mY = -10;
 			mStoreButton->mX = 678;
 		}
 	}
@@ -7350,7 +7335,7 @@ void Board::DrawUIBottom(Graphics* g)
 		g->SetDrawMode(Graphics::DRAWMODE_ADDITIVE);
 		g->DrawImage(
 			IMAGE_BACKGROUND_GREENHOUSE_OVERLAY, 
-			Rect(-BOARD_ADDITIONAL_WIDTH, -BOARD_OFFSET_Y, BOARD_WIDTH, BOARD_HEIGHT), 
+			Rect(0, 0, BOARD_WIDTH, BOARD_HEIGHT), 
 			Rect(0, 0, IMAGE_BACKGROUND_GREENHOUSE_OVERLAY->mWidth, IMAGE_BACKGROUND_GREENHOUSE_OVERLAY->mHeight)
 		);
 		g->SetDrawMode(Graphics::DRAWMODE_NORMAL);
@@ -7358,7 +7343,7 @@ void Board::DrawUIBottom(Graphics* g)
 
 	if (mApp->mGameScene != GameScenes::SCENE_ZOMBIES_WON)
 	{
-		if (mSeedBank->BeginDraw(g) && mApp->mGameMode != GAMEMODE_CHALLENGE_ZEN_GARDEN && mApp->mGameMode != GAMEMODE_TREE_OF_WISDOM)
+		if (mSeedBank->BeginDraw(g))
 		{
 			mSeedBank->Draw(g);
 			mSeedBank->EndDraw(g);
@@ -7577,7 +7562,8 @@ void Board::DrawUITop(Graphics* g)
 	}
 
 	mMenuButton->Draw(g);
-	mFastButton->Draw(g);
+	if (HAS_FAST_FORWARD_BUTTON)
+		mFastButton->Draw(g);
 
 	if (mTimeStopCounter > 0)
 	{
@@ -7667,6 +7653,9 @@ void Board::Draw(Graphics* g)
 
 	mDrawCount++;
 	DrawGameObjects(g);
+	g->SetColor(Color(255, 255, 255, 25));
+	g->FillRect(Rect(0, 0, mWidth, mHeight));
+	g->SetColor(Color(255, 255));
 }
 
 void Board::SetMustacheMode(bool theEnableMustache)
@@ -7934,6 +7923,12 @@ void Board::KeyChar(SexyChar theChar)
 		return;
 
 	TodTraceAndLog("Board cheat key '%c'", theChar);
+
+	if (theChar == _S('e'))
+	{
+		for (int i = 0; i < NUM_ACHIEVEMENTS; i++)
+			mApp->GetAchievement((AchievementType)i);
+	}
 
 	if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN)
 	{
@@ -8665,7 +8660,7 @@ void Board::KeyChar(SexyChar theChar)
 	}
 	if (theChar == _S('%'))
 	{
-		mApp->SwitchScreenMode(mApp->mIsWindowed, !mApp->Is3dAccel(), false);
+		mApp->SwitchScreenMode(mApp->mIsWindowed, !mApp->Is3DAccelerated(), false);
 	}
 	if (theChar == _S('M'))
 	{
@@ -9126,7 +9121,7 @@ int Board::GridToPixelX(int theGridX, int theGridY)
 		}
 	}
 
-	return theGridX * 80 + LAWN_XMIN;
+	return theGridX * 80 + LAWN_XMIN + BOARD_ADDITIONAL_WIDTH;
 }
 
 float Board::GetPosYBasedOnRow(float thePosX, int theRow)
@@ -9134,9 +9129,9 @@ float Board::GetPosYBasedOnRow(float thePosX, int theRow)
 	if (StageHasRoof())
 	{
 		float aSlopeOffset = 0.0f;
-		if (thePosX < 440.0f)
+		if (thePosX < 440.0f + BOARD_ADDITIONAL_WIDTH)
 		{
-			aSlopeOffset = (440.0f - thePosX) * 0.25f;
+			aSlopeOffset = (440.0f - thePosX) * 0.25f + BOARD_OFFSET_Y;
 		}
 
 		return GridToPixelY(8, theRow) + aSlopeOffset;
@@ -9187,7 +9182,7 @@ int Board::GridToPixelY(int theGridX, int theGridY)
 		aY -= HIGH_GROUND_HEIGHT;
 	}
 
-	return aY;
+	return aY + BOARD_OFFSET_Y;
 }
 
 ZombieID Board::ZombieGetID(Zombie* theZombie)

@@ -59,7 +59,6 @@ bool gSlowMo = false;
 bool gFastMo = false;  
 LawnApp* gLawnApp = nullptr;  
 int gSlowMoCounter = 0;  
-bool isFastMode = false;  //the ingame fast mode
 
 const char* CLIENT_ID = "1261368391885787348";
 
@@ -125,8 +124,8 @@ LawnApp::LawnApp()
 	mSfxVolume = 0.5525;
 	mAutoStartLoadingThread = false;
 	mDebugKeysEnabled = false;
-	isFastMode = false;
-	mVersion = "wide-v2.2";
+	mIsFastMode = false;
+	mVersion = "wide-v3.0";
 	mReconVersion = "PvZ: QE " + mVersion;
 	mTitle = _S("Plants vs. Zombies: Quality Enhanced " + mVersion);
 	mCustomCursorsEnabled = false;
@@ -436,6 +435,7 @@ void LawnApp::PreNewGame(GameMode theGameMode, bool theLookForSavedGame)
 void LawnApp::StartQuickPlay()
 {
 	mPlayingQuickplay = true;
+	mGameMode = GameMode::GAMEMODE_ADVENTURE;
 	NewGame();
 }
 
@@ -443,7 +443,7 @@ void LawnApp::MakeNewBoard()
 {
 	KillBoard();
 	mBoard = new Board(this);
-	mBoard->Resize(BOARD_ADDITIONAL_WIDTH, BOARD_OFFSET_Y, mWidth, mHeight);
+	mBoard->Resize(0, 0, mWidth, mHeight);
 	mWidgetManager->AddWidget(mBoard);
 	mWidgetManager->BringToBack(mBoard);
 	mWidgetManager->SetFocus(mBoard);
@@ -655,7 +655,6 @@ void LawnApp::KillChallengeScreen()
 
 StoreScreen* LawnApp::ShowStoreScreen()
 {
-	//FinishModelessDialogs();
 	TOD_ASSERT(!GetDialog((int)Dialogs::DIALOG_STORE));
 
 	StoreScreen* aStoreScreen = new StoreScreen(this);
@@ -741,8 +740,6 @@ void LawnApp::DoConfirmBackToMain()
 
 void LawnApp::DoNewOptions(bool theFromGameSelector, int x, int y)
 {
-	//FinishModelessDialogs();
-
 	NewOptionsDialog* aDialog = new NewOptionsDialog(this, theFromGameSelector, false);
 	CenterDialog(aDialog, IMAGE_OPTIONS_MENUBACK->mWidth, IMAGE_OPTIONS_MENUBACK->mHeight);
 	if (x != -1 && y != -1)
@@ -753,8 +750,6 @@ void LawnApp::DoNewOptions(bool theFromGameSelector, int x, int y)
 
 void LawnApp::DoAdvancedOptions(bool theFromGameSelector, int x, int y)
 {
-	//FinishModelessDialogs();
-
 	NewOptionsDialog* aDialog = new NewOptionsDialog(this, theFromGameSelector, true);
 	CenterDialog(aDialog, IMAGE_OPTIONS_MENUBACK->mWidth, IMAGE_OPTIONS_MENUBACK->mHeight);
 	aDialog->Resize(x, y, aDialog->mWidth, aDialog->mHeight);
@@ -766,8 +761,6 @@ AlmanacDialog* LawnApp::DoAlmanacDialog(SeedType theSeedType, ZombieType theZomb
 {
 	PerfTimer mTimer;
 	mTimer.Start();
-
-	//FinishModelessDialogs();
 
 	AlmanacDialog* aDialog = new AlmanacDialog(this);
 	AddDialog(Dialogs::DIALOG_ALMANAC, aDialog);
@@ -798,7 +791,6 @@ void LawnApp::DoContinueDialog()
 void LawnApp::DoPauseDialog()
 {
 	mBoard->Pause(true);
-	//FinishModelessDialogs();
 
 	LawnDialog* aDialog = (LawnDialog*)DoDialog(
 		Dialogs::DIALOG_PAUSED,
@@ -1175,6 +1167,8 @@ bool LawnApp::KillNewOptionsDialog()
 	if (aNewOptionsDialog == nullptr)
 		return false;
 
+	bool want3D = aNewOptionsDialog->mRealHardwareAccelerationCheckbox->IsChecked();
+	bool wantWindowed = !aNewOptionsDialog->mFullscreenCheckbox->IsChecked();
 	if (aNewOptionsDialog->mAdvancedMode)
 	{
 		mDiscordPresence = aNewOptionsDialog->mDiscordBox->IsChecked();
@@ -1186,12 +1180,11 @@ bool LawnApp::KillNewOptionsDialog()
 		mZombieHealthbars = aNewOptionsDialog->mZombieHealthbarsBox->IsChecked();
 		mPlantHealthbars = aNewOptionsDialog->mPlantHealthbarsBox->IsChecked();
 		ToggleDebugMode();
+		SwitchScreenMode(wantWindowed, want3D, false);
 	}
 	else
 	{
-		bool wantWindowed = !aNewOptionsDialog->mFullscreenCheckbox->IsChecked();
-		bool want3D = aNewOptionsDialog->mHardwareAccelerationCheckbox->IsChecked();
-		mIs3dAccel = want3D;
+		mIs3dAccel = aNewOptionsDialog->mHardwareAccelerationCheckbox->IsChecked();
 		SwitchScreenMode(wantWindowed, want3D, false);
 	}
 
@@ -1323,12 +1316,21 @@ void LawnApp::Init()
 	mDetails = _S("[DISCORD_STARTING]");
 	UpdateDiscordState();
 	
-	if (!mResourceManager->ParseResourcesFile("properties\\resources.xml"))
+	if (!mResourceManager->ParseResourcesFile(mResourcesPath))
 	{
 		ShowResourceError(true);
 		return;
 	}
-
+	int aIndex = 0;
+	for (std::map<std::string, ResourceManager::ResMap>::iterator aIt = mResourceManager->mResourcePackImageMaps.begin(); aIt != mResourceManager->mResourcePackImageMaps.end(); ++aIt, ++aIndex)
+	{
+		if (aIt->first == mResourcePack)
+		{
+			mResourcePackIndex = aIndex;
+			break;
+		}
+	}
+	LoadCurrentResourcePack();
 	if (!TodLoadResources("Init"))
 	{
 		return;
@@ -1573,7 +1575,7 @@ void LawnApp::CheckForGameEnd()
 {
 	if (mBoard == nullptr || !mBoard->mLevelComplete)
 		return;
-	isFastMode = false;
+	mIsFastMode = false;
 
 	if (mPlayingQuickplay)
 	{
@@ -1764,7 +1766,7 @@ void LawnApp::UpdateFrames()
 	{
 		aUpdateCount = 20;
 	}
-	else if (isFastMode)
+	else if (mIsFastMode)
 	{
 		aUpdateCount = mSpeedModifier;
 	}
@@ -1848,6 +1850,8 @@ void LawnApp::LoadGroup(const char* theGroupName, int theGroupAveMsToLoad)
 		ShowResourceError();
 		mLoadingFailed = true;
 	}
+	else
+		mResourceManager->mLoadedGroups.insert(theGroupName);
 
 	int aTotalGroupWeight = mResourceManager->GetNumResources(theGroupName) * theGroupAveMsToLoad;
 	int aGroupTime = max(aTimer.GetDuration(), 0);
@@ -1859,31 +1863,11 @@ void LawnApp::LoadingThreadProc()
 	if (!TodLoadResources("LoaderBar"))
 		return;
 
-	std::string aPath = "languages";
-	WIN32_FIND_DATA aFindFileData;
-	HANDLE hFind = FindFirstFile((aPath + "\\*").c_str(), &aFindFileData);
-	DBG_ASSERT(hFind != INVALID_HANDLE_VALUE);
-	mStringProperties.clear();
-	do
-	{
-		std::string aFileName = aFindFileData.cFileName;
-		size_t aFileExtension = aFileName.find_last_of('.');
-		if (aFileExtension != std::string::npos && aFileName.substr(aFileExtension) == ".lang")
-		{
-			bool aIsLoaded = TodStringListLoad((aPath + "\\" + aFileName).c_str());
-			if (!aIsLoaded)
-				continue;
-			mLanguages[aFileName.substr(0, aFileExtension)] = mStringProperties;
-			mStringProperties.clear();
-		}
-	}
-	while (FindNextFile(hFind, &aFindFileData) != 0);
-	FindClose(hFind);
-	DBG_ASSERT(!mLanguages.empty());
+	ReloadLanguages();
 	int aIndex = 0;
-	for (std::map<std::string, StringWStringMap>::iterator it = mLanguages.begin(); it != mLanguages.end(); ++it, ++aIndex) 
+	for (std::map<std::string, StringWStringMap>::iterator aIt = mLanguages.begin(); aIt != mLanguages.end(); ++aIt, ++aIndex) 
 	{
-		if (it->first == mLanguage) 
+		if (aIt->first == mLanguage) 
 		{
 			mLanguageIndex = aIndex;
 			break;
@@ -1982,9 +1966,6 @@ void LawnApp::LoadingCompleted()
 	mWidgetManager->RemoveWidget(mTitleScreen);
 	SafeDeleteWidget(mTitleScreen);
 	mTitleScreen = nullptr;
-
-	mResourceManager->DeleteImage("IMAGE_TITLESCREEN");
-
 	ShowGameSelector();
 }
 
@@ -2346,6 +2327,9 @@ bool LawnApp::IsLittleTroubleLevel()
 
 bool LawnApp::IsScaryPotterLevel()
 {
+	if (mBoard == nullptr)
+		return false;
+
 	if (mGameMode >= GameMode::GAMEMODE_SCARY_POTTER_1 && mGameMode <= GameMode::GAMEMODE_SCARY_POTTER_ENDLESS)
 		return true;
 
@@ -3359,6 +3343,12 @@ void LawnApp::EnforceCursor()
 	if (mSEHOccured || !mMouseIn)
 	{
 		::SetCursor(LoadCursor(NULL, IDC_ARROW));
+		return;
+	}
+
+	if (mCursor)
+	{
+		::SetCursor(NULL);
 		return;
 	}
 

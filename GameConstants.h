@@ -6,12 +6,12 @@ constexpr const double PI = 3.141592653589793;
 
 const int			BOARD_WIDTH = 1280; // PC: 800 - Console : 1280
 const int			BOARD_HEIGHT = 720; // PC : 600 - Console : 720
-const int			WIDE_BOARD_WIDTH = 800; // PC: 800 - Console : 800
 const int			BOARD_OFFSET_X = 220; // PC: 220
 const int			BOARD_OFFSET_Y = 60; // Console : 60
 const int			BOARD_ADDITIONAL_WIDTH = 240; // Console : 240
-const int			BOARD_EDGE = -100;
-const int			BOARD_IMAGE_WIDTH_OFFSET = 1180;
+const int			WIDE_BOARD_WIDTH = 800 + BOARD_ADDITIONAL_WIDTH; // PC: 800 - Console : 800
+const int			BOARD_EDGE = -100 + BOARD_ADDITIONAL_WIDTH;
+const int			BOARD_IMAGE_WIDTH_OFFSET = 1180 + BOARD_ADDITIONAL_WIDTH;
 const int           BOARD_ICE_START = 800;
 const int           LAWN_XMIN = 40;
 const int           LAWN_YMIN = 80;
@@ -29,6 +29,8 @@ const int           SEED_BANK_OFFSET_X_END = 10;
 const int           SEED_CHOOSER_OFFSET_Y = 720; // PC: 516 - Console : 720
 const int           SEED_PACKET_WIDTH = 50;
 const int           SEED_PACKET_HEIGHT = 70;
+const int			IMITATER_POS_X = 459;
+const int			IMITATER_POS_Y = 503;
 const int           IMITATER_DIALOG_WIDTH = 500;
 const int           IMITATER_DIALOG_HEIGHT = 600;
 
@@ -63,3 +65,13 @@ const int           STORESCREEN_PAGESTRING_Y = 500 + (BOARD_OFFSET_Y * 2);
 
 const int			SPEED_MODIFIER_MIN = 2;
 const int			SPEED_MODIFIER_MAX = 9;
+
+////////////////////////////////////////////////////////////
+///						QOTL VARIABLES					 ///
+////////////////////////////////////////////////////////////
+
+const bool			HAS_QUICKPLAY = true;
+const bool			HAS_ACHIEVEMENTS = true;
+const bool			HAS_PAGE_SELECTOR = true;
+const bool			HAS_FAST_FORWARD_BUTTON = true;
+const bool			HAS_CUSTOM_CURSOR = true;

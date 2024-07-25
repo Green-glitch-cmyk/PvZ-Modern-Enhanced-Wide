@@ -239,11 +239,11 @@ GameSelector::GameSelector(LawnApp* theApp)
 		this,
 		"",
 		nullptr,
-		Sexy::IMAGE_SELECTORSCREEN_ACHIEVEMENT_BUTTON,
-		Sexy::IMAGE_SELECTORSCREEN_ACHIEVEMENT_HIGHLIGHT,
-		Sexy::IMAGE_SELECTORSCREEN_ACHIEVEMENT_HIGHLIGHT
+		Sexy::IMAGE_ACHIEVEMENT_BUTTON,
+		Sexy::IMAGE_ACHIEVEMENT_HIGHLIGHT,
+		Sexy::IMAGE_ACHIEVEMENT_HIGHLIGHT
 	);
-	mAchievementButton->Resize(20, mApp->mHeight - Sexy::IMAGE_SELECTORSCREEN_ACHIEVEMENT_BUTTON->mHeight - 35, Sexy::IMAGE_SELECTORSCREEN_ACHIEVEMENT_BUTTON->mWidth, Sexy::IMAGE_SELECTORSCREEN_ACHIEVEMENT_BUTTON->mHeight);
+	mAchievementButton->Resize(20, mApp->mHeight - Sexy::IMAGE_ACHIEVEMENT_BUTTON->mHeight - 35, Sexy::IMAGE_ACHIEVEMENT_BUTTON->mWidth, Sexy::IMAGE_ACHIEVEMENT_BUTTON->mHeight);
 	mAchievementButton->mClip = false;
 	mAchievementButton->mMouseVisible = false;
 
@@ -252,11 +252,11 @@ GameSelector::GameSelector(LawnApp* theApp)
 		this,
 		"",
 		nullptr,
-		Sexy::IMAGE_SELECTORSCREEN_QUICKPLAY_BUTTON,
-		Sexy::IMAGE_SELECTORSCREEN_QUICKPLAY_BUTTON_HIGHLIGHT,
-		Sexy::IMAGE_SELECTORSCREEN_QUICKPLAY_BUTTON_HIGHLIGHT
+		Sexy::IMAGE_QUICKPLAY_BUTTON,
+		Sexy::IMAGE_QUICKPLAY_BUTTON_HIGHLIGHT,
+		Sexy::IMAGE_QUICKPLAY_BUTTON_HIGHLIGHT
 	);
-	mQuickPlayButton->Resize(300, mApp->mHeight - Sexy::IMAGE_SELECTORSCREEN_QUICKPLAY_BUTTON->mHeight - 100, Sexy::IMAGE_SELECTORSCREEN_QUICKPLAY_BUTTON->mWidth, Sexy::IMAGE_SELECTORSCREEN_QUICKPLAY_BUTTON->mHeight);
+	mQuickPlayButton->Resize(300, mApp->mHeight - Sexy::IMAGE_QUICKPLAY_BUTTON->mHeight - 100, Sexy::IMAGE_QUICKPLAY_BUTTON->mWidth, Sexy::IMAGE_QUICKPLAY_BUTTON->mHeight);
 	mQuickPlayButton->mClip = false;
 	mQuickPlayButton->mMouseVisible = false;
 	mQuickPlayButton->SetDisabled(false);
@@ -697,10 +697,11 @@ void GameSelector::DrawOverlay(Graphics* g)
 		aSelectorReanim->GetCurrentTransform(aLeftIdx, &aTransformLeft);
 		if (mHasTrophy)
 		{
+			float aAchievementOffset = !HAS_ACHIEVEMENTS ? 45 : 0;
 			if (mApp->EarnedGoldTrophy())
-				TodDrawImageCelF(g, Sexy::IMAGE_SUNFLOWER_TROPHY, aTransformLeft.mTransX + 10.0f + BOARD_ADDITIONAL_WIDTH + 370, aTransformLeft.mTransY + 350.0f + BOARD_OFFSET_Y + 60, 1, 0);
+				TodDrawImageCelF(g, Sexy::IMAGE_SUNFLOWER_TROPHY, aTransformLeft.mTransX + 10.0f + BOARD_ADDITIONAL_WIDTH + 370, aTransformLeft.mTransY + 350.0f + BOARD_OFFSET_Y + 60 + aAchievementOffset, 1, 0);
 			else
-				TodDrawImageCelF(g, Sexy::IMAGE_SUNFLOWER_TROPHY, aTransformLeft.mTransX + 10.0f + BOARD_ADDITIONAL_WIDTH + 370, aTransformLeft.mTransY + 350.0f + BOARD_OFFSET_Y + 60, 0, 0);
+				TodDrawImageCelF(g, Sexy::IMAGE_SUNFLOWER_TROPHY, aTransformLeft.mTransX + 10.0f + BOARD_ADDITIONAL_WIDTH + 370, aTransformLeft.mTransY + 350.0f + BOARD_OFFSET_Y + 60 + aAchievementOffset, 0, 0);
 
 			TodParticleSystem* aTrophyParticle = mApp->ParticleTryToGet(mTrophyParticleID);
 			if (aTrophyParticle)
@@ -1077,8 +1078,10 @@ void GameSelector::AddedToManager(WidgetManager* theWidgetManager)
 	theWidgetManager->AddWidget(mChangeUserButton);
 	theWidgetManager->AddWidget(mCreditsButton);
 	theWidgetManager->AddWidget(mOverlayWidget);
-	theWidgetManager->AddWidget(mAchievementButton);
-	theWidgetManager->AddWidget(mQuickPlayButton);
+	if (HAS_ACHIEVEMENTS)
+		theWidgetManager->AddWidget(mAchievementButton);
+	if (HAS_QUICKPLAY)
+		theWidgetManager->AddWidget(mQuickPlayButton);
 }
 
 void GameSelector::RemovedFromManager(WidgetManager* theWidgetManager)
@@ -1098,8 +1101,10 @@ void GameSelector::RemovedFromManager(WidgetManager* theWidgetManager)
 	theWidgetManager->RemoveWidget(mChangeUserButton);
 	theWidgetManager->RemoveWidget(mCreditsButton);
 	theWidgetManager->RemoveWidget(mOverlayWidget);
-	theWidgetManager->RemoveWidget(mAchievementButton);
-	theWidgetManager->RemoveWidget(mQuickPlayButton);
+	if (HAS_ACHIEVEMENTS)
+		theWidgetManager->RemoveWidget(mAchievementButton);
+	if (HAS_QUICKPLAY)
+		theWidgetManager->RemoveWidget(mQuickPlayButton);
 }
 
 void GameSelector::OrderInManagerChanged()
@@ -1117,8 +1122,10 @@ void GameSelector::OrderInManagerChanged()
 	mWidgetManager->PutInfront(mSurvivalButton, this);
 	mWidgetManager->PutInfront(mChangeUserButton, this);
 	mWidgetManager->PutInfront(mCreditsButton, this);
-	mWidgetManager->PutInfront(mAchievementButton, this);
-	mWidgetManager->PutInfront(mQuickPlayButton, this);
+	if (HAS_ACHIEVEMENTS)
+		mWidgetManager->PutInfront(mAchievementButton, this);
+	if (HAS_QUICKPLAY)
+		mWidgetManager->PutInfront(mQuickPlayButton, this);
 }
 
 void GameSelector::KeyDown(KeyCode theKey)

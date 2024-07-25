@@ -21,7 +21,9 @@
 #include "../../SexyAppFramework/WidgetManager.h"
 #include "../../SexyAppFramework/Slider.h"
 
-const Rect cSeedClipRect = Rect(0, 123, BOARD_WIDTH, 420);
+const int cSeedChooserExtraHeight = 120;
+const Rect cSeedClipRect = Rect(0, 123, BOARD_WIDTH, 420 + cSeedChooserExtraHeight);
+const int cSeedPacketYOffset = 1;
 const int cSeedPacketRows = 8;
 
 SeedChooserScreen::SeedChooserScreen()
@@ -50,15 +52,16 @@ SeedChooserScreen::SeedChooserScreen()
 	mStartButton->SetFont(Sexy::FONT_DWARVENTODCRAFT18YELLOW);
 	mStartButton->mColors[ButtonWidget::COLOR_LABEL] = Color::White;
 	mStartButton->mColors[ButtonWidget::COLOR_LABEL_HILITE] = Color::White;
-	mStartButton->Resize(154, 545, 156, 42);
+	mStartButton->Resize(154, 545 + cSeedChooserExtraHeight, 156, 42);
 	mStartButton->mTextOffsetY = -1;
 	EnableStartButton(false);
 	mStartButton->mParentWidget = this;
 
+	int aButtonOffsetX = BOARD_ADDITIONAL_WIDTH + BOARD_OFFSET_X;
 	mMenuButton = new GameButton(SeedChooserScreen::SeedChooserScreen_Menu);
 	mMenuButton->mLabel = _S("[MENU_BUTTON]");
 	mMenuButton->mDrawStoneButton = true;
-	mMenuButton->Resize(681, 0, 117, 46);
+	mMenuButton->Resize(681 + aButtonOffsetX, -10, 117, 46);
 	mMenuButton->mParentWidget = this;
 
 	mRandomButton = new GameButton(SeedChooserScreen::SeedChooserScreen_Random);
@@ -69,7 +72,7 @@ SeedChooserScreen::SeedChooserScreen()
 	mRandomButton->SetFont(Sexy::FONT_BRIANNETOD12);
 	mRandomButton->mColors[0] = Color(255, 240, 0);
 	mRandomButton->mColors[1] = Color(200, 200, 255);
-	mRandomButton->Resize(332, 555, 100, 30);
+	mRandomButton->Resize(332, 555 + cSeedChooserExtraHeight, 100, 30);
 	mRandomButton->mParentWidget = this;
 
 	Color aBtnColor = Color(42, 42, 90);
@@ -86,7 +89,7 @@ SeedChooserScreen::SeedChooserScreen()
 	mViewLawnButton->SetFont(Sexy::FONT_BRIANNETOD12);
 	mViewLawnButton->mColors[0] = aBtnColor;
 	mViewLawnButton->mColors[1] = aBtnColor;
-	mViewLawnButton->Resize(22, 561, aImageWidth, aImageHeight);
+	mViewLawnButton->Resize(22, 561 + cSeedChooserExtraHeight, aImageWidth, aImageHeight);
 	mViewLawnButton->mTextOffsetY = 1;
 	mViewLawnButton->mParentWidget = this;
 	if (!mBoard->mCutScene->IsSurvivalRepick())
@@ -103,7 +106,7 @@ SeedChooserScreen::SeedChooserScreen()
 	mAlmanacButton->SetFont(Sexy::FONT_BRIANNETOD12);
 	mAlmanacButton->mColors[0] = aBtnColor;
 	mAlmanacButton->mColors[1] = aBtnColor;
-	mAlmanacButton->Resize(560, 572, aImageWidth, aImageHeight);
+	mAlmanacButton->Resize(560 + aButtonOffsetX, 572 + cSeedChooserExtraHeight, aImageWidth, aImageHeight);
 	mAlmanacButton->mTextOffsetY = 1;
 	mAlmanacButton->mParentWidget = this;
 
@@ -115,7 +118,7 @@ SeedChooserScreen::SeedChooserScreen()
 	mStoreButton->SetFont(Sexy::FONT_BRIANNETOD12);
 	mStoreButton->mColors[0] = aBtnColor;
 	mStoreButton->mColors[1] = aBtnColor;
-	mStoreButton->Resize(680, 572, aImageWidth, aImageHeight);
+	mStoreButton->Resize(680 + aButtonOffsetX, 572 + cSeedChooserExtraHeight, aImageWidth, aImageHeight);
 	mStoreButton->mTextOffsetY = 1;
 	mStoreButton->mParentWidget = this;
 
@@ -266,13 +269,13 @@ void SeedChooserScreen::GetSeedPositionInChooser(int theIndex, int& x, int& y)
 {
 	if (theIndex == SEED_IMITATER)
 	{
-		x = 464;
-		y = 515;
+		x = IMITATER_POS_X + 5;
+		y = IMITATER_POS_Y + 12 + cSeedChooserExtraHeight;
 	}
 	else
 	{
 		x = theIndex % cSeedPacketRows * 53 + 22;
-		y = theIndex / cSeedPacketRows * SEED_PACKET_HEIGHT + (SEED_PACKET_HEIGHT + 53) - mScrollPosition;
+		y = theIndex / cSeedPacketRows * (SEED_PACKET_HEIGHT + cSeedPacketYOffset) + (SEED_PACKET_HEIGHT + 53) - mScrollPosition;
 	}
 }
 
@@ -336,11 +339,9 @@ void SeedChooserScreen::Draw(Graphics* g)
 		return;
 
 	g->DrawImage(Sexy::IMAGE_SEEDCHOOSER_BACKGROUND, 0, 87);
-
 	if (mApp->SeedTypeAvailable(SEED_IMITATER))
-	{
-		g->DrawImage(Sexy::IMAGE_SEEDCHOOSER_IMITATERADDON, IMITATER_POS_X, IMITATER_POS_Y);
-	}
+		g->DrawImage(Sexy::IMAGE_SEEDCHOOSER_IMITATERADDON, IMITATER_POS_X, IMITATER_POS_Y + cSeedChooserExtraHeight);
+
 	TodDrawString(g, _S("[CHOOSE_YOUR_PLANTS]"), 229, 110, Sexy::FONT_DWARVENTODCRAFT18YELLOW, Color::White, DS_ALIGN_CENTER);
 	mSlider->SliderDraw(g);
 	for (SeedType aSeedType = SEED_PEASHOOTER; aSeedType < NUM_SEEDS_IN_CHOOSER; aSeedType = (SeedType)(aSeedType + 1))
@@ -429,8 +430,8 @@ void SeedChooserScreen::Draw(Graphics* g)
 	mAlmanacButton->Draw(g);
 	mStoreButton->Draw(g);
 	Graphics aBoardFrameG = Graphics(*g);
-	aBoardFrameG.mTransX -= mX - BOARD_ADDITIONAL_WIDTH;
-	aBoardFrameG.mTransY -= mY - BOARD_OFFSET_Y;
+	aBoardFrameG.mTransX -= mX;
+	aBoardFrameG.mTransY -= mY;
 	mMenuButton->Draw(&aBoardFrameG);
 	mToolTip->Draw(g);
 }
@@ -452,26 +453,26 @@ void SeedChooserScreen::UpdateViewLawn()
 	}
 
 	int aBoardX = BOARD_IMAGE_WIDTH_OFFSET - mApp->mWidth + BOARD_ADDITIONAL_WIDTH;
-	int aSeedChooserY = SEED_CHOOSER_OFFSET_Y - Sexy::IMAGE_SEEDCHOOSER_BACKGROUND->GetHeight() - 204 + BOARD_OFFSET_Y;
+	int aSeedChooserY = SEED_CHOOSER_OFFSET_Y - Sexy::IMAGE_SEEDCHOOSER_BACKGROUND->GetHeight() - 25 - BOARD_OFFSET_Y;
 	if (mViewLawnTime <= 100)
 	{
-		mBoard->mRoofPoleOffset = TodAnimateCurve(0, 100, mViewLawnTime, -BOARD_WIDTH, WIDE_BOARD_WIDTH - BOARD_ADDITIONAL_WIDTH + 70, TodCurves::CURVE_EASE_IN_OUT);
-		mBoard->mRoofTreeOffset = TodAnimateCurve(0, 100, mViewLawnTime, -670, WIDE_BOARD_WIDTH - BOARD_ADDITIONAL_WIDTH + 130, TodCurves::CURVE_EASE_IN_OUT);
+		mBoard->mRoofPoleOffset = TodAnimateCurve(0, 100, mViewLawnTime, -BOARD_WIDTH, WIDE_BOARD_WIDTH - BOARD_ADDITIONAL_WIDTH + 70 - BOARD_ADDITIONAL_WIDTH, TodCurves::CURVE_EASE_IN_OUT);
+		mBoard->mRoofTreeOffset = TodAnimateCurve(0, 100, mViewLawnTime, -670, WIDE_BOARD_WIDTH - BOARD_ADDITIONAL_WIDTH + 130 - BOARD_ADDITIONAL_WIDTH, TodCurves::CURVE_EASE_IN_OUT);
 		mBoard->Move(-TodAnimateCurve(0, 100, mViewLawnTime, aBoardX, -BOARD_ADDITIONAL_WIDTH, CURVE_EASE_IN_OUT), BOARD_OFFSET_Y);
-		Move(BOARD_ADDITIONAL_WIDTH, TodAnimateCurve(0, 40, mViewLawnTime, aSeedChooserY, SEED_CHOOSER_OFFSET_Y, CURVE_EASE_IN_OUT));
+		Move(0, TodAnimateCurve(0, 40, mViewLawnTime, aSeedChooserY, SEED_CHOOSER_OFFSET_Y, CURVE_EASE_IN_OUT));
 	}
 	else if (mViewLawnTime <= 250)
 	{
 		mBoard->Move(BOARD_ADDITIONAL_WIDTH, BOARD_OFFSET_Y);
-		Move(BOARD_ADDITIONAL_WIDTH, SEED_CHOOSER_OFFSET_Y);
+		Move(0, SEED_CHOOSER_OFFSET_Y);
 	}
 	else if (mViewLawnTime <= 350)
 	{
 		mBoard->ClearAdvice(ADVICE_CLICK_TO_CONTINUE);
-		mBoard->mRoofPoleOffset = TodAnimateCurve(250, 350, mViewLawnTime, WIDE_BOARD_WIDTH - BOARD_ADDITIONAL_WIDTH + 70, -BOARD_WIDTH, TodCurves::CURVE_EASE_IN_OUT);
-		mBoard->mRoofTreeOffset = TodAnimateCurve(250, 350, mViewLawnTime, WIDE_BOARD_WIDTH - BOARD_ADDITIONAL_WIDTH + 130, -670, TodCurves::CURVE_EASE_IN_OUT);
+		mBoard->mRoofPoleOffset = TodAnimateCurve(250, 350, mViewLawnTime, WIDE_BOARD_WIDTH - BOARD_ADDITIONAL_WIDTH + 70 - BOARD_ADDITIONAL_WIDTH, -BOARD_WIDTH, TodCurves::CURVE_EASE_IN_OUT);
+		mBoard->mRoofTreeOffset = TodAnimateCurve(250, 350, mViewLawnTime, WIDE_BOARD_WIDTH - BOARD_ADDITIONAL_WIDTH + 130 - BOARD_ADDITIONAL_WIDTH, -670, TodCurves::CURVE_EASE_IN_OUT);
 		mBoard->Move(-TodAnimateCurve(250, 350, mViewLawnTime, -BOARD_ADDITIONAL_WIDTH, aBoardX, CURVE_EASE_IN_OUT), BOARD_OFFSET_Y);
-		Move(BOARD_ADDITIONAL_WIDTH, TodAnimateCurve(310, 350, mViewLawnTime, SEED_CHOOSER_OFFSET_Y, aSeedChooserY, CURVE_EASE_IN_OUT));
+		Move(0, TodAnimateCurve(310, 350, mViewLawnTime, SEED_CHOOSER_OFFSET_Y, aSeedChooserY, CURVE_EASE_IN_OUT));
 	}
 	else
 	{
@@ -539,8 +540,7 @@ void SeedChooserScreen::Update()
 
 	mRandomButton->mBtnNoDraw = !mApp->mTodCheatKeys;
 	mRandomButton->mDisabled = !mApp->mTodCheatKeys;
-
-	mMaxScrollPosition = SEED_PACKET_HEIGHT * ((cSeedClipRect.mHeight % SEED_PACKET_HEIGHT == 0 ? 1 : 0) - (cSeedClipRect.mHeight / SEED_PACKET_HEIGHT) + ((NUM_SEEDS_IN_CHOOSER - 2) / cSeedPacketRows));
+	mMaxScrollPosition = max(0, (((NUM_SEEDS_IN_CHOOSER - 2) / cSeedPacketRows) * (SEED_PACKET_HEIGHT + cSeedPacketYOffset)) + SEED_PACKET_HEIGHT - cSeedClipRect.mHeight);
 	mSlider->mVisible = mMaxScrollPosition != 0;
 	if (mSlider->mVisible)
 	{
@@ -554,8 +554,8 @@ void SeedChooserScreen::Update()
 		mScrollAmount = 0;
 	}
 
-	mLastMouseX = mApp->mWidgetManager->mLastMouseX - BOARD_ADDITIONAL_WIDTH;
-	mLastMouseY = mApp->mWidgetManager->mLastMouseY - BOARD_OFFSET_Y;
+	mLastMouseX = mApp->mWidgetManager->mLastMouseX;
+	mLastMouseY = mApp->mWidgetManager->mLastMouseY;
 
 	mSeedChooserAge++;
 	mToolTip->Update();
@@ -952,16 +952,16 @@ void SeedChooserScreen::ShowToolTip()
 		mToolTip->SetWarningText(_S(""));
 
 		Rect aRect = aZombie->GetZombieRect();
-		mToolTip->mX = aRect.mWidth / 2 + aRect.mX + 5 + mBoard->mX - BOARD_ADDITIONAL_WIDTH;
-		mToolTip->mY = aRect.mHeight + aRect.mY - 10 - mBoard->mY + BOARD_OFFSET_Y;
+		mToolTip->mX = aRect.mWidth / 2 + aRect.mX + 5 + mBoard->mX;
+		mToolTip->mY = aRect.mHeight + aRect.mY - 10 - mBoard->mY + (BOARD_OFFSET_Y * 2);
 		if (aZombie->mZombieType == ZombieType::ZOMBIE_BUNGEE)
-			mToolTip->mY = aZombie->mY + BOARD_OFFSET_Y;
+			mToolTip->mY = aZombie->mY + (BOARD_OFFSET_Y * 2);
 		mToolTip->mCenter = true;
 		mToolTip->mVisible = true;
 		if (mAlmanacButton->mBtnNoDraw && mStoreButton->mBtnNoDraw)
-			mToolTip->mMaxBottom = BOARD_HEIGHT - BOARD_OFFSET_Y;
+			mToolTip->mMaxBottom = BOARD_HEIGHT;
 		else
-			mToolTip->mMaxBottom = BOARD_HEIGHT - 30 - BOARD_OFFSET_Y;
+			mToolTip->mMaxBottom = BOARD_HEIGHT - 30;
 		return;
 	}
 
@@ -1062,7 +1062,7 @@ void SeedChooserScreen::CancelLawnView()
 
 bool SeedChooserScreen::IsOverImitater(int x, int y)
 {
-	return mApp->SeedTypeAvailable(SEED_IMITATER) && Rect(IMITATER_POS_X, IMITATER_POS_Y, IMAGE_SEEDCHOOSER_IMITATERADDON->mWidth, IMAGE_SEEDCHOOSER_IMITATERADDON->mHeight).Contains(x, y);
+	return mApp->SeedTypeAvailable(SEED_IMITATER) && Rect(IMITATER_POS_X, IMITATER_POS_Y + cSeedChooserExtraHeight, IMAGE_SEEDCHOOSER_IMITATERADDON->mWidth, IMAGE_SEEDCHOOSER_IMITATERADDON->mHeight).Contains(x, y);
 }
 
 void SeedChooserScreen::ResizeSlider()
@@ -1255,7 +1255,7 @@ Zombie* SeedChooserScreen::ZombieHitTest(int x, int y)
 			if (aZombie->mDead || aZombie->IsDeadOrDying() || aZombie->mZombieType >= NUM_ZOMBIES_IN_ALMANAC)
 				continue;
 
-			if (aZombie->GetZombieRect().Contains(x - mBoard->mX + BOARD_ADDITIONAL_WIDTH, y - mBoard->mY + BOARD_OFFSET_Y))
+			if (aZombie->GetZombieRect().Contains(x - mBoard->mX, y - mBoard->mY))
 			{
 				if (aRecord == nullptr || aZombie->mY > aRecord->mY)
 				{

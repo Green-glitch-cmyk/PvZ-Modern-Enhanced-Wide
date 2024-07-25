@@ -212,60 +212,58 @@ void QuickPlayScreen::KeyDown(KeyCode theKey) {
 
 void QuickPlayScreen::DrawPool(Graphics* g, bool isNight)
 {
-    int posX = 135;
+    int aPosX = 135;
     g->SetClipRect(135 + BOARD_ADDITIONAL_WIDTH - mX, 30, 450, 370);
-    g->mTransX += posX;
+    g->mTransX += aPosX;
     mApp->mPoolEffect->PoolEffectDraw(g, isNight);
-    g->mTransX -= posX;
+    g->mTransX -= aPosX;
     g->ClearClipRect();
 }
 
 void QuickPlayScreen::ChooseBackground()
 {
-    SexyString groupName;
-    if (mApp->mQuickLevel <= 1 * LEVELS_PER_AREA)
+    SexyString aGroupName;
+    if (mApp->mQuickLevel == 35)
     {
-        groupName = "DelayLoad_Background1";
+        aGroupName = "DelayLoad_Background2";
+        mBackground = BackgroundType::BACKGROUND_2_NIGHT;
+    }
+    else if (mApp->mQuickLevel <= 1 * LEVELS_PER_AREA)
+    {
+        aGroupName = "DelayLoad_Background1";
         mBackground = BackgroundType::BACKGROUND_1_DAY;
     }
     else if (mApp->mQuickLevel <= 2 * LEVELS_PER_AREA)
     {
-        groupName = "DelayLoad_Background2";
+        aGroupName = "DelayLoad_Background2";
         mBackground = BackgroundType::BACKGROUND_2_NIGHT;
     }
     else if (mApp->mQuickLevel <= 3 * LEVELS_PER_AREA)
     {
-        groupName = "DelayLoad_Background3";
+        aGroupName = "DelayLoad_Background3";
         mBackground = BackgroundType::BACKGROUND_3_POOL;
     }
     else if (mApp->mQuickLevel <= 4 * LEVELS_PER_AREA)
     {
-        groupName = "DelayLoad_Background4";
+        aGroupName = "DelayLoad_Background4";
         mBackground = BackgroundType::BACKGROUND_4_FOG;
     }
     else if (mApp->mQuickLevel < FINAL_LEVEL)
     {
-        groupName = "DelayLoad_Background5";
+        aGroupName = "DelayLoad_Background5";
         mBackground = BackgroundType::BACKGROUND_5_ROOF;
     }
     else if (mApp->mQuickLevel == FINAL_LEVEL)
     {
-        groupName = "DelayLoad_Background6";
+        aGroupName = "DelayLoad_Background6";
         mBackground = BackgroundType::BACKGROUND_6_BOSS;
     }
     else
     {
-        groupName = "DelayLoad_Background1";
+        aGroupName = "DelayLoad_Background1";
         mBackground = BackgroundType::BACKGROUND_1_DAY;
     }
-
-    if (mApp->mQuickLevel == 35)
-    {
-        groupName = "DelayLoad_Background2";
-        mBackground = BackgroundType::BACKGROUND_2_NIGHT;
-    }
-    if (!mApp->mResourceManager->IsGroupLoaded(groupName))
-        TodLoadResources(groupName);
+    TodLoadResources(aGroupName);
 }
 
 void QuickPlayScreen::ChooseZombieType()

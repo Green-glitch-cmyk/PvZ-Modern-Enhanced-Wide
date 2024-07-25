@@ -33,7 +33,11 @@ protected:
 		NewOptionsDialog_Fullscreen,
 		NewOptionsDialog_HardwareAcceleration,
 		NewOptionsDialog_Advanced,
+		NewOptionsDialog_ReloadLanguages,
 		NewOptionsDialog_Language,
+		NewOptionsDialog_ReloadResourcePacks,
+		NewOptionsDialog_ResourcePack,
+		NewOptionsDialog_Real_HardwareAcceleration,
 		NewOptionsDialog_LeftPage,
 		NewOptionsDialog_RightPage,
 		NewOptionsDialog_Back
@@ -66,7 +70,11 @@ public:
 	int						mAdvancedPage;
 	EditWidget*				mSpeedEditWidget;
 	SexyString				mSpeedEditPrevText;
+	LawnStoneButton*		mReloadLanguagesButton;
 	NewLawnButton*			mLanguageButton;
+	LawnStoneButton*		mReloadResourcePacksButton;
+	NewLawnButton*			mResourcePackButton;
+	Sexy::Checkbox*			mRealHardwareAccelerationCheckbox;
 
 public:
 	NewOptionsDialog(LawnApp* theApp, bool theFromGameSelector, bool theAdvanced);
@@ -84,6 +92,8 @@ public:
 	void					KeyDown(Sexy::KeyCode theKey);
 	void					UpdateAdvancedPage();
 	void					Update();
+	void					ResizeLanguageButton();
+	void					ResizeResourcePackButton();
 };
 
 #endif

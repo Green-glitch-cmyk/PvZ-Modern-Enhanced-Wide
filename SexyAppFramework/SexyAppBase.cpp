@@ -42,6 +42,8 @@
 #include "../Sexy.TodLib/TodStringFile.h"
 
 #include "memmgr.h"
+#include "../Resources.h"
+#include "../Sexy.TodLib/TodCommon.h"
 
 using namespace Sexy;
 
@@ -298,11 +300,16 @@ SexyAppBase::SexyAppBase()
 	mPlantHealthbars = false;
 	mIs3dAccel = true;
 	mCrazySeeds = false;
+	mLanguagePath = "languages";
 	mLanguage = "";
 	mLanguageIndex = -1;
-
+	mResourcePackPath = "resourcepacks";
+	mResourcePack = "";
+	mResourcePackIndex = -1;
+	mResourcesPath = "properties\\resources.xml";
 	mProdName = "PlantsVsZombies";
 	mRegKey = "PopCap\\PlantsVsZombies";
+	mCursor = nullptr;
 
 	int i;
 	for (i = 0; i < NUM_CURSORS; i++)
@@ -369,10 +376,16 @@ SexyAppBase::SexyAppBase()
 
 SexyAppBase::~SexyAppBase()
 {
+	if (mCursor)
+	{
+		mWidgetManager->RemoveWidget(mCursor);
+		delete mCursor;
+	}
+
 	Shutdown();
 
 	// Check if we should write the current 3d setting
-	bool showedMsgBox = false;/*
+	bool showedMsgBox = false;
 	if (mUserChanged3DSetting)
 	{
 		bool writeToRegistry = true;
@@ -421,7 +434,7 @@ SexyAppBase::~SexyAppBase()
 
 		if (aResult==IDNO)
 			RegistryWriteBoolean("Is3D", false);
-	}*/
+	}
 
 
 	DialogMap::iterator aDialogItr = mDialogMap.begin();
@@ -1577,6 +1590,7 @@ void SexyAppBase::WriteToRegistry()
 	RegistryWriteBoolean("QE_PlantHealthbars", mPlantHealthbars);
 	RegistryWriteBoolean("QE_CrazyDaveSeeds", mCrazySeeds);
 	RegistryWriteString("QE_Language", mLanguage);
+	RegistryWriteString("QE_ResourcePack", mResourcePack);
 	RegistryWriteBoolean("3DAcceleration", mIs3dAccel);
 	RegistryWriteInteger("MouseSensitivity", (int)(mMouseSensitivity * 100));
 }
@@ -1936,6 +1950,7 @@ void SexyAppBase::ReadFromRegistry()
 	RegistryReadBoolean("QE_PlantHealthbars", &mPlantHealthbars);
 	RegistryReadBoolean("QE_CrazyDaveSeeds", &mCrazySeeds);
 	RegistryReadString("QE_Language", &mLanguage);
+	RegistryReadString("QE_ResourcePack", &mResourcePack);
 	RegistryReadBoolean("3DAcceleration", &mIs3dAccel);
 
 	if (RegistryReadInteger("InProgress", &anInt))
@@ -2230,6 +2245,12 @@ void SexyAppBase::UpdateFrames()
 			++mFPSDirtyCount;
 	}
 
+	if (mCursor)
+	{
+		mCursor->SetImage(IMAGE_MOUSE_CURSOR);
+		mWidgetManager->BringToFront(mCursor);
+	}
+
 	mMusicInterface->Update();
 	CleanSharedImages();
 }
@@ -2341,7 +2362,7 @@ void SexyAppBase::Redraw(Rect* theClipRect)
 			}
 			else if (aResult == DDInterface::RESULT_3D_FAIL)
 			{
-				//Set3DAcclerated(false);
+				Set3DAcclerated(false);
 				return;
 			}
 			else if (aResult != DDInterface::RESULT_OK)
@@ -3768,27 +3789,98 @@ void SexyAppBase::SwitchLanguage()
 {
 	mLanguageIndex = (mLanguageIndex + 1) % mLanguages.size();
 	int aIndex = 0;
-	for (std::map<std::string, StringWStringMap>::iterator it = mLanguages.begin(); it != mLanguages.end(); ++it, ++aIndex)
+	for (std::map<std::string, StringWStringMap>::iterator aIt = mLanguages.begin(); aIt != mLanguages.end(); ++aIt, ++aIndex)
 	{
 		if (aIndex == mLanguageIndex)
 		{
-			mLanguage = it->first;
+			mLanguage = aIt->first;
 			break;
 		}
 	}
 	LoadCurrentLanguage();
 }
 
+void SexyAppBase::ReloadLanguages()
+{
+	WIN32_FIND_DATA aFindFileData;
+	HANDLE aFind = FindFirstFile((mLanguagePath + "/*").c_str(), &aFindFileData);
+	DBG_ASSERT(aFind != INVALID_HANDLE_VALUE);
+	mLanguages.clear();
+	mStringProperties.clear();
+	do
+	{
+		std::string aFileName = aFindFileData.cFileName;
+		size_t aFileExtension = aFileName.find_last_of('.');
+		if (aFileExtension != std::string::npos && aFileName.substr(aFileExtension) == ".lang")
+		{
+			bool aIsLoaded = TodStringListLoad((mLanguagePath + "/" + aFileName).c_str());
+			if (!aIsLoaded)
+				continue;
+			mLanguages[aFileName.substr(0, aFileExtension)] = mStringProperties;
+			mStringProperties.clear();
+		}
+	} while (FindNextFile(aFind, &aFindFileData) != 0);
+	FindClose(aFind);
+	DBG_ASSERT(!mLanguages.empty());
+}
+
 void SexyAppBase::LoadCurrentLanguage()
 {
-	for (std::map<std::string, StringWStringMap>::iterator it = mLanguages.begin(); it != mLanguages.end(); ++it)
+	for (std::map<std::string, StringWStringMap>::iterator aIt = mLanguages.begin(); aIt != mLanguages.end(); ++aIt)
 	{
-		if (it->first == mLanguage)
+		if (aIt->first == mLanguage)
 		{
-			mStringProperties = it->second;
+			mStringProperties = aIt->second;
 			break;
 		}
 	}
+}
+
+void SexyAppBase::SwitchResourcePack()
+{
+	if (mResourceManager->mResourcePackImageMaps.empty())
+		return;
+	if (mResourcePackIndex == -1)
+		mResourcePackIndex = 0;
+	else if (mResourcePackIndex < mResourceManager->mResourcePackImageMaps.size() - 1)
+		mResourcePackIndex++;
+	else
+		mResourcePackIndex = -1;
+	if (mResourcePackIndex != -1)
+	{
+		int aIndex = 0;
+		for (std::map<std::string, ResourceManager::ResMap>::iterator aIt = mResourceManager->mResourcePackImageMaps.begin(); aIt != mResourceManager->mResourcePackImageMaps.end(); ++aIt, ++aIndex)
+		{
+			if (aIndex == mResourcePackIndex)
+			{
+				mResourcePack = aIt->first;
+				break;
+			}
+		}
+	}
+	else
+		mResourcePack = "";
+	LoadCurrentResourcePack();
+}
+
+void SexyAppBase::ReloadResourcePacks()
+{
+	if (!mResourceManager->ParseResourcesFile(mResourcesPath, true))
+		ShowResourceError(true);
+	LoadCurrentResourcePack();
+}
+
+void SexyAppBase::LoadCurrentResourcePack()
+{
+	for (std::set<std::string, StringLessNoCase>::iterator aIt = mResourceManager->mLoadedGroups.begin(); aIt != mResourceManager->mLoadedGroups.end(); ++aIt)
+		ExtractResourcesByName(mResourceManager, (*aIt).c_str());
+}
+
+SexyString SexyAppBase::GetResourcePackString()
+{
+	std::string	aResourcePack = mResourcePack;
+	std::replace(aResourcePack.begin(), aResourcePack.end(), ' ', '_');
+	return mResourcePackIndex == -1 ? _S("[NO_RESOURCE_PACK]") : _S("[RESOURCE_PACK_" + Upper(aResourcePack) + "]");
 }
 
 void SexyAppBase::HandleNotifyGameMessage(int theType, int theParam)
@@ -5084,12 +5176,12 @@ void SexyAppBase::SwitchScreenMode(bool wantWindowed, bool is3d, bool force)
 
 	if (mIsWindowed == wantWindowed && !force)
 	{
-		//Set3DAcclerated(is3d);
+		Set3DAcclerated(is3d);
 		return;
 	}
 
 	// Set 3d acceleration preference
-	//Set3DAcclerated(is3d,false);
+	Set3DAcclerated(is3d,false);
 
 	// Always make the app windowed when playing demos, in order to
 	//  make it easier to track down bugs.  We place this after the
@@ -6388,6 +6480,12 @@ void SexyAppBase::Init()
 
 	InitHook();
 
+	if (HAS_CUSTOM_CURSOR)
+	{
+		mCursor = new CursorWidget(this);
+		mWidgetManager->AddWidget(mCursor);
+	}
+
 	mInitialized = true;
 }
 
@@ -7117,7 +7215,7 @@ void SexyAppBase::Set3DAcclerated(bool is3D, bool reinit)
 	}
 }
 
-SharedImageRef SexyAppBase::GetSharedImage(const std::string& theFileName, const std::string& theVariant, bool* isNew)
+SharedImageRef SexyAppBase::GetSharedImage(const std::string& theFileName, const std::string& theVariant, bool* isNew, bool theReplace)
 {
 	std::string anUpperFileName = StringToUpper(theFileName);
 	std::string anUpperVariant = StringToUpper(theVariant);
@@ -7131,10 +7229,12 @@ SharedImageRef SexyAppBase::GetSharedImage(const std::string& theFileName, const
 		aSharedImageRef = &aResultPair.first->second;
 	}
 
-	if (isNew != NULL)
-		*isNew = aResultPair.second;
+	bool aReplaceOrInserted = theReplace || aResultPair.second;
 
-	if (aResultPair.second)
+	if (isNew != NULL)
+		*isNew = aReplaceOrInserted;
+
+	if (aReplaceOrInserted)
 	{
 		// Pass in a '!' as the first char of the file name to create a new image
 		if ((theFileName.length() > 0) && (theFileName[0] == '!'))

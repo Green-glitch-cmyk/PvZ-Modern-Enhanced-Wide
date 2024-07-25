@@ -102,11 +102,26 @@ NewOptionsDialog::NewOptionsDialog(LawnApp* theApp, bool theFromGameSelector, bo
     mGameAdvancedButton->mHiliteFont = FONT_DWARVENTODCRAFT18BRIGHTGREENINSET;
     mGameAdvancedButton->SetVisible(false);
 
+    mReloadLanguagesButton = MakeButton(NewOptionsDialog::NewOptionsDialog_ReloadLanguages, this, _S("[OPTIONS_RELOAD_LANGUAGES]"));
+    mReloadLanguagesButton->SetVisible(false);
+
     mLanguageButton = MakeNewButton(NewOptionsDialog::NewOptionsDialog_Language, this, _S("[LANGUAGE_NAME]"), nullptr, Sexy::IMAGE_BLANK, Sexy::IMAGE_BLANK, Sexy::IMAGE_BLANK);
     mLanguageButton->SetFont(FONT_DWARVENTODCRAFT18);
     mLanguageButton->mColors[ButtonWidget::COLOR_LABEL] = cTextColor;
     mLanguageButton->mColors[ButtonWidget::COLOR_LABEL_HILITE] = Color(1, 233, 1);
     mLanguageButton->SetVisible(false);
+
+    mReloadResourcePacksButton = MakeButton(NewOptionsDialog::NewOptionsDialog_ReloadResourcePacks, this, _S("[OPTIONS_RELOAD_RESOURCE_PACKS]"));
+    mReloadResourcePacksButton->SetVisible(false);
+
+    mResourcePackButton = MakeNewButton(NewOptionsDialog::NewOptionsDialog_ResourcePack, this, mApp->GetResourcePackString(), nullptr, Sexy::IMAGE_BLANK, Sexy::IMAGE_BLANK, Sexy::IMAGE_BLANK);
+    mResourcePackButton->SetFont(FONT_DWARVENTODCRAFT18);
+    mResourcePackButton->mColors[ButtonWidget::COLOR_LABEL] = cTextColor;
+    mResourcePackButton->mColors[ButtonWidget::COLOR_LABEL_HILITE] = Color(1, 233, 1);
+    mResourcePackButton->SetVisible(false);
+
+    mRealHardwareAccelerationCheckbox = MakeNewCheckbox(NewOptionsDialog::NewOptionsDialog_Real_HardwareAcceleration, this, mApp->Is3DAccelerated());
+    mRealHardwareAccelerationCheckbox->SetVisible(false);
 
     if (mFromGameSelector)
     {
@@ -183,7 +198,11 @@ NewOptionsDialog::~NewOptionsDialog()
     delete mAutoCollectSunsBox;
     delete mAutoCollectCoinsBox;
     delete mZombieHealthbarsBox;
+    delete mReloadLanguagesButton;
     delete mLanguageButton;
+    delete mReloadResourcePacksButton;
+    delete mResourcePackButton;
+    delete mRealHardwareAccelerationCheckbox;
 }
 
 int NewOptionsDialog::GetPreferredHeight(int theWidth)
@@ -215,7 +234,11 @@ void NewOptionsDialog::AddedToManager(Sexy::WidgetManager* theWidgetManager)
     AddWidget(mAutoCollectCoinsBox);
     AddWidget(mZombieHealthbarsBox);
     AddWidget(mPlantHealthbarsBox);
+    AddWidget(mReloadLanguagesButton);
     AddWidget(mLanguageButton);
+    AddWidget(mReloadResourcePacksButton);
+    AddWidget(mResourcePackButton);
+    AddWidget(mRealHardwareAccelerationCheckbox);
 }
 
 void NewOptionsDialog::RemovedFromManager(Sexy::WidgetManager* theWidgetManager)
@@ -242,7 +265,11 @@ void NewOptionsDialog::RemovedFromManager(Sexy::WidgetManager* theWidgetManager)
     RemoveWidget(mAutoCollectCoinsBox);
     RemoveWidget(mZombieHealthbarsBox);
     RemoveWidget(mPlantHealthbarsBox);
+    RemoveWidget(mReloadLanguagesButton);
     RemoveWidget(mLanguageButton);
+    RemoveWidget(mReloadResourcePacksButton);
+    RemoveWidget(mResourcePackButton);
+    RemoveWidget(mRealHardwareAccelerationCheckbox);
 }
 
 void NewOptionsDialog::Resize(int theX, int theY, int theWidth, int theHeight)
@@ -267,13 +294,22 @@ void NewOptionsDialog::Resize(int theX, int theY, int theWidth, int theHeight)
     mBankKeybindsBox->Resize(mDiscordBox->mX, mDiscordBox->mY + 40, 46, 39);
     m09FormatBox->Resize(mBankKeybindsBox->mX, mBankKeybindsBox->mY + 40, 46, 39);
     //PAGE 2
-    mSpeedEditWidget->Resize(ADVANCED_SPEED_X + 9, ADVANCED_SPEED_Y - 4, IMAGE_OPTIONS_CHECKBOX0->mWidth, IMAGE_OPTIONS_CHECKBOX0->mHeight + 4);
+    int aAdvancedSpeedOffset = 4;
+    mSpeedEditWidget->Resize(ADVANCED_SPEED_X + 9, ADVANCED_SPEED_Y - aAdvancedSpeedOffset, IMAGE_OPTIONS_CHECKBOX0->mWidth, IMAGE_OPTIONS_CHECKBOX0->mHeight + 4);
     mAutoCollectSunsBox->Resize(mDiscordBox->mX, mDiscordBox->mY - 20, 46, 39);
     mAutoCollectCoinsBox->Resize(mAutoCollectSunsBox->mX, mAutoCollectSunsBox->mY + 40, 46, 39);
     mZombieHealthbarsBox->Resize(mAutoCollectCoinsBox->mX, mAutoCollectCoinsBox->mY + 40, 46, 39);
     mPlantHealthbarsBox->Resize(mZombieHealthbarsBox->mX, mZombieHealthbarsBox->mY + 40, 46, 39);
     //PAGE 3
-    mLanguageButton->Resize(mWidth / 2 + 10, ADVANCED_SPEED_Y - 4, 0, FONT_DWARVENTODCRAFT18->GetHeight());
+    int aReloadLanguagesWidth = 225;
+    mReloadLanguagesButton->Resize(mWidth / 2 - (aReloadLanguagesWidth / 2), ADVANCED_SPEED_Y - aAdvancedSpeedOffset, aReloadLanguagesWidth, 46);
+    mLanguageButton->Resize(mWidth / 2 + 15, mReloadLanguagesButton->mY + 50, 0, FONT_DWARVENTODCRAFT18->GetHeight());
+    ResizeLanguageButton();
+    int aReloadResourcePacksWidth = 260;
+    mReloadResourcePacksButton->Resize(mWidth / 2 - (aReloadResourcePacksWidth / 2), mLanguageButton->mY + 40, aReloadResourcePacksWidth, 46);
+    mResourcePackButton->Resize(mWidth / 2 + 15, mReloadResourcePacksButton->mY + 50, 0, FONT_DWARVENTODCRAFT18->GetHeight());
+    ResizeResourcePackButton();
+    mRealHardwareAccelerationCheckbox->Resize(mZombieHealthbarsBox->mX, mResourcePackButton->mY + 40, 46, 39);
 
     if ((!mRestartButton->mVisible || !mAlmanacButton->mVisible) && !mFromGameSelector && !mAdvancedMode)
     {
@@ -354,6 +390,8 @@ void NewOptionsDialog::Draw(Sexy::Graphics* g)
         else if (mAdvancedPage == 3)
         {
             TodDrawString(g, TodStringTranslate(_S("[OPTIONS_LANGUAGE]")), mLanguageButton->mX - 6, mLanguageButton->mY + 23, FONT_DWARVENTODCRAFT18, cTextColor, DrawStringJustification::DS_ALIGN_RIGHT);
+            TodDrawString(g, TodStringTranslate(_S("[OPTIONS_RESOURCE_PACK]")), mResourcePackButton->mX - 6, mResourcePackButton->mY + 23, FONT_DWARVENTODCRAFT18, cTextColor, DrawStringJustification::DS_ALIGN_RIGHT);
+            TodDrawString(g, TodStringTranslate(_S("[OPTIONS_ACTUAL_ACCELERATION]")), mRealHardwareAccelerationCheckbox->mX - 6, mRealHardwareAccelerationCheckbox->mY + 22, FONT_DWARVENTODCRAFT18, cTextColor, DrawStringJustification::DS_ALIGN_RIGHT);
         }
         TodDrawString(g, TodReplaceNumberString(_S("[OPTIONS_PAGE]"), _S("{PAGE}"), mAdvancedPage), mWidth / 2, ADVANCED_PAGE_Y, FONT_DWARVENTODCRAFT18GREENINSET, Color::White, DrawStringJustification::DS_ALIGN_CENTER);
     }
@@ -400,6 +438,7 @@ void NewOptionsDialog::CheckboxChecked(int theId, bool checked)
         break;
 
     case NewOptionsDialog::NewOptionsDialog_HardwareAcceleration:
+    case NewOptionsDialog::NewOptionsDialog_Real_HardwareAcceleration:
         if (checked)
         {
             if (!mApp->Is3DAccelerationRecommended())
@@ -461,7 +500,11 @@ void NewOptionsDialog::UpdateAdvancedPage()
     mAutoCollectCoinsBox->SetVisible(false);
     mZombieHealthbarsBox->SetVisible(false);
     mPlantHealthbarsBox->SetVisible(false);
+    mReloadLanguagesButton->SetVisible(false);
     mLanguageButton->SetVisible(false);
+    mReloadResourcePacksButton->SetVisible(false);
+    mResourcePackButton->SetVisible(false);
+    mRealHardwareAccelerationCheckbox->SetVisible(false);
 
     switch (mAdvancedPage)
     {
@@ -479,7 +522,11 @@ void NewOptionsDialog::UpdateAdvancedPage()
             mPlantHealthbarsBox->SetVisible(true);
             break;
         case 3:
+            mReloadLanguagesButton->SetVisible(true);
             mLanguageButton->SetVisible(true);
+            mReloadResourcePacksButton->SetVisible(true);
+            mResourcePackButton->SetVisible(true);
+            mRealHardwareAccelerationCheckbox->SetVisible(true);
             break;
     }
 }
@@ -491,7 +538,6 @@ void NewOptionsDialog::Update()
     mGameAdvancedButton->mTextDownOffsetY = isGameAdvancedDown;
     if (mAdvancedMode)
     {
-        mLanguageButton->Resize(mLanguageButton->mX, mLanguageButton->mY, FONT_DWARVENTODCRAFT18->StringWidth(TodStringTranslate(mLanguageButton->mLabel)), mLanguageButton->mHeight);
         if (mSpeedEditWidget->mHasFocus && mSpeedEditWidget->mFont != FONT_DWARVENTODCRAFT18BRIGHTGREENINSET)
             mSpeedEditWidget->SetFont(FONT_DWARVENTODCRAFT18BRIGHTGREENINSET);
         if (mSpeedEditPrevText != mSpeedEditWidget->mString)
@@ -517,6 +563,16 @@ void NewOptionsDialog::Update()
     }
 }
 
+void NewOptionsDialog::ResizeLanguageButton()
+{
+    mLanguageButton->Resize(mLanguageButton->mX, mLanguageButton->mY, mLanguageButton->mFont->StringWidth(TodStringTranslate(mLanguageButton->mLabel)), mLanguageButton->mHeight);
+}
+
+void NewOptionsDialog::ResizeResourcePackButton()
+{
+    mResourcePackButton->Resize(mResourcePackButton->mX, mResourcePackButton->mY, mResourcePackButton->mFont->StringWidth(TodStringTranslate(mResourcePackButton->mLabel)), mResourcePackButton->mHeight);
+}
+
 void NewOptionsDialog::ButtonPress(int theId)
 {
     mApp->PlaySample(SOUND_GRAVEBUTTON);
@@ -534,6 +590,7 @@ void NewOptionsDialog::ButtonDepress(int theId)
         aDialog->WaitForResult(true);
         break;
     }
+
     case NewOptionsDialog::NewOptionsDialog_Advanced:
     {
         mApp->KillNewOptionsDialog();
@@ -541,6 +598,7 @@ void NewOptionsDialog::ButtonDepress(int theId)
         mApp->PlaySample(Sexy::SOUND_BUTTONCLICK);
         break;
     }
+
     case NewOptionsDialog::NewOptionsDialog_MainMenu:
     {
         if (mApp->mBoard && mApp->mBoard->NeedSaveGame())
@@ -607,8 +665,43 @@ void NewOptionsDialog::ButtonDepress(int theId)
         break;
     }
 
+    case NewOptionsDialog::NewOptionsDialog_ReloadLanguages:
+    {
+        mApp->ReloadLanguages();
+        bool aResetLanguage = true;
+        for (std::map<std::string, StringWStringMap>::iterator aIt = mApp->mLanguages.begin(); aIt != mApp->mLanguages.end(); ++aIt)
+        {
+            if (mApp->mLanguage == aIt->first)
+            {
+                aResetLanguage = false;
+                break;
+            }
+        }
+        if (aResetLanguage)
+        {
+            mApp->mLanguage = mApp->mLanguages.begin()->first;
+            mApp->mLanguageIndex = 0;
+        }
+        mApp->LoadCurrentLanguage();
+        ResizeLanguageButton();
+        break;
+    }
+
     case NewOptionsDialog::NewOptionsDialog_Language:
         mApp->SwitchLanguage();
+        ResizeLanguageButton();
+        break;
+
+    case NewOptionsDialog::NewOptionsDialog_ReloadResourcePacks:
+        mApp->ReloadResourcePacks();
+        mResourcePackButton->mLabel = mApp->GetResourcePackString();
+        ResizeResourcePackButton();
+        break;
+
+    case NewOptionsDialog::NewOptionsDialog_ResourcePack:
+        mApp->SwitchResourcePack();
+        mResourcePackButton->mLabel = mApp->GetResourcePackString();
+        ResizeResourcePackButton();
         break;
 
     case NewOptionsDialog::NewOptionsDialog_LeftPage:

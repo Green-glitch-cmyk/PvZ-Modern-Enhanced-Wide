@@ -86,7 +86,7 @@ void Zombie::ZombieInitialize(int theRow, ZombieType theType, bool theVariant, Z
 
     mFromWave = theFromWave;
     mRow = theRow;
-    mPosX = 780 + Rand(ZOMBIE_START_RANDOM_OFFSET);
+    mPosX = 780 + Rand(ZOMBIE_START_RANDOM_OFFSET) + BOARD_ADDITIONAL_WIDTH;
     mPosY = GetPosYBasedOnRow(theRow);
     mVelX = 0.0f;
     mVelZ = 0.0f;
@@ -610,8 +610,8 @@ void Zombie::ZombieInitialize(int theRow, ZombieType theType, bool theVariant, Z
         break;
     
     case ZombieType::ZOMBIE_BOSS:  
-        mPosX = 0.0f;
-        mPosY = 0.0f;
+        mPosX = BOARD_ADDITIONAL_WIDTH;
+        mPosY = BOARD_OFFSET_Y;
         mZombieRect = Rect(700, 80, 90, 430);
         mZombieAttackRect = Rect(0, 0, 0, 0);
         aRenderLayer = RenderLayer::RENDER_LAYER_TOP;
@@ -2069,7 +2069,7 @@ void Zombie::UpdateZombieGargantuar()
         return;
     }
     
-    float aThrowingDistance = mPosX - 360.0f;
+    float aThrowingDistance = mPosX - 360.0f - BOARD_ADDITIONAL_WIDTH;
     if (mZombiePhase == ZombiePhase::PHASE_GARGANTUAR_THROWING)
     {
         Reanimation* aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
@@ -2139,12 +2139,16 @@ void Zombie::UpdateZombieGargantuar()
     if (IsImmobilizied() || !mHasHead)
         return;
     
-    if (mHasObject && mBodyHealth < mBodyMaxHealth / 2 && aThrowingDistance > 40.0f)
+    float aThreshold = 40.0f + BOARD_ADDITIONAL_WIDTH;
+    if (mHasObject && mBodyHealth < mBodyMaxHealth / 2 && aThrowingDistance > aThreshold)
     {
         mZombiePhase = ZombiePhase::PHASE_GARGANTUAR_THROWING;
         PlayZombieReanim("anim_throw", ReanimLoopType::REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0f);
         return;
     }
+    if (aThrowingDistance > aThreshold)
+        mBodyHealth = mBodyMaxHealth / 2;
+
 
     bool doSmash = false;
     if (FindPlantTarget(ZombieAttackType::ATTACKTYPE_CHEW))
@@ -2569,7 +2573,7 @@ void Zombie::UpdateZombieDigger()
 {
     if (mZombiePhase == ZombiePhase::PHASE_DIGGER_TUNNELING)
     {
-        if (mPosX < 10.0f)
+        if (mPosX < 10.0f + BOARD_ADDITIONAL_WIDTH)
         {
             mAltitude = -120.0f;
             mZombiePhase = ZombiePhase::PHASE_DIGGER_RISING;
@@ -4161,15 +4165,15 @@ void Zombie::Update()
                         int aEdgeX = BOARD_EDGE;
                         if (mZombieType == ZombieType::ZOMBIE_GARGANTUAR || mZombieType == ZombieType::ZOMBIE_REDEYE_GARGANTUAR || mZombieType == ZombieType::ZOMBIE_POLEVAULTER)
                         {
-                            aEdgeX = -150;
+                            aEdgeX = -150 + BOARD_ADDITIONAL_WIDTH;
                         }
                         else if (mZombieType == ZombieType::ZOMBIE_CATAPULT || mZombieType == ZombieType::ZOMBIE_FOOTBALL || mZombieType == ZombieType::ZOMBIE_ZAMBONI)
                         {
-                            aEdgeX = -175;
+                            aEdgeX = -175 + BOARD_ADDITIONAL_WIDTH;
                         }
                         else if (mZombieType == ZombieType::ZOMBIE_BACKUP_DANCER || mZombieType == ZombieType::ZOMBIE_DANCER || mZombieType == ZombieType::ZOMBIE_SNORKEL)
                         {
-                            aEdgeX = -130;
+                            aEdgeX = -130 + BOARD_ADDITIONAL_WIDTH;
                         }
 
                         if (mBoard->mCutScene->mCutsceneTime <= 500)
@@ -9680,7 +9684,7 @@ void Zombie::BossSpawnContact()
     }
 
     Zombie* aZombie = mBoard->AddZombieInRow(aZombieType, mTargetRow, 0);
-    aZombie->mPosX = 600.0f;
+    aZombie->mPosX = 600.0f + BOARD_ADDITIONAL_WIDTH;
 }
 
 void Zombie::BossStompAttack()
