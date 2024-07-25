@@ -22,6 +22,10 @@ const int			STREET_ZOMBIE_START_Y = 70;
 const int			STREET_ZOMBIE_GRID_SIZE_X = 30; // PC : 56 - Console : 30
 const int			STREET_ZOMBIE_GRID_SIZE_Y = 90;
 const int			STREET_ZOMBIE_ROOF_OFFSET = 30; // PC : 30 - Console : 15
+const int			ROOF_POLE_START = WIDE_BOARD_WIDTH + 70 - BOARD_ADDITIONAL_WIDTH;
+const int			ROOF_POLE_END = -BOARD_WIDTH;
+const int			ROOF_TREE_START = WIDE_BOARD_WIDTH + 130 - BOARD_ADDITIONAL_WIDTH;
+const int			ROOF_TREE_END = -670;
 
 const int           SEEDBANK_MAX = 10;
 const int           SEED_BANK_OFFSET_X = 0;

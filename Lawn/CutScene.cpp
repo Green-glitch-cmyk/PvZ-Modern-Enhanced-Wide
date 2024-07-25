@@ -944,8 +944,8 @@ void CutScene::CancelIntro()
 		if (!IsNonScrollingCutscene())
 		{
 			mBoard->Move(mApp->mWidth - BOARD_IMAGE_WIDTH_OFFSET, 0);
-			mBoard->mRoofPoleOffset = -BOARD_WIDTH;
-			mBoard->mRoofTreeOffset = -670;
+			mBoard->mRoofPoleOffset = ROOF_POLE_END;
+			mBoard->mRoofTreeOffset = ROOF_TREE_END;
 		}
 		if (mBoard->mAdvice->mMessageStyle == MessageStyle::MESSAGE_STYLE_HOUSE_NAME)
 		{
@@ -1106,8 +1106,8 @@ void CutScene::AnimateBoard()
 	}
 	if (mCutsceneTime > aTimePanRightStart && mCutsceneTime <= aTimePanRightEnd) {
 		int aPanOffset = CalcPosition(aTimePanRightStart, aTimePanRightEnd, -aBoardOffset, aStreetOffset);
-		mBoard->mRoofPoleOffset = CalcPosition(aTimePanRightStart, aTimePanRightEnd, WIDE_BOARD_WIDTH + 70, -BOARD_WIDTH);
-		mBoard->mRoofTreeOffset = CalcPosition(aTimePanRightStart, aTimePanRightEnd, WIDE_BOARD_WIDTH + 130, -670);
+		mBoard->mRoofPoleOffset = CalcPosition(aTimePanRightStart, aTimePanRightEnd, ROOF_POLE_START, ROOF_POLE_END);
+		mBoard->mRoofTreeOffset = CalcPosition(aTimePanRightStart, aTimePanRightEnd, ROOF_TREE_START, ROOF_TREE_END);
 		mBoard->Move(-aPanOffset, 0);
 	}
 	if (mBoard->ChooseSeedsOnCurrentLevel())
@@ -1133,8 +1133,8 @@ void CutScene::AnimateBoard()
 	if (mCutsceneTime > aTimePanLeftStart)
 	{
 		int aPanOffset = CalcPosition(aTimePanLeftStart, aTimePanLeftEnd, aStreetOffset, 0);
-		mBoard->mRoofPoleOffset = CalcPosition(aTimePanLeftStart, aTimePanLeftEnd, -BOARD_WIDTH, WIDE_BOARD_WIDTH + 70 - BOARD_ADDITIONAL_WIDTH);
-		mBoard->mRoofTreeOffset = CalcPosition(aTimePanLeftStart, aTimePanLeftEnd, -670, WIDE_BOARD_WIDTH + 130 - BOARD_ADDITIONAL_WIDTH);
+		mBoard->mRoofPoleOffset = CalcPosition(aTimePanLeftStart, aTimePanLeftEnd, ROOF_POLE_END, ROOF_POLE_START);
+		mBoard->mRoofTreeOffset = CalcPosition(aTimePanLeftStart, aTimePanLeftEnd, ROOF_TREE_END, ROOF_TREE_START);
 		mBoard->Move(-aPanOffset, 0);
 	}
 
