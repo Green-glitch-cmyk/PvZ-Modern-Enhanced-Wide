@@ -7653,7 +7653,7 @@ void Board::Draw(Graphics* g)
 
 	mDrawCount++;
 	DrawGameObjects(g);
-	g->SetColor(Color(255, 255, 255, 25));
+	g->SetColor(Color(255, 255, 255, 60));
 	g->FillRect(Rect(0, 0, mWidth, mHeight));
 	g->SetColor(Color(255, 255));
 }

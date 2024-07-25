@@ -1,7 +1,5 @@
 #pragma once
 
-#include <wtypes.h>
-#include "ConstEnums.h"
 constexpr const double PI = 3.141592653589793;
 
 const int			BOARD_WIDTH = 1280; // PC: 800 - Console : 1280
