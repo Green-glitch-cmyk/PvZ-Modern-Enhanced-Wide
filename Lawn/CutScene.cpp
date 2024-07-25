@@ -1107,7 +1107,7 @@ void CutScene::AnimateBoard()
 	if (mCutsceneTime > aTimePanRightStart && mCutsceneTime <= aTimePanRightEnd) {
 		int aPanOffset = CalcPosition(aTimePanRightStart, aTimePanRightEnd, -aBoardOffset, aStreetOffset);
 		mBoard->mRoofPoleOffset = CalcPosition(aTimePanRightStart, aTimePanRightEnd, WIDE_BOARD_WIDTH + 70, -BOARD_WIDTH);
-		mBoard->mRoofTreeOffset = CalcPosition(aTimePanRightStart, aTimePanRightEnd, WIDE_BOARD_WIDTH + 70, -670);
+		mBoard->mRoofTreeOffset = CalcPosition(aTimePanRightStart, aTimePanRightEnd, WIDE_BOARD_WIDTH + 130, -670);
 		mBoard->Move(-aPanOffset, 0);
 	}
 	if (mBoard->ChooseSeedsOnCurrentLevel())
