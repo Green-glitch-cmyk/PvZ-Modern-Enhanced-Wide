@@ -953,9 +953,9 @@ void SeedChooserScreen::ShowToolTip()
 
 		Rect aRect = aZombie->GetZombieRect();
 		mToolTip->mX = aRect.mWidth / 2 + aRect.mX + 5 + mBoard->mX;
-		mToolTip->mY = aRect.mHeight + aRect.mY - 10 - mBoard->mY + (BOARD_OFFSET_Y * 2);
+		mToolTip->mY = aRect.mHeight + aRect.mY - 10 - mBoard->mY;
 		if (aZombie->mZombieType == ZombieType::ZOMBIE_BUNGEE)
-			mToolTip->mY = aZombie->mY + (BOARD_OFFSET_Y * 2);
+			mToolTip->mY = aZombie->mY;
 		mToolTip->mCenter = true;
 		mToolTip->mVisible = true;
 		if (mAlmanacButton->mBtnNoDraw && mStoreButton->mBtnNoDraw)

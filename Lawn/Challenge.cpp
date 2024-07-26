@@ -2319,10 +2319,8 @@ void Challenge::DrawSlotMachine(Graphics* g)
 		gBoardParent.SetColor(GetFlashingColor(mBoard->mMainCounter, 75));
 		gBoardParent.SetColorizeImages(true);
 	}
-	if (mApp->mGameScene == SCENE_LEVEL_INTRO)
-	{
-		gBoardParent.mTransY = mBoard->mSeedBank->mY - mBoard->mY + BOARD_OFFSET_Y;
-	}
+	gBoardParent.mTransX = mBoard->mSeedBank->mX - mBoard->mX + BOARD_ADDITIONAL_WIDTH;
+	gBoardParent.mTransY = mBoard->mSeedBank->mY - mBoard->mY + BOARD_OFFSET_Y;
 	mApp->ReanimationGet(mReanimChallenge)->Draw(&gBoardParent);
 }
 
@@ -2344,21 +2342,21 @@ void Challenge::DrawBackdrop(Graphics* g)
 
 	if (mApp->IsWallnutBowlingLevel() && mShowBowlingLine)
 	{
-		g->DrawImage(Sexy::IMAGE_WALLNUT_BOWLINGSTRIPE, 268, 77);
+		g->DrawImage(Sexy::IMAGE_WALLNUT_BOWLINGSTRIPE, 268 + BOARD_ADDITIONAL_WIDTH, 77 + BOARD_OFFSET_Y);
 	}
 	if (mApp->mGameMode == GAMEMODE_PUZZLE_I_ZOMBIE_1 || mApp->mGameMode == GAMEMODE_PUZZLE_I_ZOMBIE_2 || mApp->mGameMode == GAMEMODE_PUZZLE_I_ZOMBIE_3 ||
 		mApp->mGameMode == GAMEMODE_PUZZLE_I_ZOMBIE_4 || mApp->mGameMode == GAMEMODE_PUZZLE_I_ZOMBIE_5)
 	{
-		g->DrawImage(Sexy::IMAGE_WALLNUT_BOWLINGSTRIPE, 352, 73);
+		g->DrawImage(Sexy::IMAGE_WALLNUT_BOWLINGSTRIPE, 352 + BOARD_ADDITIONAL_WIDTH, 73 + BOARD_OFFSET_Y);
 	}
 	if (mApp->mGameMode == GAMEMODE_PUZZLE_I_ZOMBIE_6 || mApp->mGameMode == GAMEMODE_PUZZLE_I_ZOMBIE_7 || mApp->mGameMode == GAMEMODE_PUZZLE_I_ZOMBIE_8 ||
 		mApp->mGameMode == GAMEMODE_PUZZLE_I_ZOMBIE_ENDLESS)
 	{
-		g->DrawImage(Sexy::IMAGE_WALLNUT_BOWLINGSTRIPE, 432, 73);
+		g->DrawImage(Sexy::IMAGE_WALLNUT_BOWLINGSTRIPE, 432 + BOARD_ADDITIONAL_WIDTH, 73 + BOARD_OFFSET_Y);
 	}
 	if (mApp->mGameMode == GAMEMODE_PUZZLE_I_ZOMBIE_9)
 	{
-		g->DrawImage(Sexy::IMAGE_WALLNUT_BOWLINGSTRIPE, 512, 73);
+		g->DrawImage(Sexy::IMAGE_WALLNUT_BOWLINGSTRIPE, 512 + BOARD_ADDITIONAL_WIDTH, 73 + BOARD_OFFSET_Y);
 	}
 
 	if (aGameMode == GAMEMODE_CHALLENGE_SLOT_MACHINE)
@@ -5133,7 +5131,7 @@ void Challenge::WhackAZombieUpdate()
 bool Challenge::TreeOfWisdomMouseOn(int theX, int theY)
 {
 	HitResult aHitResult;
-	mBoard->MouseHitTest(theX, theY, &aHitResult);
+	mBoard->MouseHitTest(theX - BOARD_ADDITIONAL_WIDTH, theY, &aHitResult);
 	return (aHitResult.mObjectType == OBJECT_TYPE_TREE_OF_WISDOM && mBoard->mCursorObject->mCursorType == CURSOR_TYPE_TREE_FOOD);
 }
 
@@ -5144,17 +5142,17 @@ int Challenge::TreeOfWisdomGetSize()
 
 void Challenge::TreeOfWisdomDraw(Graphics* g)
 {
-	bool aMouseOn = TreeOfWisdomMouseOn(mApp->mWidgetManager->mLastMouseX - mBoard->mX, mApp->mWidgetManager->mLastMouseY - mBoard->mY);
+	bool aMouseOn = TreeOfWisdomMouseOn(mApp->mWidgetManager->mLastMouseX, mApp->mWidgetManager->mLastMouseY);
 
 	Reanimation* aReanimTree = mApp->ReanimationGet(mReanimChallenge);
 	aReanimTree->mEnableExtraOverlayDraw = false;
-	aReanimTree->OverrideScale(1.3f, 1.3f);
-	aReanimTree->SetPosition(-BOARD_ADDITIONAL_WIDTH + 70, -BOARD_OFFSET_Y);
-	aReanimTree->DrawRenderGroup(g, 1);  
+	aReanimTree->OverrideScale(1.25f, 1.25f);
+	aReanimTree->SetPosition(BOARD_ADDITIONAL_WIDTH / 2, 0);
+	aReanimTree->DrawRenderGroup(g, 1);
 	for (int i = 0; i < 6; i++)
 	{
 		Reanimation* aReanimCloud = mApp->ReanimationGet(mReanimClouds[i]);
-		aReanimCloud->SetPosition(-BOARD_OFFSET_X, -BOARD_OFFSET_Y);
+		aReanimCloud->SetPosition(BOARD_ADDITIONAL_WIDTH / 2, 0);
 		aReanimCloud->DrawRenderGroup(g, 0);
 	}
 
@@ -5202,7 +5200,7 @@ void Challenge::TreeOfWisdomDraw(Graphics* g)
 			aPosX = 390;
 			aPosY = 40;
 		}
-
+		aPosX += BOARD_ADDITIONAL_WIDTH;  
 		g->DrawImage(Sexy::IMAGE_STORE_SPEECHBUBBLE2, aPosX, aPosY);
 		SexyString aText = StrFormat(_S("[TREE_OF_WISDOM_%d]"), mTreeOfWisdomTalkIndex);
 		TodDrawStringWrapped(g, aText, Rect(aPosX + 25, aPosY + 6, 233, 144), Sexy::FONT_BRIANNETOD16, Color::Black, DS_ALIGN_CENTER_VERTICAL_MIDDLE);
@@ -5225,7 +5223,7 @@ void Challenge::TreeOfWisdomDraw(Graphics* g)
 		float aStrHeight = Sexy::FONT_HOUSEOFTERROR16->mAscent * aScale;
 
 		SexyTransform2D aMatrix;
-		TodScaleTransformMatrix(aMatrix, 400.0f - aStrWidth * 0.5f + BOARD_OFFSET_X - 30, 20.0f + aStrHeight * 0.5f, aScale, aScale);
+		TodScaleTransformMatrix(aMatrix, 400.0f - aStrWidth * 0.5f + BOARD_ADDITIONAL_WIDTH - 15, 20.0f + aStrHeight * 0.5f, aScale, aScale);
 		TodDrawStringMatrix(g, Sexy::FONT_HOUSEOFTERROR16, aMatrix, aSizeStr, Color(255, 255, 255));
 	}
 }
@@ -5305,13 +5303,13 @@ void Challenge::TreeOfWisdomGrow()
 void Challenge::TreeOfWisdomFertilize()
 {
 	GridItem* aTreeFood = mBoard->mGridItems.DataArrayAlloc();
-	aTreeFood->mPosX = 340.0f;
+	aTreeFood->mPosX = 340.0f + BOARD_ADDITIONAL_WIDTH;
 	aTreeFood->mPosY = 300.0f;
 	aTreeFood->mGridItemType = GRIDITEM_ZEN_TOOL;
 	aTreeFood->mGridX = 0;
 	aTreeFood->mGridY = 0;
 	aTreeFood->mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_ABOVE_UI, 0, 0);
-	Reanimation* aReanim = mApp->AddReanimation(340.0f, 300.0f, 0, REANIM_TREEOFWISDOM_TREEFOOD);
+	Reanimation* aReanim = mApp->AddReanimation(aTreeFood->mPosX, aTreeFood->mPosY, 0, REANIM_TREEOFWISDOM_TREEFOOD);
 	aReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
 	aTreeFood->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
 	aTreeFood->mGridItemState = GRIDITEM_STATE_ZEN_TOOL_FERTILIZER;
@@ -5511,10 +5509,11 @@ bool Challenge::TreeOfWisdomHitTest(int theX, int theY, HitResult* theHitResult)
 {
 	Rect aTreeRect;
 	int aTreeSize = TreeOfWisdomGetSize();
-	if (aTreeSize <= 1)			aTreeRect = Rect(310, 275, 175, 175);
-	else if (aTreeSize < 7)		aTreeRect = Rect(290, 255, 205, 195);
-	else if (aTreeSize < 12)	aTreeRect = Rect(290, 215, 205, 225);
-	else						aTreeRect = Rect(280, 155, 225, 305);
+	int aOffsetY = BOARD_OFFSET_Y * 2;
+	if (aTreeSize <= 1)			aTreeRect = Rect(310, 275 - aOffsetY, 175, 175 + aOffsetY);
+	else if (aTreeSize < 7)		aTreeRect = Rect(290, 255 - aOffsetY, 205, 195 + aOffsetY);
+	else if (aTreeSize < 12)	aTreeRect = Rect(290, 215 - aOffsetY, 205, 225 + aOffsetY);
+	else						aTreeRect = Rect(280, 155 - aOffsetY, 225, 305 + aOffsetY);
 
 	if (aTreeRect.Contains(theX, theY))
 	{

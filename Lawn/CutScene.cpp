@@ -851,7 +851,7 @@ void CutScene::StartLevelIntro()
 
 	if (IsScrolledLeftAtStart())
 	{
-		mBoard->Move(220, 0);
+		mBoard->Move(BOARD_OFFSET_X, 0);
 	}
 	if (IsNonScrollingCutscene() && mCrazyDaveTime == 0)
 	{
@@ -943,13 +943,17 @@ void CutScene::CancelIntro()
 		mCutsceneTime = TimeSeedChoserSlideOnEnd + mCrazyDaveTime - 20;
 		if (!IsNonScrollingCutscene())
 		{
-			mBoard->Move(mApp->mWidth - BOARD_IMAGE_WIDTH_OFFSET, 0);
+			mBoard->Move(mApp->mWidth - BOARD_IMAGE_WIDTH_OFFSET - BOARD_ADDITIONAL_WIDTH, 0);
 			mBoard->mRoofPoleOffset = ROOF_POLE_END;
 			mBoard->mRoofTreeOffset = ROOF_TREE_END;
 		}
 		if (mBoard->mAdvice->mMessageStyle == MessageStyle::MESSAGE_STYLE_HOUSE_NAME)
 		{
 			mBoard->ClearAdvice(AdviceType::ADVICE_NONE);
+		}
+		if (!mApp->IsChallengeWithoutSeedBank())
+		{
+			mBoard->mSeedBank->Move(SEED_BANK_OFFSET_X_END, 0);
 		}
 
 		if (mCrazyDaveDialogStart != -1)
@@ -1099,7 +1103,7 @@ void CutScene::AnimateBoard()
 	}
 
 	int aBoardOffset = IsScrolledLeftAtStart() ? BOARD_OFFSET_X : 0;
-	int aStreetOffset = BOARD_IMAGE_WIDTH_OFFSET - mApp->mWidth;
+	int aStreetOffset = BOARD_IMAGE_WIDTH_OFFSET + BOARD_ADDITIONAL_WIDTH - mApp->mWidth;
 	if (mCutsceneTime <= aTimePanRightStart)
 	{
 		mBoard->Move(aBoardOffset, 0);
@@ -1222,7 +1226,7 @@ void CutScene::AnimateBoard()
 				if (aLawnMower)
 				{
 					aLawnMower->mVisible = true;
-					aLawnMower->mPosX = CalcPosition(aTimeLawnMowerStart, aTimeLawnMowerStart + TimeLawnMowerDuration, -80, -21 + BOARD_ADDITIONAL_WIDTH);
+					aLawnMower->mPosX = CalcPosition(aTimeLawnMowerStart, aTimeLawnMowerStart + TimeLawnMowerDuration, -80 + BOARD_ADDITIONAL_WIDTH, -21 + BOARD_ADDITIONAL_WIDTH);
 				}
 			}
 		}
@@ -1264,7 +1268,7 @@ void CutScene::AnimateBoard()
 	int aTimeReadySetPlant = TimeReadySetPlantStart + mLawnMowerTime + mSodTime + mGraveStoneTime + mCrazyDaveTime + mFogTime + mBossTime;
 	if (mReadySetPlantTime > 0 && mCutsceneTime == aTimeReadySetPlant)
 	{
-		mApp->AddReanimation(400, 324, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_SCREEN_FADE, 0, 0), ReanimationType::REANIM_READYSETPLANT);
+		mApp->AddReanimation(400 + BOARD_ADDITIONAL_WIDTH, 324 + BOARD_OFFSET_Y, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_SCREEN_FADE, 0, 0), ReanimationType::REANIM_READYSETPLANT);
 		mApp->PlaySample(SOUND_READYSETPLANT);
 		if (!mApp->IsFinalBossLevel())
 		{
@@ -1400,13 +1404,8 @@ void CutScene::Update()
 		{
 			mBoard->mMenuButton->mBtnNoDraw = false;
 		}
-
 		ShowShovel();
 		mApp->StartPlaying();
-		if (!mApp->IsChallengeWithoutSeedBank() && mApp->mBoard->HasConveyorBeltSeedBank())
-		{
-			mBoard->mSeedBank->Move(0, 0);
-		}
 		if (mBoard->mFastButton && mApp->mGameMode != GAMEMODE_CHALLENGE_ZEN_GARDEN && mApp->mGameMode != GAMEMODE_TREE_OF_WISDOM)
 		{
 			mBoard->mFastButton->mBtnNoDraw = false;

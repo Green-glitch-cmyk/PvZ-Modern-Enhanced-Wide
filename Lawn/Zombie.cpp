@@ -2139,16 +2139,12 @@ void Zombie::UpdateZombieGargantuar()
     if (IsImmobilizied() || !mHasHead)
         return;
     
-    float aThreshold = 40.0f + BOARD_ADDITIONAL_WIDTH;
-    if (mHasObject && mBodyHealth < mBodyMaxHealth / 2 && aThrowingDistance > aThreshold)
+    if (mHasObject && mBodyHealth < mBodyMaxHealth / 2 && aThrowingDistance > 40.0f - BOARD_ADDITIONAL_WIDTH)
     {
         mZombiePhase = ZombiePhase::PHASE_GARGANTUAR_THROWING;
         PlayZombieReanim("anim_throw", ReanimLoopType::REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0f);
         return;
     }
-    if (aThrowingDistance > aThreshold)
-        mBodyHealth = mBodyMaxHealth / 2;
-
 
     bool doSmash = false;
     if (FindPlantTarget(ZombieAttackType::ATTACKTYPE_CHEW))
@@ -9562,6 +9558,8 @@ void Zombie::DrawBossFireBall(Graphics* g, const ZombieDrawPosition& theDrawPos)
         g->SetDrawMode(Graphics::DRAWMODE_NORMAL);
         aFireBallReanim->DrawRenderGroup(g, RENDER_GROUP_BOSS_FIREBALL_TOP);
     }
+
+    g->Translate(mX, mY);
 }
 
 void Zombie::DrawBossBackArm(Graphics* g, const ZombieDrawPosition& theDrawPos)

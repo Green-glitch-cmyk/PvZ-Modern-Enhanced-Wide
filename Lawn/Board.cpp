@@ -1315,24 +1315,19 @@ Rect Board::GetShovelButtonRect()
 	Rect aRect(GetSeedBankExtraWidth() + 456, 0, Sexy::IMAGE_SHOVELBANK->GetWidth(), Sexy::IMAGE_SEEDBANK->GetHeight());
 	if (mApp->IsSlotMachineLevel() || mApp->IsSquirrelLevel())
 	{
-		aRect.mX = 600;
+		aRect.mX = 600 + BOARD_ADDITIONAL_WIDTH;
 	}
 	return aRect;
 }
 
 void Board::GetZenButtonRect(GameObjectType theObjectType, Rect& theRect)
 {
-	// Rect aRect = GetShovelButtonRect();
-	// Rect aButtonRect = GetShovelButtonRect();
-	// GetZenButtonRect(xxx, aButtonRect);
-
 	if (mApp->mGameMode == GameMode::GAMEMODE_TREE_OF_WISDOM)
 	{
 		if (theObjectType == GameObjectType::OBJECT_TYPE_NEXT_GARDEN)
 		{
 			theRect.mX = 30;
 		}
-		//return theRect;
 	}
 
 	theRect.mX = 30;
@@ -3118,8 +3113,8 @@ void Board::UpdateMousePosition()
 	}
 
 	SeedType aCursorSeedType = GetSeedTypeInCursor();
-	int aMouseX = mApp->mWidgetManager->mLastMouseX - mX;
-	int aMouseY = mApp->mWidgetManager->mLastMouseY - mY;
+	int aMouseX = mApp->mWidgetManager->mLastMouseX - BOARD_ADDITIONAL_WIDTH;
+	int aMouseY = mApp->mWidgetManager->mLastMouseY - BOARD_OFFSET_Y;
 
 	if (mApp->IsScaryPotterLevel())
 	{
@@ -3246,7 +3241,7 @@ void Board::UpdateToolTip()
 	{
 		mToolTip->SetLabel(_S("[NEXT_GARDEN_TOOLTIP]"));
 		Rect aButtonRect = GetShovelButtonRect();
-		mToolTip->mX = 599;
+		mToolTip->mX = 599 + BOARD_ADDITIONAL_WIDTH;
 		mToolTip->mY = aButtonRect.mY + 52;
 		mToolTip->mCenter = true;
 		mToolTip->mVisible = true;
@@ -4157,7 +4152,7 @@ bool Board::MouseHitTest(int x, int y, HitResult* theHitResult)
 				Rect aButtonRect = GetShovelButtonRect();
 				if (aTool == GameObjectType::OBJECT_TYPE_NEXT_GARDEN)
 				{
-					aButtonRect.mX = 564;
+					aButtonRect.mX = 564 + BOARD_ADDITIONAL_WIDTH;
 				}
 				else
 				{
@@ -5769,12 +5764,12 @@ void Board::Update()
 	mEffectCounter++;
 	if (StageHasPool() && !mIceTrapCounter && mApp->mGameScene != GameScenes::SCENE_ZOMBIES_WON && !mCutScene->IsSurvivalRepick())
 	{
-		mApp->mPoolEffect->mPoolCounter++;
+		mApp->mPoolEffect->PoolEffectUpdate();
 	}
 	if (mBackground == BackgroundType::BACKGROUND_3_POOL && mPoolSparklyParticleID == ParticleSystemID::PARTICLESYSTEMID_NULL && mDrawCount > 0)
 	{
 		int aRenderPosition = MakeRenderOrder(RenderLayer::RENDER_LAYER_GROUND, 2, 0);
-		TodParticleSystem* aPoolParticle = mApp->AddTodParticle(450, 295, aRenderPosition, ParticleEffect::PARTICLE_POOL_SPARKLY);
+		TodParticleSystem* aPoolParticle = mApp->AddTodParticle(450 + BOARD_ADDITIONAL_WIDTH, 295 + BOARD_OFFSET_Y, aRenderPosition, ParticleEffect::PARTICLE_POOL_SPARKLY);
 		mPoolSparklyParticleID = mApp->ParticleGetID(aPoolParticle);
 	}
 
@@ -5904,7 +5899,11 @@ void Board::DrawBackdrop(Graphics* g)
 	}
 	if (StageHasPool())
 	{
+		g->mTransX += BOARD_ADDITIONAL_WIDTH;
+		g->mTransY += BOARD_OFFSET_Y;
 		mApp->mPoolEffect->PoolEffectDraw(g, StageIsNight());
+		g->mTransX -= BOARD_ADDITIONAL_WIDTH;
+		g->mTransY -= BOARD_OFFSET_Y;
 	}
 	if (mTutorialState == TutorialState::TUTORIAL_LEVEL_1_PLANT_PEASHOOTER)
 	{
@@ -6855,7 +6854,7 @@ void Board::DrawZenButtons(Graphics* g)
 		Rect aButtonRect = GetShovelButtonRect();
 		if (aTool == GameObjectType::OBJECT_TYPE_NEXT_GARDEN)
 		{
-			aButtonRect.mX = 564;
+			aButtonRect.mX = 564 + BOARD_ADDITIONAL_WIDTH;
 			if (!mMenuButton->mBtnNoDraw)
 			{
 				g->DrawImage(Sexy::IMAGE_ZEN_NEXTGARDEN, aButtonRect.mX + 2, aButtonRect.mY + aOffsetY);
@@ -6981,6 +6980,7 @@ void Board::DrawShovel(Graphics* g)
 	{
 		if (mChallenge->mChallengeState == (ChallengeState)15)
 		{
+			//scrapped idea prob 
 			g->SetColorizeImages(true);
 			g->SetColor(GetFlashingColor(mMainCounter, 75));
 		}
@@ -7506,8 +7506,8 @@ void Board::DrawFog(Graphics* g)
 			int aCelLook = mGridCelLook[x][y % MAX_GRID_SIZE_Y];
 			int aCelCol = aCelLook % 8;
 			int aPosXOffset = 80;
-			float aPosX = x * aPosXOffset + mFogOffset - 15;
-			float aPosY = y * 85 + 20;
+			float aPosX = x * aPosXOffset + mFogOffset - 15 + BOARD_ADDITIONAL_WIDTH;
+			float aPosY = y * 85 + 20 + BOARD_OFFSET_Y;
 			float aTime = mMainCounter * PI * 2;
 			float aPhaseX = 6 * PI * x / MAX_GRID_SIZE_X;
 			float aPhaseY = 6 * PI * y / (MAX_GRID_SIZE_Y + 1);
@@ -7654,9 +7654,6 @@ void Board::Draw(Graphics* g)
 
 	mDrawCount++;
 	DrawGameObjects(g);
-	g->SetColor(Color(255, 255, 255, 60));
-	g->FillRect(Rect(0, 0, mWidth, mHeight));
-	g->SetColor(Color(255, 255));
 }
 
 void Board::SetMustacheMode(bool theEnableMustache)
@@ -8473,7 +8470,8 @@ void Board::KeyChar(SexyChar theChar)
 
 	if (theChar == _S('b'))
 	{
-		AddZombie(ZombieType::ZOMBIE_BUNGEE, Zombie::ZOMBIE_WAVE_DEBUG);
+		//AddZombie(ZombieType::ZOMBIE_BUNGEE, Zombie::ZOMBIE_WAVE_DEBUG);
+		AddZombieInRow(ZombieType::ZOMBIE_DUCKY_TUBE, 3, mCurrentWave);
 		return;
 	}
 	if (theChar == _S('o'))
@@ -9056,7 +9054,7 @@ int Board::PixelToGridX(int theX, int theY)
 		}
 	}
 
-	if (theX < LAWN_XMIN)
+	if (theX < LAWN_XMIN || theX > BOARD_WIDTH - BOARD_ADDITIONAL_WIDTH * 2)
 		return -1;
 
 	return ClampInt((theX - LAWN_XMIN) / 80, 0, MAX_GRID_SIZE_X - 1);
@@ -9081,7 +9079,7 @@ int Board::PixelToGridY(int theX, int theY)
 	}
 
 	int aGridX = PixelToGridX(theX, theY);
-	if (aGridX == -1 || theY < LAWN_YMIN)
+	if (aGridX == -1 || theY < LAWN_YMIN || theY > BOARD_HEIGHT - BOARD_OFFSET_Y * 2)
 		return -1;
 
 	if (StageHasRoof())
