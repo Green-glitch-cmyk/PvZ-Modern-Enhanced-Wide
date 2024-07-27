@@ -2935,8 +2935,8 @@ PlantingReason Board::CanPlantAt(int theGridX, int theGridY, SeedType theSeedTyp
 
 void Board::UpdateCursor()
 {
-	int aMouseX = mApp->mWidgetManager->mLastMouseX;
-	int aMouseY = mApp->mWidgetManager->mLastMouseY;
+	int aMouseX = mApp->mWidgetManager->mLastMouseX - mX;
+	int aMouseY = mApp->mWidgetManager->mLastMouseY - mY;
 	bool aShowFinger = false;
 	bool aShowDrag = false;
 	bool aHideCursor = false;
@@ -3113,8 +3113,8 @@ void Board::UpdateMousePosition()
 	}
 
 	SeedType aCursorSeedType = GetSeedTypeInCursor();
-	int aMouseX = mApp->mWidgetManager->mLastMouseX - BOARD_ADDITIONAL_WIDTH;
-	int aMouseY = mApp->mWidgetManager->mLastMouseY - BOARD_OFFSET_Y;
+	int aMouseX = mApp->mWidgetManager->mLastMouseX - mX;
+	int aMouseY = mApp->mWidgetManager->mLastMouseY - mY;
 
 	if (mApp->IsScaryPotterLevel())
 	{
@@ -3205,8 +3205,8 @@ void Board::UpdateToolTip()
 		return;
 	}
 
-	int aMouseX = mApp->mWidgetManager->mLastMouseX;
-	int aMouseY = mApp->mWidgetManager->mLastMouseY;
+	int aMouseX = mApp->mWidgetManager->mLastMouseX - mX;
+	int aMouseY = mApp->mWidgetManager->mLastMouseY - mY;
 
 	if (!CanInteractWithBoardButtons())
 	{
@@ -3537,8 +3537,6 @@ void Board::MouseDownWithPlant(int x, int y, int theClickCount)
 		return;
 	}
 
-	x -= BOARD_ADDITIONAL_WIDTH;
-	y -= BOARD_OFFSET_Y;
 	if (mApp->IsIZombieLevel())
 	{
 		mChallenge->IZombieMouseDownWithZombie(x, y, theClickCount);
@@ -3944,7 +3942,7 @@ void Board::MouseDownWithTool(int x, int y, int theClickCount, CursorType theCur
 		return;
 	}
 
-	Plant* aPlant = ToolHitTest(x - BOARD_ADDITIONAL_WIDTH, y - BOARD_OFFSET_Y);
+	Plant* aPlant = ToolHitTest(x, y);
 	if (aPlant == nullptr)
 	{
 		mApp->PlayFoley(FoleyType::FOLEY_DROP);
@@ -5863,23 +5861,23 @@ void Board::DrawBackdrop(Graphics* g)
 		g->DrawImage(Sexy::IMAGE_BACKGROUND1UNSODDED, -BOARD_OFFSET_X, 0);
 		int aWidth = TodAnimateCurve(0, 1000, mSodPosition, 0, Sexy::IMAGE_SOD1ROW->GetWidth(), TodCurves::CURVE_LINEAR);
 		Rect aSrcRect(0, 0, aWidth, Sexy::IMAGE_SOD1ROW->GetHeight());
-		g->DrawImage(Sexy::IMAGE_SOD1ROW, 239 - BOARD_OFFSET_X, 265, aSrcRect);
+		g->DrawImage(Sexy::IMAGE_SOD1ROW, 239 - BOARD_OFFSET_X + BOARD_ADDITIONAL_WIDTH, 265 + BOARD_OFFSET_Y, aSrcRect);
 	}
 	else if (((mLevel == 2 || mLevel == 3) && mApp->IsFirstTimeAdventureMode()) || mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_RESODDED)
 	{
 		g->DrawImage(Sexy::IMAGE_BACKGROUND1UNSODDED, -BOARD_OFFSET_X, 0);
-		g->DrawImage(Sexy::IMAGE_SOD1ROW, 239 - BOARD_OFFSET_X, 265);
+		g->DrawImage(Sexy::IMAGE_SOD1ROW, 239 - BOARD_OFFSET_X + BOARD_ADDITIONAL_WIDTH, 265 + BOARD_OFFSET_Y);
 		int aWidth = TodAnimateCurve(0, 1000, mSodPosition, 0, Sexy::IMAGE_SOD3ROW->GetWidth(), TodCurves::CURVE_LINEAR);
 		Rect aSrcRect(0, 0, aWidth, Sexy::IMAGE_SOD3ROW->GetHeight());
-		g->DrawImage(Sexy::IMAGE_SOD3ROW, 235 - BOARD_OFFSET_X, 149, aSrcRect);
+		g->DrawImage(Sexy::IMAGE_SOD3ROW, 235 - BOARD_OFFSET_X + BOARD_ADDITIONAL_WIDTH, 149 + BOARD_OFFSET_Y, aSrcRect);
 	}
 	else if (mLevel == 4 && mApp->IsFirstTimeAdventureMode())
 	{
 		g->DrawImage(Sexy::IMAGE_BACKGROUND1UNSODDED, -BOARD_OFFSET_X, 0);
-		g->DrawImage(Sexy::IMAGE_SOD3ROW, 235 - BOARD_OFFSET_X, 149);
-		int aWidth = TodAnimateCurve(0, 1350, mSodPosition, 240, 1280, TodCurves::CURVE_LINEAR);
+		g->DrawImage(Sexy::IMAGE_SOD3ROW, 235 - BOARD_OFFSET_X  + BOARD_ADDITIONAL_WIDTH, 149 + BOARD_OFFSET_Y);
+		int aWidth = TodAnimateCurve(0, 1000, mSodPosition, 0, 773, TodCurves::CURVE_LINEAR);
 		Rect aSrcRect(232, 0, aWidth, Sexy::IMAGE_BACKGROUND1->GetHeight());
-		g->DrawImage(Sexy::IMAGE_BACKGROUND1, 232 - BOARD_OFFSET_X, 0, aSrcRect);
+		g->DrawImage(Sexy::IMAGE_BACKGROUND1, 232 - BOARD_OFFSET_X + BOARD_ADDITIONAL_WIDTH, 0, aSrcRect);
 	}
 	else if (aBgImage)
 	{
@@ -9057,10 +9055,10 @@ int Board::PixelToGridX(int theX, int theY)
 		}
 	}
 
-	if (theX < LAWN_XMIN || theX > BOARD_WIDTH - BOARD_ADDITIONAL_WIDTH * 2)
+	if (theX < LAWN_XMIN + BOARD_ADDITIONAL_WIDTH)
 		return -1;
 
-	return ClampInt((theX - LAWN_XMIN) / 80, 0, MAX_GRID_SIZE_X - 1);
+	return ClampInt((theX - LAWN_XMIN - BOARD_ADDITIONAL_WIDTH) / 80, 0, MAX_GRID_SIZE_X - 1);
 }
 
 int Board::PixelToGridXKeepOnBoard(int theX, int theY)
@@ -9082,7 +9080,7 @@ int Board::PixelToGridY(int theX, int theY)
 	}
 
 	int aGridX = PixelToGridX(theX, theY);
-	if (aGridX == -1 || theY < LAWN_YMIN || theY > BOARD_HEIGHT - BOARD_OFFSET_Y * 2)
+	if (aGridX == -1 || theY < LAWN_YMIN + BOARD_OFFSET_Y)
 		return -1;
 
 	if (StageHasRoof())
@@ -9091,15 +9089,15 @@ int Board::PixelToGridY(int theX, int theY)
 		{
 			theY -= (4 - aGridX) * 20;
 		}
-		return ClampInt((theY - LAWN_YMIN) / 85, 0, MAX_GRID_SIZE_Y - 2);
+		return ClampInt((theY - LAWN_YMIN - BOARD_OFFSET_Y) / 85, 0, MAX_GRID_SIZE_Y - 2);
 	}
 	else if (StageHasPool())
 	{
-		return ClampInt((theY - LAWN_YMIN) / 85, 0, MAX_GRID_SIZE_Y - 1);
+		return ClampInt((theY - LAWN_YMIN - BOARD_OFFSET_Y) / 85, 0, MAX_GRID_SIZE_Y - 1);
 	}
 	else
 	{
-		return ClampInt((theY - LAWN_YMIN) / 100, 0, MAX_GRID_SIZE_Y - 2);
+		return ClampInt((theY - LAWN_YMIN - BOARD_OFFSET_Y) / 100, 0, MAX_GRID_SIZE_Y - 2);
 	}
 }
 

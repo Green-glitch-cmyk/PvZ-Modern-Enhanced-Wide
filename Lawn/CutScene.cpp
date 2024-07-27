@@ -1702,7 +1702,7 @@ void CutScene::ClearUpsellBoard()
 	for (int i = 0; i < MAX_GRID_SIZE_Y; i++)
 	{
 		mBoard->mIceTimer[i] = 0;
-		mBoard->mIceMinX[i] = BOARD_WIDTH;
+		mBoard->mIceMinX[i] = BOARD_ICE_START;
 	}
 
 	mBoard->mZombies.DataArrayFreeAll();

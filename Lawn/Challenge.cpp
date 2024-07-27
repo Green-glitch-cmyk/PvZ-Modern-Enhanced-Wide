@@ -5072,12 +5072,12 @@ void Challenge::LastStandUpdate()
 		if (mSurvivalStage == 0)
 		{
 			aButton->mLabel = _S("[START_ONSLAUGHT]");
-			aButton->Resize(300, 559, 210, 46);
+			aButton->Resize(300 + BOARD_ADDITIONAL_WIDTH, BOARD_HEIGHT - 41, 210, 46);
 		}
 		else
 		{
 			aButton->mLabel = _S("[CONTINUE_ONSLAUGHT]");
-			aButton->Resize(270, 559, 257, 46);
+			aButton->Resize(270 + BOARD_ADDITIONAL_WIDTH, BOARD_HEIGHT - 41, 257, 46);
 		}
 	}
 
@@ -5131,7 +5131,7 @@ void Challenge::WhackAZombieUpdate()
 bool Challenge::TreeOfWisdomMouseOn(int theX, int theY)
 {
 	HitResult aHitResult;
-	mBoard->MouseHitTest(theX - BOARD_ADDITIONAL_WIDTH, theY - BOARD_OFFSET_Y, &aHitResult);
+	mBoard->MouseHitTest(theX, theY, &aHitResult);
 	return (aHitResult.mObjectType == OBJECT_TYPE_TREE_OF_WISDOM && mBoard->mCursorObject->mCursorType == CURSOR_TYPE_TREE_FOOD);
 }
 
@@ -5511,10 +5511,10 @@ bool Challenge::TreeOfWisdomHitTest(int theX, int theY, HitResult* theHitResult)
 	Rect aTreeRect;
 	int aTreeSize = TreeOfWisdomGetSize();
 	int aOffsetY = BOARD_OFFSET_Y * 2;
-	if (aTreeSize <= 1)			aTreeRect = Rect(310, 275 - aOffsetY, 175, 175 + aOffsetY);
-	else if (aTreeSize < 7)		aTreeRect = Rect(290, 255 - aOffsetY, 205, 195 + aOffsetY);
-	else if (aTreeSize < 12)	aTreeRect = Rect(290, 215 - aOffsetY, 205, 225 + aOffsetY);
-	else						aTreeRect = Rect(280, 155 - aOffsetY, 225, 305 + aOffsetY);
+	if (aTreeSize <= 1)			aTreeRect = Rect(310 + BOARD_ADDITIONAL_WIDTH, 275 - aOffsetY, 175, 175 + aOffsetY);
+	else if (aTreeSize < 7)		aTreeRect = Rect(290 + BOARD_ADDITIONAL_WIDTH, 255 - aOffsetY, 205, 195 + aOffsetY);
+	else if (aTreeSize < 12)	aTreeRect = Rect(290 + BOARD_ADDITIONAL_WIDTH, 215 - aOffsetY, 205, 225 + aOffsetY);
+	else						aTreeRect = Rect(280 + BOARD_ADDITIONAL_WIDTH, 155 - aOffsetY, 225, 305 + aOffsetY);
 
 	if (aTreeRect.Contains(theX, theY))
 	{
