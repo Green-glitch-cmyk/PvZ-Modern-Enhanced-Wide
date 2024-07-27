@@ -21,8 +21,7 @@
 #include "../../SexyAppFramework/WidgetManager.h"
 #include "../../SexyAppFramework/Slider.h"
 
-const int cSeedChooserExtraHeight = 120;
-const Rect cSeedClipRect = Rect(0, 123, BOARD_WIDTH, 420 + cSeedChooserExtraHeight);
+const Rect cSeedClipRect = Rect(0, 123, BOARD_WIDTH, 420 + SEED_CHOOSER_EXTRA_HEIGHT);
 const int cSeedPacketYOffset = 1;
 const int cSeedPacketRows = 8;
 
@@ -52,7 +51,7 @@ SeedChooserScreen::SeedChooserScreen()
 	mStartButton->SetFont(Sexy::FONT_DWARVENTODCRAFT18YELLOW);
 	mStartButton->mColors[ButtonWidget::COLOR_LABEL] = Color::White;
 	mStartButton->mColors[ButtonWidget::COLOR_LABEL_HILITE] = Color::White;
-	mStartButton->Resize(154, 545 + cSeedChooserExtraHeight, 156, 42);
+	mStartButton->Resize(154, 545 + SEED_CHOOSER_EXTRA_HEIGHT, 156, 42);
 	mStartButton->mTextOffsetY = -1;
 	EnableStartButton(false);
 	mStartButton->mParentWidget = this;
@@ -72,7 +71,7 @@ SeedChooserScreen::SeedChooserScreen()
 	mRandomButton->SetFont(Sexy::FONT_BRIANNETOD12);
 	mRandomButton->mColors[0] = Color(255, 240, 0);
 	mRandomButton->mColors[1] = Color(200, 200, 255);
-	mRandomButton->Resize(332, 555 + cSeedChooserExtraHeight, 100, 30);
+	mRandomButton->Resize(332, 555 + SEED_CHOOSER_EXTRA_HEIGHT, 100, 30);
 	mRandomButton->mParentWidget = this;
 
 	Color aBtnColor = Color(42, 42, 90);
@@ -89,7 +88,7 @@ SeedChooserScreen::SeedChooserScreen()
 	mViewLawnButton->SetFont(Sexy::FONT_BRIANNETOD12);
 	mViewLawnButton->mColors[0] = aBtnColor;
 	mViewLawnButton->mColors[1] = aBtnColor;
-	mViewLawnButton->Resize(22, 561 + cSeedChooserExtraHeight, aImageWidth, aImageHeight);
+	mViewLawnButton->Resize(22, 561 + SEED_CHOOSER_EXTRA_HEIGHT, aImageWidth, aImageHeight);
 	mViewLawnButton->mTextOffsetY = 1;
 	mViewLawnButton->mParentWidget = this;
 	if (!mBoard->mCutScene->IsSurvivalRepick())
@@ -106,7 +105,7 @@ SeedChooserScreen::SeedChooserScreen()
 	mAlmanacButton->SetFont(Sexy::FONT_BRIANNETOD12);
 	mAlmanacButton->mColors[0] = aBtnColor;
 	mAlmanacButton->mColors[1] = aBtnColor;
-	mAlmanacButton->Resize(560 + aButtonOffsetX, 572 + cSeedChooserExtraHeight, aImageWidth, aImageHeight);
+	mAlmanacButton->Resize(560 + aButtonOffsetX, 572 + SEED_CHOOSER_EXTRA_HEIGHT, aImageWidth, aImageHeight);
 	mAlmanacButton->mTextOffsetY = 1;
 	mAlmanacButton->mParentWidget = this;
 
@@ -118,7 +117,7 @@ SeedChooserScreen::SeedChooserScreen()
 	mStoreButton->SetFont(Sexy::FONT_BRIANNETOD12);
 	mStoreButton->mColors[0] = aBtnColor;
 	mStoreButton->mColors[1] = aBtnColor;
-	mStoreButton->Resize(680 + aButtonOffsetX, 572 + cSeedChooserExtraHeight, aImageWidth, aImageHeight);
+	mStoreButton->Resize(680 + aButtonOffsetX, 572 + SEED_CHOOSER_EXTRA_HEIGHT, aImageWidth, aImageHeight);
 	mStoreButton->mTextOffsetY = 1;
 	mStoreButton->mParentWidget = this;
 
@@ -175,7 +174,7 @@ SeedChooserScreen::SeedChooserScreen()
 		aStarFruit.mSeedIndexInBank = 0;
 		mSeedsInBank++;
 	}
-	if ((mApp->mCrazySeeds && mApp->mPlayingQuickplay) || (mApp->IsAdventureMode() && !mApp->IsFirstTimeAdventureMode() && !mApp->mPlayingQuickplay))
+	if ((mApp->mCrazySeeds && mApp->mPlayingQuickplay) || (mApp->IsAdventureMode() && !mApp->IsFirstTimeAdventureMode()))
 		CrazyDavePickSeeds();
 
 	mSlider = new Sexy::Slider(IMAGE_OPTIONS_SLIDERSLOT_PLANT, IMAGE_OPTIONS_SLIDERKNOB_PLANT, 0, this);
@@ -184,8 +183,6 @@ SeedChooserScreen::SeedChooserScreen()
 	mSlider->mThumbOffsetX = -14;
 	mSlider->mNoDraw = true;
 	ResizeSlider();
-
-	mPreviousType = FindSeedInBank(mSeedsInBank - 1);
 }
 
 int SeedChooserScreen::PickFromWeightedArrayUsingSpecialRandSeed(TodWeightedArray* theArray, int theCount, MTRand& theLevelRNG)
@@ -270,7 +267,7 @@ void SeedChooserScreen::GetSeedPositionInChooser(int theIndex, int& x, int& y)
 	if (theIndex == SEED_IMITATER)
 	{
 		x = IMITATER_POS_X + 5;
-		y = IMITATER_POS_Y + 12 + cSeedChooserExtraHeight;
+		y = IMITATER_POS_Y + 12 + SEED_CHOOSER_EXTRA_HEIGHT;
 	}
 	else
 	{
@@ -340,7 +337,7 @@ void SeedChooserScreen::Draw(Graphics* g)
 
 	g->DrawImage(Sexy::IMAGE_SEEDCHOOSER_BACKGROUND, 0, 87);
 	if (mApp->SeedTypeAvailable(SEED_IMITATER))
-		g->DrawImage(Sexy::IMAGE_SEEDCHOOSER_IMITATERADDON, IMITATER_POS_X, IMITATER_POS_Y + cSeedChooserExtraHeight);
+		g->DrawImage(Sexy::IMAGE_SEEDCHOOSER_IMITATERADDON, IMITATER_POS_X, IMITATER_POS_Y + SEED_CHOOSER_EXTRA_HEIGHT);
 
 	TodDrawString(g, _S("[CHOOSE_YOUR_PLANTS]"), 229, 110, Sexy::FONT_DWARVENTODCRAFT18YELLOW, Color::White, DS_ALIGN_CENTER);
 	mSlider->SliderDraw(g);
@@ -452,18 +449,18 @@ void SeedChooserScreen::UpdateViewLawn()
 		aSeedPacket.SetPacketType(aSeedType, aChosenSeed.mImitaterType);
 	}
 
-	int aBoardX = BOARD_IMAGE_WIDTH_OFFSET - mApp->mWidth + BOARD_ADDITIONAL_WIDTH;
-	int aSeedChooserY = SEED_CHOOSER_OFFSET_Y - Sexy::IMAGE_SEEDCHOOSER_BACKGROUND->GetHeight() - 25 - BOARD_OFFSET_Y;
+	int aSeedChooserY = SEED_CHOOSER_OFFSET_Y - Sexy::IMAGE_SEEDCHOOSER_BACKGROUND->GetHeight() - 87;
+	int aStreetOffset = BOARD_IMAGE_WIDTH_OFFSET + BOARD_ADDITIONAL_WIDTH - mApp->mWidth;
 	if (mViewLawnTime <= 100)
 	{
 		mBoard->mRoofPoleOffset = TodAnimateCurve(0, 100, mViewLawnTime, ROOF_POLE_END, ROOF_POLE_START, TodCurves::CURVE_EASE_IN_OUT);
 		mBoard->mRoofTreeOffset = TodAnimateCurve(0, 100, mViewLawnTime, ROOF_TREE_END, ROOF_TREE_START, TodCurves::CURVE_EASE_IN_OUT);
-		mBoard->Move(-TodAnimateCurve(0, 100, mViewLawnTime, aBoardX, -BOARD_ADDITIONAL_WIDTH, CURVE_EASE_IN_OUT), BOARD_OFFSET_Y);
+		mBoard->Move(-TodAnimateCurve(0, 100, mViewLawnTime, aStreetOffset, 0, CURVE_EASE_IN_OUT), 0);
 		Move(0, TodAnimateCurve(0, 40, mViewLawnTime, aSeedChooserY, SEED_CHOOSER_OFFSET_Y, CURVE_EASE_IN_OUT));
 	}
 	else if (mViewLawnTime <= 250)
 	{
-		mBoard->Move(BOARD_ADDITIONAL_WIDTH, BOARD_OFFSET_Y);
+		mBoard->Move(0, 0);
 		Move(0, SEED_CHOOSER_OFFSET_Y);
 	}
 	else if (mViewLawnTime <= 350)
@@ -471,7 +468,7 @@ void SeedChooserScreen::UpdateViewLawn()
 		mBoard->ClearAdvice(ADVICE_CLICK_TO_CONTINUE);
 		mBoard->mRoofPoleOffset = TodAnimateCurve(250, 350, mViewLawnTime, ROOF_POLE_START, ROOF_POLE_END, TodCurves::CURVE_EASE_IN_OUT);
 		mBoard->mRoofTreeOffset = TodAnimateCurve(250, 350, mViewLawnTime, ROOF_TREE_START, ROOF_TREE_END, TodCurves::CURVE_EASE_IN_OUT);
-		mBoard->Move(-TodAnimateCurve(250, 350, mViewLawnTime, -BOARD_ADDITIONAL_WIDTH, aBoardX, CURVE_EASE_IN_OUT), BOARD_OFFSET_Y);
+		mBoard->Move(-TodAnimateCurve(250, 350, mViewLawnTime, 0, aStreetOffset, CURVE_EASE_IN_OUT), 0);
 		Move(0, TodAnimateCurve(310, 350, mViewLawnTime, SEED_CHOOSER_OFFSET_Y, aSeedChooserY, CURVE_EASE_IN_OUT));
 	}
 	else
@@ -1062,7 +1059,7 @@ void SeedChooserScreen::CancelLawnView()
 
 bool SeedChooserScreen::IsOverImitater(int x, int y)
 {
-	return mApp->SeedTypeAvailable(SEED_IMITATER) && Rect(IMITATER_POS_X, IMITATER_POS_Y + cSeedChooserExtraHeight, IMAGE_SEEDCHOOSER_IMITATERADDON->mWidth, IMAGE_SEEDCHOOSER_IMITATERADDON->mHeight).Contains(x, y);
+	return mApp->SeedTypeAvailable(SEED_IMITATER) && Rect(IMITATER_POS_X, IMITATER_POS_Y + SEED_CHOOSER_EXTRA_HEIGHT, IMAGE_SEEDCHOOSER_IMITATERADDON->mWidth, IMAGE_SEEDCHOOSER_IMITATERADDON->mHeight).Contains(x, y);
 }
 
 void SeedChooserScreen::ResizeSlider()
@@ -1180,7 +1177,7 @@ bool SeedChooserScreen::PickedPlantType(SeedType theSeedType)
 	for (SeedType aSeedType = SEED_PEASHOOTER; aSeedType < NUM_SEEDS_IN_CHOOSER; aSeedType = (SeedType)(aSeedType + 1))
 	{
 		ChosenSeed& aChosenSeed = mChosenSeeds[aSeedType];
-		if (aChosenSeed.mSeedState == SEED_IN_BANK)
+		if (aChosenSeed.mSeedState == SEED_IN_BANK || aChosenSeed.mSeedState == SEED_FLYING_TO_BANK)
 		{
 			if (aChosenSeed.mSeedType == theSeedType || (aChosenSeed.mSeedType == SEED_IMITATER && aChosenSeed.mImitaterType == theSeedType))
 			{

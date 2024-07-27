@@ -235,6 +235,8 @@ public:
 	bool							mCoinFaded;
 	int								mAchievementCoinCount;
 	int								mGargantuarsKilled;
+	int								mCoinBankX;
+	int								mCoinBankY;
 
 public:
 	Board(LawnApp* theApp);

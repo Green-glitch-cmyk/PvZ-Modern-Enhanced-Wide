@@ -202,7 +202,7 @@ ZombieAllowedLevels gZombieAllowedLevels[NUM_ZOMBIE_TYPES] = {
 			0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
 		}
 	},
-	{ ZOMBIE_YETI, {0} },
+	{ ZOMBIE_YETI, {}},
 	{ ZOMBIE_BUNGEE,
 		{
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -248,14 +248,14 @@ ZombieAllowedLevels gZombieAllowedLevels[NUM_ZOMBIE_TYPES] = {
 			0, 0, 0, 0, 0, 0, 0, 1, 1, 1,
 		}
 	},
-	{ ZOMBIE_BOSS, {0} },
-	{ ZOMBIE_REDEYE_GARGANTUAR, {0} },
-	{ ZOMBIE_PEA_HEAD, {0} },
-	{ ZOMBIE_WALLNUT_HEAD, {0} },
-	{ ZOMBIE_JALAPENO_HEAD, {0} },
-	{ ZOMBIE_GATLING_HEAD, {0} },
-	{ ZOMBIE_SQUASH_HEAD, {0} },
-	{ ZOMBIE_TALLNUT_HEAD, {0} },
+	{ ZOMBIE_BOSS, {}},
+	{ ZOMBIE_REDEYE_GARGANTUAR, {}},
+	{ ZOMBIE_PEA_HEAD, {}},
+	{ ZOMBIE_WALLNUT_HEAD, {}},
+	{ ZOMBIE_JALAPENO_HEAD, {}},
+	{ ZOMBIE_GATLING_HEAD, {}},
+	{ ZOMBIE_SQUASH_HEAD, {}},
+	{ ZOMBIE_TALLNUT_HEAD, {}},
 };
 
 SeedType gArtChallengeWallnut[MAX_GRID_SIZE_Y][MAX_GRID_SIZE_X] = {  
@@ -422,7 +422,7 @@ void Challenge::StartLevel()
 		{
 			if (mBoard->mPlantRow[i] != PLANTROW_POOL)
 			{
-				mBoard->mIceMinX[i] = 400;
+				mBoard->mIceMinX[i] = 400 + BOARD_ADDITIONAL_WIDTH;
 				mBoard->mIceTimer[i] = 0x7FFFFFFF;
 			}
 		}
@@ -1513,7 +1513,7 @@ void Challenge::UpdateBeghouled()
 
 	if (mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST && mChallengeState == STATECHALLENGE_NORMAL)
 	{
-		if (BeghouledTwistSquareFromMouse(mApp->mWidgetManager->mLastMouseX - BOARD_ADDITIONAL_WIDTH, mApp->mWidgetManager->mLastMouseY - BOARD_OFFSET_Y, mChallengeGridX, mChallengeGridY))
+		if (BeghouledTwistSquareFromMouse(mApp->mWidgetManager->mLastMouseX, mApp->mWidgetManager->mLastMouseY, mChallengeGridX, mChallengeGridY))
 		{
 			BeghouledBoardState aBoardState;
 			LoadBeghouledBoardState(&aBoardState);
@@ -1879,7 +1879,7 @@ void Challenge::UpdateRainingSeeds()
 
 	mChallengeStateCounter = RandRangeInt(500, 999);
 
-	Coin* aCoin = mBoard->AddCoin(RandRangeInt(100, 649), 60, COIN_USABLE_SEED_PACKET, COIN_MOTION_FROM_SKY_SLOW);
+	Coin* aCoin = mBoard->AddCoin(RandRangeInt(100 + BOARD_ADDITIONAL_WIDTH, 649 + BOARD_ADDITIONAL_WIDTH), 60, COIN_USABLE_SEED_PACKET, COIN_MOTION_FROM_SKY_SLOW);
 
 	SeedType aSeedType;
 	do
@@ -2116,7 +2116,7 @@ void Challenge::Update()
 	{
 		if (mBoard->mSunMoney + mBoard->CountSunBeingCollected() > 0 || mBoard->mSeedBank->mY > Sexy::IMAGE_SEEDBANK->mWidth)
 		{
-			mBoard->mSeedBank->mY += 6;
+			mBoard->mSeedBank->mY += 2;
 			if (mBoard->mSeedBank->mY > 0)
 			{
 				mBoard->mSeedBank->mY = 0;
@@ -2319,8 +2319,8 @@ void Challenge::DrawSlotMachine(Graphics* g)
 		gBoardParent.SetColor(GetFlashingColor(mBoard->mMainCounter, 75));
 		gBoardParent.SetColorizeImages(true);
 	}
-	gBoardParent.mTransX = mBoard->mSeedBank->mX - mBoard->mX + BOARD_ADDITIONAL_WIDTH;
-	gBoardParent.mTransY = mBoard->mSeedBank->mY - mBoard->mY + BOARD_OFFSET_Y;
+	gBoardParent.mTransX = mBoard->mSeedBank->mX - mBoard->mX;
+	gBoardParent.mTransY = mBoard->mSeedBank->mY - mBoard->mY;
 	mApp->ReanimationGet(mReanimChallenge)->Draw(&gBoardParent);
 }
 
@@ -5131,7 +5131,7 @@ void Challenge::WhackAZombieUpdate()
 bool Challenge::TreeOfWisdomMouseOn(int theX, int theY)
 {
 	HitResult aHitResult;
-	mBoard->MouseHitTest(theX - BOARD_ADDITIONAL_WIDTH, theY, &aHitResult);
+	mBoard->MouseHitTest(theX - BOARD_ADDITIONAL_WIDTH, theY - BOARD_OFFSET_Y, &aHitResult);
 	return (aHitResult.mObjectType == OBJECT_TYPE_TREE_OF_WISDOM && mBoard->mCursorObject->mCursorType == CURSOR_TYPE_TREE_FOOD);
 }
 
@@ -5201,6 +5201,7 @@ void Challenge::TreeOfWisdomDraw(Graphics* g)
 			aPosY = 40;
 		}
 		aPosX += BOARD_ADDITIONAL_WIDTH;  
+		aPosY += BOARD_OFFSET_Y;
 		g->DrawImage(Sexy::IMAGE_STORE_SPEECHBUBBLE2, aPosX, aPosY);
 		SexyString aText = StrFormat(_S("[TREE_OF_WISDOM_%d]"), mTreeOfWisdomTalkIndex);
 		TodDrawStringWrapped(g, aText, Rect(aPosX + 25, aPosY + 6, 233, 144), Sexy::FONT_BRIANNETOD16, Color::Black, DS_ALIGN_CENTER_VERTICAL_MIDDLE);
@@ -5304,7 +5305,7 @@ void Challenge::TreeOfWisdomFertilize()
 {
 	GridItem* aTreeFood = mBoard->mGridItems.DataArrayAlloc();
 	aTreeFood->mPosX = 340.0f + BOARD_ADDITIONAL_WIDTH;
-	aTreeFood->mPosY = 300.0f;
+	aTreeFood->mPosY = 300.0f + BOARD_OFFSET_Y;
 	aTreeFood->mGridItemType = GRIDITEM_ZEN_TOOL;
 	aTreeFood->mGridX = 0;
 	aTreeFood->mGridY = 0;

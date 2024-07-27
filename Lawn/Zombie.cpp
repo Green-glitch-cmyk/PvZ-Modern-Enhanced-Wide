@@ -2084,17 +2084,17 @@ void Zombie::UpdateZombieGargantuar()
             if (aZombieImp == nullptr)
                 return;
             
-            float aMinThrowDistance = 40.0f;
+            float aMinThrowDistance = 40.0f - BOARD_ADDITIONAL_WIDTH;
             if (mBoard->StageHasRoof())
             {
                 aThrowingDistance -= 180.0f;
-                aMinThrowDistance = -140.0f;
+                aMinThrowDistance = -140.0f - BOARD_ADDITIONAL_WIDTH;
             }
             if (aThrowingDistance < aMinThrowDistance)
             {
                 aThrowingDistance = aMinThrowDistance;
             }
-            else if (aThrowingDistance > 140.0f)
+            else if (aThrowingDistance > 140.0f - BOARD_ADDITIONAL_WIDTH)
             {
                 aThrowingDistance -= RandRangeFloat(0.0f, 100.0f);
             }
@@ -3789,7 +3789,7 @@ bool Zombie::ZombieNotWalking()
 
 void Zombie::UpdateZamboni()
 {
-    if (mPosX > 400.0f && !mFlatTires)
+    if (mPosX > 400.0f + BOARD_ADDITIONAL_WIDTH && !mFlatTires)
     {
         mVelX = TodAnimateCurveFloat(700, 300, mPosX, 0.25f, 0.05f, TodCurves::CURVE_LINEAR);
     }
@@ -3811,7 +3811,7 @@ void Zombie::UpdateZamboni()
     {
         mBoard->mIceMinX[mRow] = anIceX;
     }
-    if (anIceX < 800)
+    if (anIceX < BOARD_ICE_START)
     {
         mBoard->mIceTimer[mRow] = 3000;
         if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_BOBSLED_BONANZA)
@@ -4161,15 +4161,15 @@ void Zombie::Update()
                         int aEdgeX = BOARD_EDGE;
                         if (mZombieType == ZombieType::ZOMBIE_GARGANTUAR || mZombieType == ZombieType::ZOMBIE_REDEYE_GARGANTUAR || mZombieType == ZombieType::ZOMBIE_POLEVAULTER)
                         {
-                            aEdgeX = -150 + BOARD_ADDITIONAL_WIDTH;
+                            aEdgeX -= 50;
                         }
                         else if (mZombieType == ZombieType::ZOMBIE_CATAPULT || mZombieType == ZombieType::ZOMBIE_FOOTBALL || mZombieType == ZombieType::ZOMBIE_ZAMBONI)
                         {
-                            aEdgeX = -175 + BOARD_ADDITIONAL_WIDTH;
+                            aEdgeX -= 75;
                         }
                         else if (mZombieType == ZombieType::ZOMBIE_BACKUP_DANCER || mZombieType == ZombieType::ZOMBIE_DANCER || mZombieType == ZombieType::ZOMBIE_SNORKEL)
                         {
-                            aEdgeX = -130 + BOARD_ADDITIONAL_WIDTH;
+                            aEdgeX -= 30;
                         }
 
                         if (mBoard->mCutScene->mCutsceneTime <= 500)
@@ -9935,7 +9935,7 @@ void Zombie::BossHeadSpitContact()
     Reanimation* aFireBallReanim;
     if (mIsFireBall)
     {
-        aFireBallReanim = mApp->AddReanimation(455.0f, aPosY, mRenderOrder + 1, ReanimationType::REANIM_BOSS_FIREBALL);
+        aFireBallReanim = mApp->AddReanimation(455.0f + BOARD_ADDITIONAL_WIDTH, aPosY, mRenderOrder + 1, ReanimationType::REANIM_BOSS_FIREBALL);
         aFireBallReanim->PlayReanim("anim_form", ReanimLoopType::REANIM_PLAY_ONCE_AND_HOLD, 0, 16.0f);
         aFireBallReanim->mIsAttachment = true;
         aFireBallReanim->AssignRenderGroupToTrack("additive", RENDER_GROUP_BOSS_FIREBALL_ADDITIVE);
@@ -9943,7 +9943,7 @@ void Zombie::BossHeadSpitContact()
     }
     else
     {
-        aFireBallReanim = mApp->AddReanimation(455.0f, aPosY, mRenderOrder + 1, ReanimationType::REANIM_BOSS_ICEBALL);
+        aFireBallReanim = mApp->AddReanimation(455.0f + BOARD_ADDITIONAL_WIDTH, aPosY, mRenderOrder + 1, ReanimationType::REANIM_BOSS_ICEBALL);
         aFireBallReanim->PlayReanim("anim_form", ReanimLoopType::REANIM_PLAY_ONCE_AND_HOLD, 0, 16.0f);
         aFireBallReanim->mIsAttachment = true;
         aFireBallReanim->AssignRenderGroupToTrack("ice_highlight", RENDER_GROUP_BOSS_FIREBALL_ADDITIVE);
@@ -9966,13 +9966,13 @@ void Zombie::UpdateBossFireball()
     float aPosY = mBoard->GetPosYBasedOnRow(aPosX + 75.0f, mFireballRow) - 90.0f;
     aFireballReanim->mOverlayMatrix.m12 = aPosY;
 
-    if (aPosX < -180.0f)
+    if (aPosX < -180.0f + BOARD_ADDITIONAL_WIDTH)
     {
         aFireballReanim->ReanimationDie();
         mBossFireBallReanimID = ReanimationID::REANIMATIONID_NULL;
     }
 
-    SquishAllInSquare(mBoard->PixelToGridX(aPosX + 75, aPosY), mFireballRow, ZombieAttackType::ATTACKTYPE_DRIVE_OVER);
+    SquishAllInSquare(mBoard->PixelToGridX(aPosX + 75 - BOARD_ADDITIONAL_WIDTH, aPosY), mFireballRow, ZombieAttackType::ATTACKTYPE_DRIVE_OVER);
 
     LawnMower* aLawnMower = nullptr;
     while (mBoard->IterateLawnMowers(aLawnMower))
