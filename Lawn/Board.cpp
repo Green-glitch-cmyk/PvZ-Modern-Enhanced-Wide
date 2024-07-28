@@ -1315,7 +1315,7 @@ Rect Board::GetShovelButtonRect()
 	Rect aRect(GetSeedBankExtraWidth() + 456, 0, Sexy::IMAGE_SHOVELBANK->GetWidth(), Sexy::IMAGE_SEEDBANK->GetHeight());
 	if (mApp->IsSlotMachineLevel() || mApp->IsSquirrelLevel())
 	{
-		aRect.mX = 600 + BOARD_ADDITIONAL_WIDTH;
+		aRect.mX = 600;
 	}
 	return aRect;
 }
@@ -1762,7 +1762,7 @@ void Board::UpdateLevelEndSequence()
 	mBoardFadeOutCounter--;
 	if (mBoardFadeOutCounter == 0)
 	{
-		if (mApp->mPlayingQuickplay && mApp->mQuickLevel != FINAL_LEVEL)
+		if (mApp->mPlayingQuickplay && mLevel != FINAL_LEVEL)
 		{
 			LawnDialog* aDialog = (LawnDialog*)mApp->DoDialog(DIALOG_MESSAGE, true, _S("[QUICK_PLAY_HEADER]"), _S("[QUICK_PLAY]"), "", Dialog::BUTTONS_YES_NO);
 			if (aDialog->WaitForResult(true) == Dialog::ID_YES)
@@ -5170,7 +5170,7 @@ void Board::NextWaveComing()
 	{
 		if (!IsSurvivalStageWithRepick() && mApp->mGameMode != GameMode::GAMEMODE_CHALLENGE_LAST_STAND && !mApp->IsContinuousChallenge())
 		{
-			mApp->AddReanimation(0, 0, MakeRenderOrder(RenderLayer::RENDER_LAYER_ABOVE_UI, 0, 0), ReanimationType::REANIM_FINAL_WAVE);
+			mApp->AddReanimation(BOARD_ADDITIONAL_WIDTH, BOARD_OFFSET_Y, MakeRenderOrder(RenderLayer::RENDER_LAYER_ABOVE_UI, 0, 0), ReanimationType::REANIM_FINAL_WAVE);
 			mFinalWaveSoundCounter = 60;
 		}
 	}
@@ -9055,7 +9055,7 @@ int Board::PixelToGridX(int theX, int theY)
 		}
 	}
 
-	if (theX < LAWN_XMIN + BOARD_ADDITIONAL_WIDTH)
+	if (theX < LAWN_XMIN + BOARD_ADDITIONAL_WIDTH || theX > BOARD_WIDTH - BOARD_ADDITIONAL_WIDTH - LAWN_XMIN)
 		return -1;
 
 	return ClampInt((theX - LAWN_XMIN - BOARD_ADDITIONAL_WIDTH) / 80, 0, MAX_GRID_SIZE_X - 1);
@@ -9080,7 +9080,7 @@ int Board::PixelToGridY(int theX, int theY)
 	}
 
 	int aGridX = PixelToGridX(theX, theY);
-	if (aGridX == -1 || theY < LAWN_YMIN + BOARD_OFFSET_Y)
+	if (aGridX == -1 || theY < LAWN_YMIN + BOARD_OFFSET_Y || theY > BOARD_HEIGHT - LAWN_YMIN)
 		return -1;
 
 	if (StageHasRoof())

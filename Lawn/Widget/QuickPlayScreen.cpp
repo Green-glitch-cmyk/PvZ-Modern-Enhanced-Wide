@@ -332,9 +332,9 @@ void QuickPlayScreen::Update()
     }
     mApp->mPoolEffect->PoolEffectUpdate();
     TOD_ASSERT(mApp->mQuickLevel < NUM_LEVELS + 1);
-    if (mDisplayZombie) mDisplayZombie->UpdateReanim();
-    if (mDisplayPlant) mDisplayPlant->UpdateReanim();
-    if (mFlowerPot) mFlowerPot->UpdateReanim();
+    if (mDisplayZombie) mDisplayZombie->Update();
+    if (mDisplayPlant) mDisplayPlant->Update();
+    if (mFlowerPot) mFlowerPot->Update();
 }
 
 void QuickPlayScreen::ButtonDepress(int theId)

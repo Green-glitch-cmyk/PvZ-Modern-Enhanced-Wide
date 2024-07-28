@@ -498,6 +498,6 @@ void GameOverDialog::MouseDrag(int x, int y)
     LawnDialog::MouseDrag(x, y);
     if (mMenuButton)
     {
-        mMenuButton->Resize(635 - mX + BOARD_ADDITIONAL_WIDTH, 5 - mY, 163, 46);
+        mMenuButton->Resize(635 - mX + BOARD_ADDITIONAL_WIDTH + BOARD_OFFSET_X, -10 - mY, 163, 46);
     }
 }

@@ -24,8 +24,6 @@ void MessageWidget::ClearReanim()
 {
 	for (int i = 0; i < MAX_MESSAGE_LENGTH; i++)
 	{
-		if (mTextReanimID[i] == REANIMATIONID_NULL)
-			continue;
 		Reanimation* aReanim = mApp->ReanimationTryToGet(mTextReanimID[i]);
 		if (aReanim)
 		{
@@ -241,8 +239,8 @@ void MessageWidget::DrawReanimatedText(Graphics* g, Font* theFont, const Color& 
 		Color aFinalColor(theColor);
 		aFinalColor.mAlpha = anAlpha;
 
-		aTransform.mTransX += aTextReanim->mOverlayMatrix.m02;
-		aTransform.mTransY += aTextReanim->mOverlayMatrix.m12 + thePosY - BOARD_HEIGHT / 2;
+		aTransform.mTransX += aTextReanim->mOverlayMatrix.m02 + BOARD_ADDITIONAL_WIDTH;
+		aTransform.mTransY = thePosY;
 		if (mReanimType == ReanimationType::REANIM_TEXT_FADE_ON && mDisplayTime - mDuration < mSlideOffTime)
 		{
 			float aStretch = 1.0f - aTextReanim->mAnimTime;
@@ -294,7 +292,7 @@ void MessageWidget::Draw(Graphics* g)
 	Font* aFont = GetFont();
 	Font* aOutlineFont = nullptr;
 	int aPosX = BOARD_WIDTH / 2;
-	int aPosY = 596 + BOARD_OFFSET_Y;
+	int aPosY = BOARD_HEIGHT - 4;
 	int aTextOffsetY = 0;
 	int aRectHeight = 0;
 	int aMinAlpha = 255;
@@ -310,7 +308,7 @@ void MessageWidget::Draw(Graphics* g)
 	{
 	case MessageStyle::MESSAGE_STYLE_TUTORIAL_LEVEL1:
 	case MessageStyle::MESSAGE_STYLE_TUTORIAL_LEVEL1_STAY:
-		aPosY = 400;
+		aPosY = BOARD_HEIGHT - 200;
 		aRectHeight = 110;
 		aTextOffsetY = -4;
 		aColor = Color(253, 245, 173);
@@ -323,7 +321,7 @@ void MessageWidget::Draw(Graphics* g)
 	case MessageStyle::MESSAGE_STYLE_HINT_TALL_FAST:
 	case MessageStyle::MESSAGE_STYLE_HINT_TALL_UNLOCKMESSAGE:
 	case MessageStyle::MESSAGE_STYLE_HINT_TALL_LONG:
-		aPosY = 476;
+		aPosY = BOARD_HEIGHT - 124;
 		aRectHeight = 100;
 		aTextOffsetY = -4;
 		aColor = Color(253, 245, 173);
@@ -333,7 +331,7 @@ void MessageWidget::Draw(Graphics* g)
 	case MessageStyle::MESSAGE_STYLE_HINT_LONG:
 	case MessageStyle::MESSAGE_STYLE_HINT_FAST:
 	case MessageStyle::MESSAGE_STYLE_HINT_STAY:
-		aPosY = 527;
+		aPosY = BOARD_HEIGHT - 73;
 		aRectHeight = 55;
 		aTextOffsetY = -4;
 		aColor = Color(253, 245, 173);
@@ -342,31 +340,31 @@ void MessageWidget::Draw(Graphics* g)
 
 	case MessageStyle::MESSAGE_STYLE_BIG_MIDDLE:
 	case MessageStyle::MESSAGE_STYLE_BIG_MIDDLE_FAST:
-		aPosY = 300;
+		aPosY = BOARD_HEIGHT / 2;
 		aRectHeight = 110;
 		aColor = Color(253, 245, 173);
 		aMinAlpha = 192;
 		break;
 
 	case MessageStyle::MESSAGE_STYLE_HOUSE_NAME:
-		aPosY = 550;
+		aPosY = BOARD_HEIGHT - 50;
 		aColor = Color(255, 255, 255, 255);
 		aFadeOut = true;
 		break;
 
 	case MessageStyle::MESSAGE_STYLE_HUGE_WAVE:
-		aPosY = 371;
+		aPosY = BOARD_HEIGHT / 2 + 15;
 		aColor = Color(255, 0, 0);
 		break;
 
 	case MessageStyle::MESSAGE_STYLE_SLOT_MACHINE:
 		aPosY = 93;
-		aPosX = 330;
+		aPosX = 340;
 		aMinAlpha = 64;
 		break;
 
 	case MessageStyle::MESSAGE_STYLE_ZEN_GARDEN_LONG:
-		aPosY = 514;
+		aPosY = BOARD_HEIGHT - 86;
 		aRectHeight = 55;
 		aTextOffsetY = -4;
 		aColor = Color(253, 245, 173);
