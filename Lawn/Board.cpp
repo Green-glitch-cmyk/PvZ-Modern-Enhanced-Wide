@@ -5910,6 +5910,10 @@ void Board::DrawBackdrop(Graphics* g)
 		aClipG.SetColorizeImages(false);
 	}
 	mChallenge->DrawBackdrop(g);
+	if (mApp->mGameScene == GameScenes::SCENE_LEVEL_INTRO && StageHasGraveStones())
+	{
+		g->DrawImage(Sexy::IMAGE_NIGHT_GRAVE_GRAPHIC, 1092 + BOARD_ADDITIONAL_WIDTH, 30 + BOARD_OFFSET_Y);
+	}
 }
 
 bool RenderItemSortFunc(const RenderItem& theItem1, const RenderItem& theItem2)
