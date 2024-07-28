@@ -148,7 +148,6 @@
 <Image id="SHOVEL_HI_RES" path="shovel_hi_res" />
 <Image id="TOMBSTONES" path="Tombstones" cols="5" rows="4"/>
 <Image id="TOMBSTONE_MOUNDS" path="Tombstone_mounds" cols="5" rows="4"/>
-<Image id="NIGHT_GRAVE_GRAPHIC" path="Night_grave_graphic" />
 <Image id="CRATER" path="crater" cols="2" />
 <Image id="CRATER_FADING" path="crater_fading" cols="2" />
 <Image id="CRATER_ROOF_CENTER" path="crater_roof_center" cols="2" />

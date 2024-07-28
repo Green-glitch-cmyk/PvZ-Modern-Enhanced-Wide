@@ -19,8 +19,6 @@ public:
     ReanimationID           mReanimID;
 
 public:
-    Bush();
-
     void                    BushInitialize(int theX, int theY, int mRow, bool NightMode);
     void                    Update();
     void                    Draw(Graphics* g);

@@ -1175,22 +1175,22 @@ void CutScene::AnimateBoard()
 			mApp->PlayFoley(FoleyType::FOLEY_DIGGER);
 			if (mBoard->mLevel == 1)
 			{
-				mApp->AddReanimation(0, 0, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_TOP, 0, 0), ReanimationType::REANIM_SODROLL);
-				mApp->AddTodParticle(35, 348, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_TOP, 0, 1), ParticleEffect::PARTICLE_SOD_ROLL);
+				mApp->AddReanimation(0 + BOARD_ADDITIONAL_WIDTH, 0 + BOARD_OFFSET_Y, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_ZOMBIE, 0, 0), ReanimationType::REANIM_SODROLL);
+				mApp->AddTodParticle(35 + BOARD_ADDITIONAL_WIDTH, 348 + BOARD_OFFSET_Y, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_ZOMBIE, 0, 1), ParticleEffect::PARTICLE_SOD_ROLL);
 			}
 			else if (mBoard->mLevel == 2)
 			{
-				mApp->AddReanimation(0, -102, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_TOP, 0, 0), ReanimationType::REANIM_SODROLL);
-				mApp->AddReanimation(0, 111, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_TOP, 0, 0), ReanimationType::REANIM_SODROLL);
-				mApp->AddTodParticle(35, 246, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_TOP, 0, 1), ParticleEffect::PARTICLE_SOD_ROLL);
-				mApp->AddTodParticle(35, 459, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_TOP, 0, 1), ParticleEffect::PARTICLE_SOD_ROLL);
+				mApp->AddReanimation(0 + BOARD_ADDITIONAL_WIDTH, -102 + BOARD_OFFSET_Y, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_ZOMBIE, 0, 0), ReanimationType::REANIM_SODROLL);
+				mApp->AddReanimation(0 + BOARD_ADDITIONAL_WIDTH, 111 + BOARD_OFFSET_Y, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_ZOMBIE, 0, 0), ReanimationType::REANIM_SODROLL);
+				mApp->AddTodParticle(35 + BOARD_ADDITIONAL_WIDTH, 246 + BOARD_OFFSET_Y, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_ZOMBIE, 0, 1), ParticleEffect::PARTICLE_SOD_ROLL);
+				mApp->AddTodParticle(35 + BOARD_ADDITIONAL_WIDTH, 459 + BOARD_OFFSET_Y, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_ZOMBIE, 0, 1), ParticleEffect::PARTICLE_SOD_ROLL);
 			}
 			else if (mBoard->mLevel == 4)
 			{
-				mApp->AddReanimation(-3, -198, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_TOP, 0, 0), ReanimationType::REANIM_SODROLL);
-				mApp->AddReanimation(-3, 203, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_TOP, 0, 0), ReanimationType::REANIM_SODROLL);
-				mApp->AddTodParticle(32, 150, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_TOP, 0, 1), ParticleEffect::PARTICLE_SOD_ROLL);
-				mApp->AddTodParticle(32, 511, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_TOP, 0, 1), ParticleEffect::PARTICLE_SOD_ROLL);
+				mApp->AddReanimation(-3 + BOARD_ADDITIONAL_WIDTH, -198 + BOARD_OFFSET_Y, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_ZOMBIE, 0, 0), ReanimationType::REANIM_SODROLL);
+				mApp->AddReanimation(-3 + BOARD_ADDITIONAL_WIDTH, 203 + BOARD_OFFSET_Y, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_ZOMBIE, 0, 0), ReanimationType::REANIM_SODROLL);
+				mApp->AddTodParticle(32 + BOARD_ADDITIONAL_WIDTH, 150 + BOARD_OFFSET_Y, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_ZOMBIE, 0, 1), ParticleEffect::PARTICLE_SOD_ROLL);
+				mApp->AddTodParticle(32 + BOARD_ADDITIONAL_WIDTH, 511 + BOARD_OFFSET_Y, Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_ZOMBIE, 0, 1), ParticleEffect::PARTICLE_SOD_ROLL);
 			}
 		}
 
@@ -1443,7 +1443,7 @@ void CutScene::UpdateZombiesWon()
 	{
 		ReanimatorEnsureDefinitionLoaded(ReanimationType::REANIM_ZOMBIES_WON, true);
 		int aRenderPosition = Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_SCREEN_FADE, 0, 0);
-		Reanimation* aReanimation = mApp->AddReanimation(-BOARD_OFFSET_X, BOARD_OFFSET_Y, aRenderPosition, ReanimationType::REANIM_ZOMBIES_WON);
+		Reanimation* aReanimation = mApp->AddReanimation(-BOARD_OFFSET_X + BOARD_ADDITIONAL_WIDTH, BOARD_OFFSET_Y, aRenderPosition, ReanimationType::REANIM_ZOMBIES_WON);
 		aReanimation->mAnimRate = 12.0f;
 		aReanimation->mLoopType = ReanimLoopType::REANIM_PLAY_ONCE_AND_HOLD;
 		aReanimation->GetTrackInstanceByName("fullscreen")->mTrackColor = Color::Black;
@@ -2235,7 +2235,7 @@ void CutScene::DrawIntro(Graphics* g)
 			g,
 			_S("[INTRO_PRESENTS]"),
 			BOARD_WIDTH / 2 - mBoard->mX,
-			310 - mBoard->mY,
+			310 + BOARD_OFFSET_Y - mBoard->mY,
 			FONT_BRIANNETOD16,
 			Color(255, 255, 255, anAlpha),
 			DrawStringJustification::DS_ALIGN_CENTER

@@ -162,8 +162,6 @@ public:
     bool                            mIsFireBall;                                
     ReanimationID                   mMoweredReanimID;                           
     int                             mLastPortalX;                               
-    float                           mGameOverX;
-    float                           mGameOverY;
 
 public:
     Zombie();

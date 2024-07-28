@@ -617,8 +617,8 @@ void Coin::UpdateCollected()
     }
     else if (IsPresentWithAdvice())
     {
-        aDestX = 35;
-        aDestY = 487;
+        aDestX = 35 + BOARD_ADDITIONAL_WIDTH;
+        aDestY = BOARD_HEIGHT - 113;
     }
     else if(mType == CoinType::COIN_AWARD_PRESENT || mType == CoinType::COIN_PRESENT_PLANT)
     {
@@ -641,8 +641,8 @@ void Coin::UpdateCollected()
     }
     else
     {
-        aDestX = 400 - mWidth / 2;
-        aDestY = 200 - mHeight / 2;
+        aDestX = 400 - mWidth / 2 + BOARD_ADDITIONAL_WIDTH;
+        aDestY = 200 - mHeight / 2 + BOARD_OFFSET_Y;
         mDisappearCounter++;
     }
 
