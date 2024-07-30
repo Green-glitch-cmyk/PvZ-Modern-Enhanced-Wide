@@ -285,7 +285,7 @@ SexyAppBase::SexyAppBase()
 	mRelaxUpdateBacklogCount = 0;
 	mWidescreenAware = false;
 	mEnableWindowAspect = false;
-	mWindowAspect.Set(4, 3);
+	mWindowAspect.Set(16, 9);
 	mIsWideWindow = false;
 	mAspectCorrect = true;
 	mAspectNoStretch = false;
@@ -307,10 +307,10 @@ SexyAppBase::SexyAppBase()
 	mResourcePack = "";
 	mResourcePackIndex = -1;
 	mResourcesPath = "properties\\resources.xml";
+	mCursor = nullptr;
 	mCustomCursor = false;
 	mProdName = "PlantsVsZombies";
 	mRegKey = "PopCap\\PlantsVsZombies";
-	mCursor = nullptr;
 
 	int i;
 	for (i = 0; i < NUM_CURSORS; i++)
