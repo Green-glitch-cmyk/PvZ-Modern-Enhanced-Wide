@@ -1497,7 +1497,7 @@ void Zombie::UpdateZombieCatapult()
 {
     if (mZombiePhase == ZombiePhase::PHASE_ZOMBIE_NORMAL)
     {
-        if (mPosX <= 650 && FindCatapultTarget() && mSummonCounter > 0)
+        if (mPosX <= 650 + BOARD_ADDITIONAL_WIDTH && FindCatapultTarget() && mSummonCounter > 0)
         {
             mZombiePhase = ZombiePhase::PHASE_CATAPULT_LAUNCHING;
             mPhaseCounter = 300;
@@ -1582,7 +1582,7 @@ void Zombie::LandFlyer(unsigned int theDamageFlags)
 
 void Zombie::UpdateZombieFlyer()
 {
-    if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_HIGH_GRAVITY && mPosX < 720.0f)
+    if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_HIGH_GRAVITY && mPosX < 720.0f + BOARD_ADDITIONAL_WIDTH)
     {
         mAltitude -= 0.1f;
         if (mAltitude < -35.0f)
@@ -1738,7 +1738,7 @@ void Zombie::UpdateZombieDolphinRider()
     bool aBackwards = IsWalkingBackwards();
     if (mZombiePhase == ZombiePhase::PHASE_DOLPHIN_WALKING && !aBackwards)
     {
-        if (mX > 700 && mX <= 720)
+        if (mX > 700 + BOARD_ADDITIONAL_WIDTH && mX <= 720 + BOARD_ADDITIONAL_WIDTH)
         {
             mZombiePhase = ZombiePhase::PHASE_DOLPHIN_INTO_POOL;
             PlayZombieReanim("anim_jumpinpool", ReanimLoopType::REANIM_PLAY_ONCE_AND_HOLD, 20, 16.0f);
@@ -1766,7 +1766,7 @@ void Zombie::UpdateZombieDolphinRider()
     }
     else if (mZombiePhase == ZombiePhase::PHASE_DOLPHIN_RIDING)
     {
-        if (mX <= 10)
+        if (mX <= 10 + BOARD_ADDITIONAL_WIDTH)
         {
             mAltitude = -40.0f;
             mZombieHeight = ZombieHeight::HEIGHT_OUT_OF_POOL;
@@ -1838,7 +1838,7 @@ void Zombie::UpdateZombieDolphinRider()
     }
     else if (mZombiePhase == ZombiePhase::PHASE_DOLPHIN_WALKING_IN_POOL)
     {
-        if ((mX <= 10 && !aBackwards) || (mX > 680 && aBackwards))
+        if ((mX <= 10 + BOARD_ADDITIONAL_WIDTH && !aBackwards) || (mX > 680 + BOARD_ADDITIONAL_WIDTH && aBackwards))
         {
             mAltitude = -40.0f;
             mZombieHeight = ZombieHeight::HEIGHT_OUT_OF_POOL;
@@ -1856,7 +1856,7 @@ void Zombie::UpdateZombieSnorkel()
     bool aBackwards = IsWalkingBackwards();
     if (mZombiePhase == ZombiePhase::PHASE_SNORKEL_WALKING && !aBackwards)
     {
-        if (mX > 700 && mX <= 720)
+        if (mX > 700 + BOARD_ADDITIONAL_WIDTH && mX <= 720 + BOARD_ADDITIONAL_WIDTH)
         {
             mVelX = 0.2f;
             mZombiePhase = ZombiePhase::PHASE_SNORKEL_INTO_POOL;
@@ -1891,7 +1891,7 @@ void Zombie::UpdateZombieSnorkel()
         {
             TakeDamage(1800, 9U);
         }
-        else if (mX <= 25 && !aBackwards)
+        else if (mX <= 25 + BOARD_ADDITIONAL_WIDTH && !aBackwards)
         {
             mAltitude = -90.0f;
             mPosX -= 15.0f;
@@ -1901,7 +1901,7 @@ void Zombie::UpdateZombieSnorkel()
             PoolSplash(false);
             StartWalkAnim(0);
         }
-        else if (mX > 640 && aBackwards)
+        else if (mX > 640 + BOARD_ADDITIONAL_WIDTH && aBackwards)
         {
             mAltitude = -90.0f;
             mPosX += 15.0f;
@@ -2815,7 +2815,7 @@ void Zombie::UpdateZombieDancer()
         mSummonCounter--;
         if (mSummonCounter == 0)
         {
-            if (GetDancerFrame() == 12 && mHasHead && mPosX < 700.0f)
+            if (GetDancerFrame() == 12 && mHasHead && mPosX < 700.0f + BOARD_ADDITIONAL_WIDTH)
             {
                 mZombiePhase = ZombiePhase::PHASE_DANCER_SNAPPING_FINGERS_WITH_LIGHT;
                 PlayZombieReanim("anim_point", ReanimLoopType::REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0f);
@@ -2992,7 +2992,6 @@ void Zombie::UpdateZombiquarium()
     if (IsDeadOrDying())
         return;
 
-    float& num2 = mVelX;
     Reanimation* aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (mZombiePhase == ZombiePhase::PHASE_ZOMBIQUARIUM_BITE)
     {
@@ -3791,7 +3790,7 @@ void Zombie::UpdateZamboni()
 {
     if (mPosX > 400.0f + BOARD_ADDITIONAL_WIDTH && !mFlatTires)
     {
-        mVelX = TodAnimateCurveFloat(700, 300, mPosX, 0.25f, 0.05f, TodCurves::CURVE_LINEAR);
+        mVelX = TodAnimateCurveFloat(700 + BOARD_ADDITIONAL_WIDTH, 300 + BOARD_ADDITIONAL_WIDTH, mPosX, 0.25f, 0.05f, TodCurves::CURVE_LINEAR);
     }
     else if (mFlatTires && mVelX > 0.0005f)
     {
@@ -3801,11 +3800,11 @@ void Zombie::UpdateZamboni()
     int anIceX = mPosX + 118;
     if (mBoard->StageHasRoof())
     {
-        anIceX = max(anIceX, 500);
+        anIceX = max(anIceX, 500 + BOARD_ADDITIONAL_WIDTH);
     }
     else
     {
-        anIceX = max(anIceX, 25);
+        anIceX = max(anIceX, 25 + BOARD_ADDITIONAL_WIDTH);
     }
     if (anIceX < mBoard->mIceMinX[mRow])
     {
@@ -4029,7 +4028,7 @@ void Zombie::UpdateZombiePosition()
     if (mBlowingAway)
     {
         mPosX += 10.0f;
-        if (mX > 850)
+        if (mX > 850 + BOARD_ADDITIONAL_WIDTH)
         {
             DieWithLoot();
             return;
@@ -4325,9 +4324,10 @@ void Zombie::CheckForBoardEdge()
     {
         if (mApp->IsIZombieLevel())
         {
-            DieNoLoot();
+            if (mZombieFade == -1)
+                mZombieFade = 200;
         }
-        else
+        else if (mApp->mGameMode != GameMode::GAMEMODE_CHALLENGE_ZOMBIQUARIUM)
         {
             mBoard->ZombiesWon(this);
         }
@@ -6049,6 +6049,9 @@ void Zombie::Draw(Graphics* g)
     if (mApp->mGameScene == GameScenes::SCENE_ZOMBIES_WON && !SetupDrawZombieWon(g))
         return;
 
+    if (IsOnBoard() && mApp->mGameScene != GameScenes::SCENE_LEVEL_INTRO)
+        g->ClipRect(-mX, -mY, BOARD_WIDTH - LAWN_XMIN, BOARD_HEIGHT);
+
     if (mIceTrapCounter > 0)
     {
         DrawIceTrap(g, aDrawPos, false);
@@ -6253,7 +6256,7 @@ void Zombie::ZamboniDeath(unsigned int theDamageFlags)
         mApp->AddTodParticle(mPosX + 29.0f, mPosY + 114.0f, mRenderOrder + 1, ParticleEffect::PARTICLE_ZAMBONI_TIRE);
         mVelX = 0.0f;
 
-        if (Rand(4) == 0 && mPosX < 600.0f)
+        if (Rand(4) == 0 && mPosX < 600.0f + BOARD_ADDITIONAL_WIDTH)
         {
             PlayZombieReanim("anim_wheelie2", ReanimLoopType::REANIM_PLAY_ONCE_AND_HOLD, 10, 10.0f);
             mPhaseCounter = 280;
@@ -6682,7 +6685,7 @@ void Zombie::CheckForPool()
     bool aIsPoolSquare = 
         mBoard->IsPoolSquare(mBoard->PixelToGridX(mX + 75, mY), mRow) && 
         mBoard->IsPoolSquare(mBoard->PixelToGridX(mX + 45, mY), mRow) && 
-        mX < 680;
+        mX < 680 + BOARD_ADDITIONAL_WIDTH;
 
     if (!mInPool && aIsPoolSquare)
     {
@@ -9114,6 +9117,9 @@ void Zombie::DrawShadow(Graphics* g)
     GetDrawPos(aDrawPos);
     if (mApp->mGameScene == GameScenes::SCENE_ZOMBIES_WON && !SetupDrawZombieWon(g))
         return;
+
+    if (IsOnBoard() && mApp->mGameScene != GameScenes::SCENE_LEVEL_INTRO)
+        g->ClipRect(-mX, -mY, BOARD_WIDTH - LAWN_XMIN, BOARD_HEIGHT);
 
     int aShadowType = 0;
     float aShadowOffsetX = aDrawPos.mImageOffsetX;

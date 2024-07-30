@@ -1169,16 +1169,22 @@ bool LawnApp::KillNewOptionsDialog()
 	bool wantWindowed = !aNewOptionsDialog->mFullscreenCheckbox->IsChecked();
 	if (aNewOptionsDialog->mAdvancedMode)
 	{
-		mDiscordPresence = aNewOptionsDialog->mDiscordBox->IsChecked();
-		mBankKeybinds = aNewOptionsDialog->mBankKeybindsBox->IsChecked();
-		mZeroNineBankFormat = aNewOptionsDialog->m09FormatBox->IsChecked();
+		mDiscordPresence = aNewOptionsDialog->mDiscordCheckbox->IsChecked();
+		mBankKeybinds = aNewOptionsDialog->mBankKeybindsCheckbox->IsChecked();
+		mZeroNineBankFormat = aNewOptionsDialog->m09FormatCheckbox->IsChecked();
 		mSpeedModifier = stoi(aNewOptionsDialog->mSpeedEditWidget->mString.c_str());
-		mAutoCollectSuns = aNewOptionsDialog->mAutoCollectSunsBox->IsChecked();
-		mAutoCollectCoins = aNewOptionsDialog->mAutoCollectCoinsBox->IsChecked();
-		mZombieHealthbars = aNewOptionsDialog->mZombieHealthbarsBox->IsChecked();
-		mPlantHealthbars = aNewOptionsDialog->mPlantHealthbarsBox->IsChecked();
+		mAutoCollectSuns = aNewOptionsDialog->mAutoCollectSunsCheckbox->IsChecked();
+		mAutoCollectCoins = aNewOptionsDialog->mAutoCollectCoinsCheckbox->IsChecked();
+		mZombieHealthbars = aNewOptionsDialog->mZombieHealthbarsCheckbox->IsChecked();
+		mPlantHealthbars = aNewOptionsDialog->mPlantHealthbarsCheckbox->IsChecked();
 		ToggleDebugMode();
 		SwitchScreenMode(wantWindowed, want3D, false);
+		bool aCustomCursor = aNewOptionsDialog->mCustomCursorCheckbox->IsChecked();
+		if (mCustomCursor != aCustomCursor)
+		{
+			mCustomCursor = aCustomCursor;
+			EnforceCursor();
+		}
 	}
 	else
 	{
@@ -2398,16 +2404,10 @@ bool LawnApp::CanShowSeedBankAfterSun()
 
 bool LawnApp::IsNight()
 {
-	if (IsIceDemo() || mPlayerInfo == nullptr)
+	if (IsIceDemo() || mBoard == nullptr)
 		return false;
-	if (mPlayingQuickplay)
-	{
-		return (mQuickLevel >= 11 && mQuickLevel <= 20) || (mQuickLevel >= 31 && mQuickLevel <= 40) || mQuickLevel == 50;
-	}
-	else
-	{
-		return (mPlayerInfo->mLevel >= 11 && mPlayerInfo->mLevel <= 20) || (mPlayerInfo->mLevel >= 31 && mPlayerInfo->mLevel <= 40) || mPlayerInfo->mLevel == 50;
-	}
+	
+	return (mBoard->mLevel >= 11 && mBoard->mLevel <= 20) || (mBoard->mLevel >= 31 && mBoard->mLevel <= 40) || mBoard->mLevel == 50;
 }
 
 int LawnApp::GetCurrentChallengeIndex()
@@ -2727,7 +2727,7 @@ void LawnApp::CrazyDaveEnter()
 	TOD_ASSERT(mCrazyDaveState == CRAZY_DAVE_OFF);
 	TOD_ASSERT(!ReanimationTryToGet(mCrazyDaveReanimID));
 
-	Reanimation* aCrazyDaveReanim = AddReanimation(0.0f + BOARD_ADDITIONAL_WIDTH, 0.0f + BOARD_OFFSET_Y, 0, ReanimationType::REANIM_CRAZY_DAVE);
+	Reanimation* aCrazyDaveReanim = AddReanimation(BOARD_ADDITIONAL_WIDTH, BOARD_OFFSET_Y, 0, ReanimationType::REANIM_CRAZY_DAVE);
 	aCrazyDaveReanim->mIsAttachment = true;
 	aCrazyDaveReanim->SetBasePoseFromAnim("anim_idle_handing");
 	mCrazyDaveReanimID = ReanimationGetID(aCrazyDaveReanim);
@@ -3105,7 +3105,7 @@ void LawnApp::UpdateCrazyDave()
 			mCrazyDaveState = CrazyDaveState::CRAZY_DAVE_HANDING_IDLING;
 		}
 	}
-	else if (mCrazyDaveState == CrazyDaveState::CRAZY_DAVE_LEAVING && aCrazyDaveReanim->mLoopCount > 0)
+	else if (mCrazyDaveState == CrazyDaveState::CRAZY_DAVE_LEAVING && aCrazyDaveReanim->mLoopCount > 0 && mGameMode != GameMode::GAMEMODE_UPSELL)
 	{
 		CrazyDaveDie();
 	}
@@ -3178,8 +3178,8 @@ void LawnApp::DrawCrazyDave(Graphics* g)
 		}
 		else if (mGameMode == GameMode::GAMEMODE_UPSELL)
 		{
-			aPosX += 130;
-			aPosY += 70;
+			aPosX += 130 - BOARD_ADDITIONAL_WIDTH;
+			aPosY += 70 - BOARD_OFFSET_Y;
 		}
 		g->DrawImage(aBubbleImage, aPosX, aPosY);
 
@@ -3344,7 +3344,7 @@ void LawnApp::EnforceCursor()
 		return;
 	}
 
-	if (mCursor)
+	if (mCustomCursor)
 	{
 		::SetCursor(NULL);
 		return;
@@ -3631,7 +3631,7 @@ void LawnApp::ToggleDebugMode()
 	NewOptionsDialog* aNewOptionsDialog = (NewOptionsDialog*)GetDialog(Dialogs::DIALOG_NEWOPTIONS);
 	if (aNewOptionsDialog)
 	{
-		mTodCheatKeys = mDebugKeysEnabled = aNewOptionsDialog->mDebugModeBox->IsChecked();
+		mTodCheatKeys = mDebugKeysEnabled = aNewOptionsDialog->mDebugModeCheckbox->IsChecked();
 	}
 }
 

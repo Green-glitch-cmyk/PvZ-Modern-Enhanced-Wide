@@ -2506,6 +2506,9 @@ Resource Pack:
 [OPTIONS_ACTUAL_ACCELERATION]
 Actual 3D Acceleration
 
+[OPTIONS_CUSTOM_CURSOR]
+Custom Cursor
+
 [NO_WINDOWED_MODE_HEADER]
 No Windowed Mode
 

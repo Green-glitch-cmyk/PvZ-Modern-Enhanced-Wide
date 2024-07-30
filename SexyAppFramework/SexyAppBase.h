@@ -323,6 +323,7 @@ namespace Sexy
 		std::string				mResourcePack;
 		int						mResourcePackIndex;
 		std::string				mResourcesPath;
+		bool					mCustomCursor;
 		bool					mSoftVSyncWait;
 		bool					mUserChanged3DSetting;
 		bool					mAutoEnable3D;

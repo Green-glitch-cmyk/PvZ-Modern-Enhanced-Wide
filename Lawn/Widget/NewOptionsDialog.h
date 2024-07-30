@@ -6,11 +6,6 @@
 #include "../../SexyAppFramework/CheckboxListener.h"
 #include "../../SexyAppFramework/EditListener.h"
 
-const int ADVANCED_PAGE_Y = 355;
-const int ADVANCED_MAX_PAGES = 3;
-const int ADVANCED_SPEED_X = 284;
-const int ADVANCED_SPEED_Y = 128;
-
 class LawnApp;
 class LawnStoneButton;
 class NewLawnButton;
@@ -38,6 +33,7 @@ protected:
 		NewOptionsDialog_ReloadResourcePacks,
 		NewOptionsDialog_ResourcePack,
 		NewOptionsDialog_Real_HardwareAcceleration,
+		NewOptionsDialog_CustomCursor,
 		NewOptionsDialog_LeftPage,
 		NewOptionsDialog_RightPage,
 		NewOptionsDialog_Back
@@ -49,14 +45,14 @@ public:
 	Sexy::Slider*			mSfxVolumeSlider;					
 	Sexy::Checkbox*			mFullscreenCheckbox;				
 	Sexy::Checkbox*			mHardwareAccelerationCheckbox;		
-	Sexy::Checkbox*			mDebugModeBox;
-	Sexy::Checkbox*			mDiscordBox;
-	Sexy::Checkbox*			mBankKeybindsBox;
-	Sexy::Checkbox*			m09FormatBox;
-	Sexy::Checkbox*			mAutoCollectSunsBox;
-	Sexy::Checkbox*			mAutoCollectCoinsBox;
-	Sexy::Checkbox*			mZombieHealthbarsBox;
-	Sexy::Checkbox*			mPlantHealthbarsBox;
+	Sexy::Checkbox*			mDebugModeCheckbox;
+	Sexy::Checkbox*			mDiscordCheckbox;
+	Sexy::Checkbox*			mBankKeybindsCheckbox;
+	Sexy::Checkbox*			m09FormatCheckbox;
+	Sexy::Checkbox*			mAutoCollectSunsCheckbox;
+	Sexy::Checkbox*			mAutoCollectCoinsCheckbox;
+	Sexy::Checkbox*			mZombieHealthbarsCheckbox;
+	Sexy::Checkbox*			mPlantHealthbarsCheckbox;
 	LawnStoneButton*		mAlmanacButton;						
 	LawnStoneButton*		mBackToMainButton;					
 	LawnStoneButton*		mRestartButton;						
@@ -75,6 +71,7 @@ public:
 	LawnStoneButton*		mReloadResourcePacksButton;
 	NewLawnButton*			mResourcePackButton;
 	Sexy::Checkbox*			mRealHardwareAccelerationCheckbox;
+	Sexy::Checkbox*			mCustomCursorCheckbox;
 
 public:
 	NewOptionsDialog(LawnApp* theApp, bool theFromGameSelector, bool theAdvanced);

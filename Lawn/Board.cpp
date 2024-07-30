@@ -38,23 +38,6 @@
 
 bool gShownMoreSunTutorial = false;
 
-const int cBushPos[][2] = {
-	{ 950, 40 },
-	{ 962, 168 },
-	{ 968, 258 },
-	{ 972, 378 },
-	{ 964, 459 },
-	{ 980, 510 }
-};
-const int cBushPos6Rows[][2] = {
-	{ 952, 42 },
-	{ 964, 170 },
-	{ 968, 258 },
-	{ 974, 380 },
-	{ 966, 461 },
-	{ 979, 509 }
-};
-
 Board::Board(LawnApp* theApp)
 {
 	mApp = theApp;
@@ -181,7 +164,7 @@ Board::Board(LawnApp* theApp)
 	mMenuButton = new GameButton(0);
 	mMenuButton->mDrawStoneButton = true;
 	mMenuButton->mParentWidget = this;
-	int aButtonOffsetX = BOARD_ADDITIONAL_WIDTH + BOARD_OFFSET_X;
+	int aButtonOffsetX = BOARD_ADDITIONAL_WIDTH * 2;
 	mFastButton = new GameButton(2);
 	mFastButton->Resize(740 + aButtonOffsetX, 30, IMAGE_FASTBUTTON->mWidth, 46);
 	mFastButton->mParentWidget = this;
@@ -230,6 +213,7 @@ Board::Board(LawnApp* theApp)
 	{
 		mMenuButton->mLabel = _S("[MAIN_MENU_BUTTON]");
 		mMenuButton->Resize(628 + aButtonOffsetX, -10, 163, 46);
+		mMenuButton->mBtnNoDraw = true;
 
 		mStoreButton = new GameButton(1);
 		mStoreButton->mDrawStoneButton = true;
@@ -1169,7 +1153,7 @@ void Board::PickBackground()
 void Board::AddBushes() 
 {
 	for (int i = 0; i < MAX_GRID_SIZE_Y; i++)
-		mBushList[i]->BushInitialize(StageHas6Rows() ? cBushPos6Rows[i][0] : cBushPos[i][0], StageHas6Rows() ? cBushPos6Rows[i][1] : cBushPos[i][1], i + 1, StageIsNight());
+		mBushList[i]->BushInitialize(i, StageIsNight());
 }
 
 void Board::InitZombieWavesForLevel(int theForLevel)
@@ -2941,7 +2925,7 @@ void Board::UpdateCursor()
 	bool aShowDrag = false;
 	bool aHideCursor = false;
 
-	if (mApp->mSeedChooserScreen && mApp->mSeedChooserScreen->Contains(aMouseX, aMouseY))
+	if (mApp->mSeedChooserScreen && mApp->mSeedChooserScreen->Contains(aMouseX + mX, aMouseY + mY))
 		return;
 
 	if (mApp->GetDialogCount() > 0)
@@ -5874,8 +5858,8 @@ void Board::DrawBackdrop(Graphics* g)
 		g->DrawImage(Sexy::IMAGE_BACKGROUND1UNSODDED, -BOARD_OFFSET_X, 0);
 		g->DrawImage(Sexy::IMAGE_SOD3ROW, 235 - BOARD_OFFSET_X  + BOARD_ADDITIONAL_WIDTH, 149 + BOARD_OFFSET_Y);
 		int aWidth = TodAnimateCurve(0, 1000, mSodPosition, 0, 773, TodCurves::CURVE_LINEAR);
-		Rect aSrcRect(232, 0, aWidth, Sexy::IMAGE_BACKGROUND1->GetHeight());
-		g->DrawImage(Sexy::IMAGE_BACKGROUND1, 232 - BOARD_OFFSET_X + BOARD_ADDITIONAL_WIDTH, 0, aSrcRect);
+		Rect aSrcRect(232, 0, aWidth + BOARD_ADDITIONAL_WIDTH, Sexy::IMAGE_BACKGROUND1->GetHeight());
+		g->DrawImage(Sexy::IMAGE_BACKGROUND1, 232 - BOARD_OFFSET_X, 0, aSrcRect);
 	}
 	else if (aBgImage)
 	{
@@ -7279,7 +7263,7 @@ void Board::DrawTopRightUI(Graphics* g)
 {
 	if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN)
 	{
-		int aButtonOffsetX = BOARD_ADDITIONAL_WIDTH + BOARD_OFFSET_X;
+		int aButtonOffsetX = BOARD_ADDITIONAL_WIDTH * 2;
 		if (mChallenge->mChallengeState == STATECHALLENGE_ZEN_FADING)
 		{
 			mMenuButton->mY = TodAnimateCurve(50, 0, mChallenge->mChallengeStateCounter, -10, -50, TodCurves::CURVE_EASE_IN_OUT);
@@ -7556,6 +7540,12 @@ bool Board::IsScaryPotterDaveTalking()
 
 void Board::DrawUITop(Graphics* g)
 {
+	if ((mApp->mGameMode == GameMode::GAMEMODE_UPSELL || mApp->mGameMode == GameMode::GAMEMODE_INTRO) && mCutScene->mUpsellHideBoard)
+	{
+		g->SetColor(Color(0, 0, 0));
+		g->FillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+	}
+
 	if (StageHasFog())
 	{
 		DrawTopRightUI(g);
@@ -7581,12 +7571,6 @@ void Board::DrawUITop(Graphics* g)
 		mStoreButton->Draw(g);
 	}
 
-	if ((mApp->mGameMode == GameMode::GAMEMODE_UPSELL || mApp->mGameMode == GameMode::GAMEMODE_INTRO) && mCutScene->mUpsellHideBoard)
-	{
-		g->SetColor(Color(0, 0, 0));
-		g->FillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
-	}
-
 	if (mApp->mGameMode == GameMode::GAMEMODE_UPSELL)
 	{
 		mCutScene->DrawUpsell(g);
@@ -7596,10 +7580,10 @@ void Board::DrawUITop(Graphics* g)
 		mCutScene->DrawIntro(g);
 	}
 
-	if (mApp->mGameScene == GameScenes::SCENE_LEVEL_INTRO || 
+	if (mApp->mGameMode != GameMode::GAMEMODE_UPSELL && (mApp->mGameScene == GameScenes::SCENE_LEVEL_INTRO ||
 		mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN ||
-		mApp->mGameMode == GameMode::GAMEMODE_TREE_OF_WISDOM || 
-		IsScaryPotterDaveTalking())
+		mApp->mGameMode == GameMode::GAMEMODE_TREE_OF_WISDOM ||
+		IsScaryPotterDaveTalking()))
 	{
 		Graphics aScreenSpace(*g);
 		aScreenSpace.mTransX -= mX;
@@ -8607,14 +8591,14 @@ void Board::KeyChar(SexyChar theChar)
 		if (!CanAddBobSled())
 		{
 			int aRow = Rand(5);
-			int aPos = 400;
+			int aPos = 400 + BOARD_ADDITIONAL_WIDTH;
 			if (StageHasPool())
 			{
 				aRow = Rand(2);
 			}
 			else if (StageHasRoof())
 			{
-				aPos = 500;
+				aPos = 500 + BOARD_ADDITIONAL_WIDTH;
 			}
 			mIceTimer[aRow] = 3000;
 			mIceMinX[aRow] = aPos;

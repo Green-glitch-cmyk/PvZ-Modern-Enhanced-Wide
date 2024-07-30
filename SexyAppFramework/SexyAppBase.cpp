@@ -307,6 +307,7 @@ SexyAppBase::SexyAppBase()
 	mResourcePack = "";
 	mResourcePackIndex = -1;
 	mResourcesPath = "properties\\resources.xml";
+	mCustomCursor = false;
 	mProdName = "PlantsVsZombies";
 	mRegKey = "PopCap\\PlantsVsZombies";
 	mCursor = nullptr;
@@ -1591,6 +1592,7 @@ void SexyAppBase::WriteToRegistry()
 	RegistryWriteBoolean("QE_CrazyDaveSeeds", mCrazySeeds);
 	RegistryWriteString("QE_Language", mLanguage);
 	RegistryWriteString("QE_ResourcePack", mResourcePack);
+	RegistryWriteBoolean("QE_CustomCursor", mCustomCursor);
 	RegistryWriteBoolean("3DAcceleration", mIs3dAccel);
 	RegistryWriteInteger("MouseSensitivity", (int)(mMouseSensitivity * 100));
 }
@@ -1951,6 +1953,7 @@ void SexyAppBase::ReadFromRegistry()
 	RegistryReadBoolean("QE_CrazyDaveSeeds", &mCrazySeeds);
 	RegistryReadString("QE_Language", &mLanguage);
 	RegistryReadString("QE_ResourcePack", &mResourcePack);
+	RegistryReadBoolean("QE_CustomCursor", &mCustomCursor);
 	RegistryReadBoolean("3DAcceleration", &mIs3dAccel);
 
 	if (RegistryReadInteger("InProgress", &anInt))
@@ -6480,11 +6483,8 @@ void SexyAppBase::Init()
 
 	InitHook();
 
-	if (HAS_CUSTOM_CURSOR)
-	{
-		mCursor = new CursorWidget(this);
-		mWidgetManager->AddWidget(mCursor);
-	}
+	mCursor = new CursorWidget(this);
+	mWidgetManager->AddWidget(mCursor);
 
 	mInitialized = true;
 }

@@ -27,5 +27,5 @@ void CursorWidget::Update()
 {
 	mX = mApp->mWidgetManager->mLastMouseX;
 	mY = mApp->mWidgetManager->mLastMouseY;
-	mDraw = mApp->mCursorNum != CURSOR_NONE;
+	mDraw = mApp->mCursorNum != CURSOR_NONE && mApp->mCustomCursor;
 }

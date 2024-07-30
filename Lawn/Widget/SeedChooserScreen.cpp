@@ -56,7 +56,7 @@ SeedChooserScreen::SeedChooserScreen()
 	EnableStartButton(false);
 	mStartButton->mParentWidget = this;
 
-	int aButtonOffsetX = BOARD_ADDITIONAL_WIDTH + BOARD_OFFSET_X;
+	int aButtonOffsetX = BOARD_ADDITIONAL_WIDTH * 2;
 	mMenuButton = new GameButton(SeedChooserScreen::SeedChooserScreen_Menu);
 	mMenuButton->mLabel = _S("[MENU_BUTTON]");
 	mMenuButton->mDrawStoneButton = true;
