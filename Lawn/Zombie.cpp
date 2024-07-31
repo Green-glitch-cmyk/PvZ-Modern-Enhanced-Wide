@@ -1470,7 +1470,7 @@ void Zombie::ZombieCatapultFire(Plant* thePlant)
     aProjectile->mMotionType = ProjectileMotion::MOTION_LOBBED;
     aProjectile->mVelX = -aRangeX / 120.0f;
     aProjectile->mVelY = 0.0f;
-    aProjectile->mVelZ = aRangeY / 120.0f - 14.0f;
+    aProjectile->mVelZ = aRangeY / 120.0f - 7.0f;
     aProjectile->mAccZ = 0.115f;
 }
 

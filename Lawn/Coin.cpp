@@ -595,8 +595,8 @@ void Coin::UpdateCollected()
     int aDestX, aDestY;
     if (IsSun())
     {
-        aDestX = mBoard->mSeedBank->mX;
-        aDestY = mBoard->mSeedBank->mY;
+        aDestX = mBoard->mSeedBank->mX + 5;
+        aDestY = max(0, mBoard->mSeedBank->mY);
     }
     else if (IsMoney())
     {

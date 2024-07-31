@@ -6089,8 +6089,8 @@ void Board::DrawGameObjects(Graphics* g)
 					aRenderItemCount++;
 				}
 
-				bool plantCheck = (aPlant->mSeedType == SeedType::SEED_INSTANT_COFFEE || aPlant->mImitaterType == SeedType::SEED_INSTANT_COFFEE) || (aPlant->mSeedType == SeedType::SEED_FLOWERPOT || aPlant->mImitaterType == SeedType::SEED_FLOWERPOT) || (aPlant->mSeedType == SeedType::SEED_LILYPAD || aPlant->mImitaterType == SeedType::SEED_LILYPAD);
-				if (mApp->mPlantHealthbars && mApp->mGameMode != GAMEMODE_CHALLENGE_ZEN_GARDEN && !plantCheck)
+				bool aPlantCheck = (aPlant->mSeedType == SeedType::SEED_INSTANT_COFFEE || aPlant->mImitaterType == SeedType::SEED_INSTANT_COFFEE) || (aPlant->mSeedType == SeedType::SEED_FLOWERPOT || aPlant->mImitaterType == SeedType::SEED_FLOWERPOT) || (aPlant->mSeedType == SeedType::SEED_LILYPAD || aPlant->mImitaterType == SeedType::SEED_LILYPAD);
+				if (mApp->mPlantHealthbars && mApp->mGameMode != GAMEMODE_CHALLENGE_ZEN_GARDEN && !aPlantCheck)
 				{
 					RenderItem& aRenderItem = aRenderList[aRenderItemCount];
 					aRenderItem.mRenderObjectType = RenderObjectType::RENDER_ITEM_HEALTHBAR_PLANT;
@@ -6239,7 +6239,7 @@ void Board::DrawGameObjects(Graphics* g)
 	}
 	{
 		int aZPos;
-		if (mTimeStopCounter > 0 || (mApp->mGameScene == GameScenes::SCENE_LEVEL_INTRO && mCutScene->IsPanningLeft()))
+		if (mTimeStopCounter > 0 || (mApp->mGameScene == GameScenes::SCENE_LEVEL_INTRO && mCutScene->IsPanningLeft() && mTutorialState == TutorialState::TUTORIAL_OFF))
 		{
 			aZPos = MakeRenderOrder(RenderLayer::RENDER_LAYER_ABOVE_UI, 0, 0);
 		}
@@ -7302,15 +7302,11 @@ void Board::DrawUIBottom(Graphics* g)
 	{
 		int aWaveTime = abs(mMainCounter / 8 % 22 - 11);
 		g->SetDrawMode(Graphics::DRAWMODE_ADDITIVE);
-		g->DrawImageCel(Sexy::IMAGE_WAVESIDE, -240, 40, aWaveTime);
-		g->DrawImageCel(Sexy::IMAGE_WAVECENTER, 160 - 240, 40, aWaveTime);
-		g->DrawImageCel(Sexy::IMAGE_WAVECENTER, 320 - 240, 40, aWaveTime);
-		g->DrawImageCel(Sexy::IMAGE_WAVECENTER, 320 - 240 - 80, 40, aWaveTime);
-		g->DrawImageCel(Sexy::IMAGE_WAVECENTER, 320 - 80, 40, aWaveTime);
-		g->DrawImageCel(Sexy::IMAGE_WAVECENTER, 320 + 80, 40, aWaveTime);
-		g->DrawImageCel(Sexy::IMAGE_WAVECENTER, 320 + 240, 40, aWaveTime);
-		g->DrawImageCel(Sexy::IMAGE_WAVECENTER, 480 + 240, 40, aWaveTime);
-		TodDrawImageCelScaled(g, Sexy::IMAGE_WAVESIDE, 800 + 240, 40, 0, aWaveTime, -1.0f, 1.0f);
+		int aOffset = -80;
+		int aWidth = 160;
+		int aWaves = BOARD_WIDTH / aWidth;
+		for (int i = 0; i <= aWaves; i++)
+			TodDrawImageCelScaled(g, i == 0 || i == aWaves ? Sexy::IMAGE_WAVESIDE : Sexy::IMAGE_WAVECENTER, i * aWidth + aOffset + (i == aWaves ? aWidth : 0), 40, 0, aWaveTime, i == aWaves ? -1.0f : 1.0f, 1.0f);
 		g->SetDrawMode(Graphics::DRAWMODE_NORMAL);
 	}
 
@@ -7847,8 +7843,8 @@ static void TodCrash()
 
 void Board::KeyChar(SexyChar theChar)
 {
-	bool canUseKeybinds = mApp->mBankKeybinds && (!mPaused || mApp->mGameScene == GameScenes::SCENE_PLAYING || mApp->mCrazyDaveReanimID != ReanimationID::REANIMATIONID_NULL);
-	if (isdigit(theChar) && canUseKeybinds && mSeedBank->mY >= 0)
+	bool aCanUseKeybinds = mApp->mBankKeybinds && (!mPaused || mApp->mGameScene == GameScenes::SCENE_PLAYING || mApp->mCrazyDaveState != CrazyDaveState::CRAZY_DAVE_OFF);
+	if (isdigit(theChar) && aCanUseKeybinds && mSeedBank->mY >= 0)
 	{
 		for (int i = 0; i < mSeedBank->mNumPackets; i++)
 		{
@@ -7886,7 +7882,7 @@ void Board::KeyChar(SexyChar theChar)
 			}
 		}
 	}
-	else if (tolower(theChar) == _S('s') && canUseKeybinds && mShowShovel)
+	else if (tolower(theChar) == _S('s') && aCanUseKeybinds && mShowShovel)
 	{
 		if (mCursorObject->mCursorType != CursorType::CURSOR_TYPE_SHOVEL)
 		{
