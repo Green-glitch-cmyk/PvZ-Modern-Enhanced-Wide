@@ -49,6 +49,7 @@ const int           ZOMBIE_COUNTDOWN_RANGE = 600;
 const int           ZOMBIE_COUNTDOWN_BEFORE_FLAG = 4500;
 const int           ZOMBIE_COUNTDOWN_BEFORE_REPICK = 5499;
 const int           ZOMBIE_COUNTDOWN_MIN = 400;
+const int			ZOMBIE_CLIPRECT_WIDTH = BOARD_WIDTH - 45;
 const int           FOG_BLOW_RETURN_TIME = 2000;
 const int           SUN_COUNTDOWN = 425;
 const int           SUN_COUNTDOWN_RANGE = 275;
@@ -66,10 +67,10 @@ const int           STORESCREEN_COINBANK_Y = 559 + BOARD_OFFSET_Y * 2;
 const int           STORESCREEN_PAGESTRING_X = 470 + BOARD_ADDITIONAL_WIDTH;
 const int           STORESCREEN_PAGESTRING_Y = 500 + BOARD_OFFSET_Y * 2;
 
-const int			ADVANCED_OPTIONS_MAX_PAGES = 4;
-const int			ADVANCED_OPTIONS_PAGE_Y = 355;
-const int			ADVANCED_OPTIONS_SPEED_X = 284;
-const int			ADVANCED_OPTIONS_SPEED_Y = 128;
+const int			ADVANCEDOPTIONS_MAX_PAGES = 4;
+const int			ADVANCEDOPTIONS_PAGE_Y = 355;
+const int			ADVANCEDOPTIONS_SPEED_X = 284;
+const int			ADVANCEDOPTIONS_SPEED_Y = 128;
 
 const int			SPEED_MODIFIER_MIN = 2;
 const int			SPEED_MODIFIER_MAX = 9;

@@ -736,21 +736,21 @@ void LawnApp::DoConfirmBackToMain()
 	//aDialog->CalcSize(0, 0);
 }
 
-void LawnApp::DoNewOptions(bool theFromGameSelector, int x, int y)
+void LawnApp::DoNewOptions(bool theFromGameSelector, int theX, int theY)
 {
 	NewOptionsDialog* aDialog = new NewOptionsDialog(this, theFromGameSelector, false);
 	CenterDialog(aDialog, IMAGE_OPTIONS_MENUBACK->mWidth, IMAGE_OPTIONS_MENUBACK->mHeight);
-	if (x != -1 && y != -1)
-		aDialog->Resize(x, y, aDialog->mWidth, aDialog->mHeight);
+	if (theX != -1 && theY != -1)
+		aDialog->Resize(theX, theY, aDialog->mWidth, aDialog->mHeight);
 	AddDialog(Dialogs::DIALOG_NEWOPTIONS, aDialog);
 	mWidgetManager->SetFocus(aDialog);
 }
 
-void LawnApp::DoAdvancedOptions(bool theFromGameSelector, int x, int y)
+void LawnApp::DoAdvancedOptions(bool theFromGameSelector, int theX, int theY)
 {
 	NewOptionsDialog* aDialog = new NewOptionsDialog(this, theFromGameSelector, true);
 	CenterDialog(aDialog, IMAGE_OPTIONS_MENUBACK->mWidth, IMAGE_OPTIONS_MENUBACK->mHeight);
-	aDialog->Resize(x, y, aDialog->mWidth, aDialog->mHeight);
+	aDialog->Resize(theX, theY, aDialog->mWidth, aDialog->mHeight);
 	AddDialog(Dialogs::DIALOG_NEWOPTIONS, aDialog);
 	mWidgetManager->SetFocus(aDialog);
 }

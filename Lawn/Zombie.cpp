@@ -3044,7 +3044,7 @@ void Zombie::UpdateZombiquarium()
     {
         aIsOutOfBounds = true;
     }
-    else if (mPosX > 680.0f && aVelX > 0.0f)
+    else if (mPosX > BOARD_WIDTH - 120 && aVelX > 0.0f)
     {
         aIsOutOfBounds = true;
     }
@@ -3052,7 +3052,7 @@ void Zombie::UpdateZombiquarium()
     {
         aIsOutOfBounds = true;
     }
-    else if (mPosY > 400.0f && aVelY > 0.0f)
+    else if (mPosY > BOARD_HEIGHT - 200 && aVelY > 0.0f)
     {
         aIsOutOfBounds = true;
     }
@@ -3074,7 +3074,7 @@ void Zombie::UpdateZombiquarium()
             mVelZ = 0.0f;
         }
 
-        if (mPosX > 550.0f || aVelX > 0.0f)
+        if (mPosX > BOARD_WIDTH - 250 || aVelX > 0.0f)
         {
             mVelZ = PI;
         }
@@ -4300,7 +4300,7 @@ void Zombie::UpdateActions()
 
 void Zombie::CheckForBoardEdge()
 {
-    if (IsWalkingBackwards() && mPosX > 850.0f + BOARD_ADDITIONAL_WIDTH)
+    if (IsWalkingBackwards() && mPosX > BOARD_WIDTH + 50)
     {
         DieNoLoot();
         return;
@@ -6049,8 +6049,8 @@ void Zombie::Draw(Graphics* g)
     if (mApp->mGameScene == GameScenes::SCENE_ZOMBIES_WON && !SetupDrawZombieWon(g))
         return;
 
-    if (IsOnBoard() && mApp->mGameScene != GameScenes::SCENE_LEVEL_INTRO)
-        g->ClipRect(-mX, -mY, BOARD_WIDTH - LAWN_XMIN, BOARD_HEIGHT);
+    if (IsOnBoard() && mApp->mGameScene == GameScenes::SCENE_PLAYING && mApp->mGameMode != GameMode::GAMEMODE_CHALLENGE_ZOMBIQUARIUM)
+        g->SetClipRect(-mX, -mY, ZOMBIE_CLIPRECT_WIDTH, BOARD_HEIGHT);
 
     if (mIceTrapCounter > 0)
     {
@@ -9118,8 +9118,8 @@ void Zombie::DrawShadow(Graphics* g)
     if (mApp->mGameScene == GameScenes::SCENE_ZOMBIES_WON && !SetupDrawZombieWon(g))
         return;
 
-    if (IsOnBoard() && mApp->mGameScene != GameScenes::SCENE_LEVEL_INTRO)
-        g->ClipRect(-mX, -mY, BOARD_WIDTH - LAWN_XMIN, BOARD_HEIGHT);
+    if (IsOnBoard() && mApp->mGameScene == GameScenes::SCENE_PLAYING && mApp->mGameMode != GameMode::GAMEMODE_CHALLENGE_ZOMBIQUARIUM)
+        g->SetClipRect(-mX, -mY, ZOMBIE_CLIPRECT_WIDTH, BOARD_HEIGHT);
 
     int aShadowType = 0;
     float aShadowOffsetX = aDrawPos.mImageOffsetX;

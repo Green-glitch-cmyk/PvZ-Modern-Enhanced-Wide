@@ -195,8 +195,8 @@ public:
 	void							DoHighScoreDialog();
 	void							DoBackToMain(bool hasSound = false);
 	void							DoConfirmBackToMain();
-	void							DoNewOptions(bool theFromGameSelector, int mX = -1, int mY = -1);
-	void							DoAdvancedOptions(bool theFromGameSelector, int mX, int mY);
+	void							DoNewOptions(bool theFromGameSelector, int theX = -1, int theY = -1);
+	void							DoAdvancedOptions(bool theFromGameSelector, int theX, int theY);
 	void							DoRegister();
 	void							DoRegisterError();
 	bool							CanDoRegisterDialog();

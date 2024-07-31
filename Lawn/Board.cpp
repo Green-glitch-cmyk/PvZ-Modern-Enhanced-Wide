@@ -2679,7 +2679,7 @@ void Board::RemoveZombiesForRepick()
 	Zombie* aZombie = nullptr;
 	while (IterateZombies(aZombie))
 	{
-		if (!aZombie->IsDeadOrDying() && aZombie->mMindControlled && aZombie->mPosX > 720)
+		if (!aZombie->IsDeadOrDying() && aZombie->mMindControlled && aZombie->mPosX > BOARD_WIDTH - 80)
 		{
 			aZombie->DieNoLoot();
 		}
@@ -5002,7 +5002,7 @@ void Board::ZombiesWon(Zombie* theZombie)
 			aZombie->mZombiePhase == ZombiePhase::PHASE_DANCER_RISING)
 		{
 			if ((aZombie->mZombieType == ZombieType::ZOMBIE_GARGANTUAR || aZombie->mZombieType == ZombieType::ZOMBIE_REDEYE_GARGANTUAR) && 
-				aZombie->IsDeadOrDying() && aZombie->mPosX < 140)
+				aZombie->IsDeadOrDying() && aZombie->mPosX < 140 + BOARD_ADDITIONAL_WIDTH)
 			{
 				aZombie->DieNoLoot();
 			}
@@ -6243,11 +6243,7 @@ void Board::DrawGameObjects(Graphics* g)
 		{
 			aZPos = MakeRenderOrder(RenderLayer::RENDER_LAYER_ABOVE_UI, 0, 0);
 		}
-		else if (mApp->mGameScene == GameScenes::SCENE_PLAYING || mApp->mGameScene == GameScenes::SCENE_ZOMBIES_WON)
-		{
-			aZPos = MakeRenderOrder(RenderLayer::RENDER_LAYER_UI_BOTTOM, 0, 1);
-		}
-		else if (mCutScene->IsAfterSeedChooser() || mCutScene->IsInShovelTutorial() || mHelpIndex == AdviceType::ADVICE_CLICK_TO_CONTINUE)
+		else if (mApp->mGameScene == GameScenes::SCENE_PLAYING || mApp->mGameScene == GameScenes::SCENE_ZOMBIES_WON || mCutScene->IsAfterSeedChooser() || mCutScene->IsInShovelTutorial() || mHelpIndex == AdviceType::ADVICE_CLICK_TO_CONTINUE)
 		{
 			aZPos = MakeRenderOrder(RenderLayer::RENDER_LAYER_UI_BOTTOM, 0, 1);
 		}

@@ -3543,8 +3543,8 @@ bool Challenge::BeghouledCanClearCrater()
 Zombie* Challenge::ZombiquariumSpawnSnorkle()
 {
 	Zombie* aZombie = mBoard->AddZombieInRow(ZOMBIE_SNORKEL, 0, 0);
-	aZombie->mPosX = RandRangeFloat(50, 650);
-	aZombie->mPosY = RandRangeFloat(100, 400);
+	aZombie->mPosX = RandRangeFloat(50, BOARD_WIDTH - 150);
+	aZombie->mPosY = RandRangeFloat(100, BOARD_HEIGHT - 200);
 	return aZombie;
 }
 
@@ -3595,7 +3595,7 @@ void Challenge::ZombiquariumDropBrain(int x, int y)
 
 void Challenge::ZombiquariumMouseDown(int x, int y)
 {
-	if (x < 80 || x > 720 || y < 90 || y > 430)
+	if (x < 80 || x > BOARD_WIDTH - 80 || y < 90 || y > BOARD_HEIGHT - 170)
 		return;
 	
 	int aBrainsCount = 0;
@@ -3668,7 +3668,7 @@ void Challenge::ZombiquariumUpdate()
 		{
 			aGridItem->mGridItemCounter++;
 			aGridItem->mPosY += 0.15f;
-			if (aGridItem->mPosY >= 500.0f)
+			if (aGridItem->mPosY >= BOARD_HEIGHT - 100)
 			{
 				aGridItem->GridItemDie();
 			}
