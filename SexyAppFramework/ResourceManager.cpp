@@ -170,43 +170,45 @@ bool ResourceManager::ParseCommonResource(XMLElement &theElement, BaseRes *theRe
 {
 	mHadAlreadyDefinedError = false;
 
-	if (theRes->mType == ResType::ResType_Image && !mCurResourcePack.empty())
-		((ImageRes*)theRes)->mInResourcePack = true;
+	bool aIsInResourcePack = theRes->mType == ResType::ResType_Image && !mCurResourcePack.empty();
+	if (aIsInResourcePack)
+		((ImageRes*)theRes)->mInResourcePack = aIsInResourcePack;
 
-	const SexyString &aPath = theElement.mAttributes[_S("path")];
+	const SexyString& aPath = theElement.mAttributes[_S("path")];
 	if (aPath.empty())
 		return Fail("No path specified.");
 
 	theRes->mXMLAttributes = theElement.mAttributes;
 	theRes->mFromProgram = false;
-	if (aPath[0]==_S('!'))
+	if (aPath[0] == _S('!'))
 	{
 		theRes->mPath = SexyStringToStringFast(aPath);
-		if (aPath==_S("!program"))
+		if (aPath == _S("!program"))
 			theRes->mFromProgram = true;
 	}
 	else
 		theRes->mPath = mDefaultPath + SexyStringToStringFast(aPath);
 
-	
+
 	std::string anId;
 	XMLParamMap::iterator anItr = theElement.mAttributes.find(_S("id"));
 	if (anItr == theElement.mAttributes.end())
-		anId = mDefaultIdPrefix + GetFileName(theRes->mPath,true);
+		anId = mDefaultIdPrefix + GetFileName(theRes->mPath, true);
 	else
 		anId = mDefaultIdPrefix + SexyStringToStringFast(anItr->second);
 
 	theRes->mResGroup = mCurResGroup;
 	theRes->mId = anId;
 
-	std::pair<ResMap::iterator,bool> aRet = theMap.insert(ResMap::value_type(anId,theRes));
+	std::pair<ResMap::iterator, bool> aRet = theMap.insert(ResMap::value_type(anId, theRes));
 	if (!aRet.second)
 	{
 		mHadAlreadyDefinedError = true;
 		return Fail("Resource already defined.");
 	}
 
-	mCurResGroupList->push_back(theRes);
+	if (!aIsInResourcePack)
+		mCurResGroupList->push_back(theRes);
 	return true;
 }
 
