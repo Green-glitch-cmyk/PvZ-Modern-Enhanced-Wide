@@ -3105,7 +3105,7 @@ void LawnApp::UpdateCrazyDave()
 			mCrazyDaveState = CrazyDaveState::CRAZY_DAVE_HANDING_IDLING;
 		}
 	}
-	else if (mCrazyDaveState == CrazyDaveState::CRAZY_DAVE_LEAVING && aCrazyDaveReanim->mLoopCount > 0 && mGameMode != GameMode::GAMEMODE_UPSELL)
+	else if (mCrazyDaveState == CrazyDaveState::CRAZY_DAVE_LEAVING && aCrazyDaveReanim->mLoopCount > 0)
 	{
 		CrazyDaveDie();
 	}

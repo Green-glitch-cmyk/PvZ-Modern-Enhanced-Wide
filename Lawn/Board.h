@@ -73,8 +73,6 @@ public:
 		Bush*						mBush;
 		BossPart					mBossPart;
 		int							mBoardGridY;
-		bool						mShouldOffsetX;
-		bool						mShouldOffsetY;
 	};
 };
 bool RenderItemSortFunc(const RenderItem& theItem1, const RenderItem& theItem2);
