@@ -22,7 +22,7 @@
 #include "../../SexyAppFramework/Slider.h"
 
 const Rect cSeedClipRect = Rect(0, 123, BOARD_WIDTH, 420 + SEED_CHOOSER_EXTRA_HEIGHT);
-const int cSeedPacketYOffset = 1;
+const int cSeedPacketYOffset = 2;
 const int cSeedPacketRows = 8;
 
 SeedChooserScreen::SeedChooserScreen()
