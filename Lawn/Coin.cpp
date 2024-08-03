@@ -757,8 +757,8 @@ void Coin::Update()
 
     if ((mApp->mAutoCollectSuns && IsSun()) || (mApp->mAutoCollectCoins && IsMoney()))
     {
-        int aMouseX = mApp->mWidgetManager->mLastMouseX - mX - BOARD_ADDITIONAL_WIDTH;
-        int aMouseY = mApp->mWidgetManager->mLastMouseY - mY - BOARD_OFFSET_Y;
+        int aMouseX = mApp->mWidgetManager->mLastMouseX - mX;
+        int aMouseY = mApp->mWidgetManager->mLastMouseY - mY;
         HitResult aHitResultCoin;
         if (MouseHitTest(aMouseX, aMouseY, &aHitResultCoin))
             MouseDown(aMouseX, aMouseY, 0);
