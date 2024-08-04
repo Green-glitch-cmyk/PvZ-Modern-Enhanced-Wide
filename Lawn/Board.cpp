@@ -1355,7 +1355,7 @@ void Board::InitLevel()
 		aHammerReanim->mIsAttachment = true;
 		aHammerReanim->PlayReanim("anim_whack_zombie", ReanimLoopType::REANIM_PLAY_ONCE_AND_HOLD, 0, 24.0f);
 		aHammerReanim->mAnimTime = 1.0f;
-		mReanimCursorID = mApp->ReanimationGetID(aHammerReanim);
+		mCursorObject->mReanimCursorID = mApp->ReanimationGetID(aHammerReanim);
 	}
 	GameMode aGameMode = mApp->mGameMode;
 	if (aGameMode != GameMode::GAMEMODE_TREE_OF_WISDOM && aGameMode != GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN)
