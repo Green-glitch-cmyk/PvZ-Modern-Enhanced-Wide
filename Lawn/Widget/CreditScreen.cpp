@@ -1206,11 +1206,11 @@ void CreditScreen::UpdateMovie()
             ReanimatorTrackInstance* aTrackWordsShake = aUndeadReanim->GetTrackInstanceByName("ShakyText");
             if (aCreditsReanim->mAnimTime > aFrameFactor * 112.0f)
             {
-                aTrackWordsShake->mShakeOverride = 2.0f;
+                aUndeadReanim->SetShakeOverride("ShakyText", 2.0f);
             }
             else
             {
-                aTrackWordsShake->mShakeOverride = 0.0f;
+                aUndeadReanim->SetShakeOverride("ShakyText", 0.0f);
             }
         }
 
