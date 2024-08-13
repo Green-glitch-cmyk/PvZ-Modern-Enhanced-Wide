@@ -7491,7 +7491,8 @@ void Board::DrawFog(Graphics* g)
 			int aCelCol = aCelLook % 8;
 			int aPosXOffset = 80;
 			float aPosX = x * aPosXOffset + mFogOffset - 15 + BOARD_ADDITIONAL_WIDTH;
-			float aPosY = y * 85 + 20 + BOARD_OFFSET_Y;
+			int aPosYOffset = 85;
+			float aPosY = y * aPosYOffset + 20 + BOARD_OFFSET_Y;
 			float aTime = mMainCounter * PI * 2;
 			float aPhaseX = 6 * PI * x / MAX_GRID_SIZE_X;
 			float aPhaseY = 6 * PI * y / (MAX_GRID_SIZE_Y + 1);
@@ -7514,11 +7515,12 @@ void Board::DrawFog(Graphics* g)
 
 			if (x == MAX_GRID_SIZE_X - 1)
 			{
-				for (int i = 1; i <= MAX_GRID_SIZE_X - LeftFogColumn(); i++)
+				for (int i = 1; i <= MAX_GRID_SIZE_X - LeftFogColumn() + 1; i++)
 				{
 					if (mApp->Is3dAccel())
 					{
 						aCelLook += i;
+						aCelCol = aCelLook % 8;
 						aPhaseX = 6 * PI * (x + i) / MAX_GRID_SIZE_X;
 						aPhaseY = 6 * PI * (y + i) / (MAX_GRID_SIZE_Y + 1);
 						aMotion = 13 + 4 * sin(aTime / 900 + aPhaseY) + 8 * sin(aTime / 500 + aPhaseX);
@@ -7526,8 +7528,18 @@ void Board::DrawFog(Graphics* g)
 						aLightnessVariant = 255 - aCelLook - aMotion;
 						g->SetColor(Color(aColorVariant, aColorVariant, aLightnessVariant, aFadeAmount));
 					}
-					g->DrawImageCel(aImageFog, aPosX + (aPosXOffset * i), aPosY, aCelCol, 0);
+					g->DrawImageCel(aImageFog, aPosX + aPosXOffset * i, aPosY, aCelCol, 0);
+					if (y == 0 && SHOULD_FOG_COVER_FULLY)
+					{
+						for (int j = 1; j <= 2; j++)
+							g->DrawImageCel(aImageFog, aPosX + aPosXOffset * i, aPosY + aPosYOffset * -j, aCelCol, 0);
+					}
 				}
+			}
+			if (y == 0 && SHOULD_FOG_COVER_FULLY)
+			{
+				for (int i = 1; i <= 2; i++)
+					g->DrawImageCel(aImageFog, aPosX, aPosY + aPosYOffset * -i, aCelCol, 0);
 			}
 			g->SetColorizeImages(false);
 		}
