@@ -73,6 +73,7 @@ void MiniCreditsScreen::Draw(Graphics* g)
 
 	TodDrawString(g, "Special Thanks \n", 630, 420, Sexy::FONT_HOUSEOFTERROR16, TextColor, DS_ALIGN_CENTER);
 	TodDrawString(g, "Electr0Gunner\n", 630, 440, Sexy::FONT_HOUSEOFTERROR16, TextColor, DS_ALIGN_CENTER);
+	TodDrawString(g, "Fruko\n", 630, 460, Sexy::FONT_HOUSEOFTERROR16, TextColor, DS_ALIGN_CENTER);
 	g->mTransX -= BOARD_ADDITIONAL_WIDTH;
 	g->mTransY -= BOARD_OFFSET_Y;
 

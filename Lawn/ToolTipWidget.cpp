@@ -27,7 +27,7 @@ void ToolTipWidget::GetLines(std::vector<SexyString>& theLines)
 	unsigned int aIndexStart = 0;
 	unsigned int aIndexInLine = 0;
 
-	Font* aFont = OLD_STYLE_TOOLTIP ? FONT_PICO129 : FONT_BRIANNETOD12;
+	Font* aFont = USE_OLD_STYLE_TOOLTIP ? FONT_PICO129 : FONT_BRIANNETOD12;
 	SexyString aLabel = TodStringTranslate(mLabel);
 	while (aIndexInLine != aLabel.size())
 	{
@@ -68,8 +68,8 @@ void ToolTipWidget::CalculateSize()
 
 	SexyString aTitle = TodStringTranslate(mTitle);
 	SexyString aWarningText = TodStringTranslate(mWarningText);
-	Font* aTitleFont = OLD_STYLE_TOOLTIP ? FONT_TINYBOLD : FONT_BRIANNETOD16;
-	Font* aFont = OLD_STYLE_TOOLTIP ? FONT_PICO129 : FONT_BRIANNETOD12;
+	Font* aTitleFont = USE_OLD_STYLE_TOOLTIP ? FONT_TINYBOLD : FONT_BRIANNETOD16;
+	Font* aFont = USE_OLD_STYLE_TOOLTIP ? FONT_PICO129 : FONT_BRIANNETOD12;
 	int aTitleWidth = aTitleFont->StringWidth(aTitle);
 	int aWarningWidth = aFont->StringWidth(aWarningText);
 	int aMaxWidth = max(aTitleWidth, aWarningWidth);
@@ -151,7 +151,7 @@ void ToolTipWidget::Draw(Graphics* g)
 	g->DrawRect(aPosX, aPosY, mWidth - 1, mHeight - 1);
 	aPosY++;
 
-	Font* aTitleFont = OLD_STYLE_TOOLTIP ? FONT_TINYBOLD : FONT_BRIANNETOD16;
+	Font* aTitleFont = USE_OLD_STYLE_TOOLTIP ? FONT_TINYBOLD : FONT_BRIANNETOD16;
 	SexyString aTitle = TodStringTranslate(mTitle);
 	if (!aTitle.empty())
 	{
@@ -160,7 +160,7 @@ void ToolTipWidget::Draw(Graphics* g)
 		aPosY += aTitleFont->GetAscent() + 2;
 	}
 
-	Font* aWarningFont = OLD_STYLE_TOOLTIP ? FONT_PICO129 : FONT_BRIANNETOD12;
+	Font* aWarningFont = USE_OLD_STYLE_TOOLTIP ? FONT_PICO129 : FONT_BRIANNETOD12;
 	SexyString aWarningText = TodStringTranslate(mWarningText);
 	if (!aWarningText.empty())
 	{
@@ -184,7 +184,7 @@ void ToolTipWidget::Draw(Graphics* g)
 	std::vector<SexyString> aLines;
 	GetLines(aLines);
 
-	Font* aFont = OLD_STYLE_TOOLTIP ? FONT_PICO129 : FONT_BRIANNETOD12;
+	Font* aFont = USE_OLD_STYLE_TOOLTIP ? FONT_PICO129 : FONT_BRIANNETOD12;
 	g->SetFont(aFont);
 	for (int i = 0; i < aLines.size(); i++)
 	{

@@ -305,7 +305,7 @@ void DrawSeedPacket(Graphics* g, float x, float y, SeedType theSeedType, SeedTyp
 	}
 	else
 	{
-		TodDrawImageCelScaledF(g, Sexy::IMAGE_SEEDS, x, y, aPacketBackground, 0, g->mScaleX, g->mScaleY);
+		TodDrawImageCelScaledF(g, USE_CONSOLE_SEED_VARIANTS ? Sexy::IMAGE_CONSOLE_SEEDS : Sexy::IMAGE_SEEDS, x, y, aPacketBackground, 0, g->mScaleX, g->mScaleY);
 	}
 
 	float aScale = 0.5f;
@@ -560,9 +560,9 @@ void DrawSeedPacket(Graphics* g, float x, float y, SeedType theSeedType, SeedTyp
 			aCostStr = StrFormat(_S("%d"), Plant::GetCost(theSeedType, theImitaterType));
 		}
 
-		Font* aTextFont = OLD_STYLE_SEEDPACKET ? Sexy::FONT_PICO129 : Sexy::FONT_BRIANNETOD12;
+		Font* aTextFont = USE_OLD_STYLE_SEEDPACKET ? Sexy::FONT_PICO129 : Sexy::FONT_BRIANNETOD12;
 		int aTextOffsetX = 32 - aTextFont->StringWidth(aCostStr);
-		int aTextOffsetY = aTextFont->GetAscent() + (OLD_STYLE_SEEDPACKET ? 54 : 52);
+		int aTextOffsetY = aTextFont->GetAscent() + (USE_OLD_STYLE_SEEDPACKET ? 54 : 52) - (USE_CONSOLE_SEED_VARIANTS ? 2 : 0);
 		if (g->mScaleX == 1.0f && g->mScaleY == 1.0f)
 		{
 			TodDrawString(g, aCostStr, x + aTextOffsetX, y + aTextOffsetY, aTextFont, Color::Black, DS_ALIGN_LEFT);
