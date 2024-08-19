@@ -2,4 +2,5 @@
 A edit of the PvZ Decompile/Reconstruction that adds MORE QoL features.
 
 # Credits:
-Electr0Gunner
+Electr0Gunner,
+Ultra Wide Expansion Team
