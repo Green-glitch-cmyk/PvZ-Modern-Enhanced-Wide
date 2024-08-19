@@ -1,4 +1,4 @@
-# PvZ Wide Enhanced
+# PvZ Quality Enhanced Wide
 A edit of the PvZ Decompile/Reconstruction that adds MORE QoL features.
 
 # Credits:
