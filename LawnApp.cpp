@@ -124,7 +124,7 @@ LawnApp::LawnApp()
 	mAutoStartLoadingThread = false;
 	mDebugKeysEnabled = false;
 	mIsFastMode = false;
-	mVersion = "wide-v4.2";
+	mVersion = "wide-v4.3";
 	mReconVersion = "PvZ: QE " + mVersion;
 	mTitle = _S("Plants vs. Zombies: Quality Enhanced " + mVersion);
 	mCustomCursorsEnabled = false;
