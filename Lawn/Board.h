@@ -37,6 +37,7 @@ class Challenge;
 class Reanimation;
 class DataSync;
 class TodParticleSystem;
+class Controller;
 namespace Sexy
 {
 	class Graphics;
@@ -100,6 +101,36 @@ struct BungeeDropGrid
 {
 	TodWeightedGridArray			mGridArray[MAX_GRID_SIZE_X * MAX_GRID_SIZE_Y];
 	int								mGridArrayCount;
+};
+
+//actually initialize this class, dont be checking for controllers due to the previous indexes. if it gets deleted, no previous index aswell
+
+class ControllerPlayer
+{
+public:
+	LawnApp*						mApp;
+	int								mIndex;
+	bool							mActive;
+	int								mBoardX;
+	int								mBoardY;
+	SeedType						mSeedChooserSeed;
+	SeedType						mSeedChooserPrevSeed;
+	int								mSeedBankIndex;
+	int								mSeedBankPrevIndex;
+	CursorObject*					mCursorObject;
+	CursorPreview*					mCursorPreview;
+	ToolTipWidget*					mSeedChooserToolTip;
+	int								mArrowStartMotion;
+	int								mArrowEndMotion;
+	int								mSeedChooserMoveMotion;
+	int								mSeedChooserButtonMotion;
+	std::vector<std::tuple<int, int, SeedType, SeedType, int, bool>> mSeedChooserSeeds;
+
+public:
+	ControllerPlayer(int theIndex);
+	~ControllerPlayer();
+
+	void							Update();
 };
 
 class Board : public Widget, public ButtonListener
@@ -235,6 +266,9 @@ public:
 	int								mGargantuarsKilled;
 	int								mCoinBankX;
 	int								mCoinBankY;
+	ControllerPlayer*				mPlayers[MAX_CONTROLLERS];
+	//int								mControllerSeedIndex[MAX_CONTROLLERS];
+	//int								mControllerPrevSeedIndex[MAX_CONTROLLERS];
 
 public:
 	Board(LawnApp* theApp);
@@ -497,7 +531,7 @@ public:
 	void							DoTypingCheck(KeyCode theKey);
 	int								CountZombieByType(ZombieType theZombieType);
 	static /*inline*/ bool			IsZombieTypeSpawnedOnly(ZombieType theZombieType);
-	void 							DrawHealthbar(Graphics* g, Rect rect, Color maxColor, int maxNumber, Color baseColor, int baseNumber, int barWidth, int barHeight, int barOffsetX, int barOffsetY, Color textColor, Font* textFont, int textOffsetY, Color textOutlineColor, int textOutlineOffset, bool drawBarOutline);
+	void 							DrawHealthbar(Graphics* g, Rect theRect, Color theMaxColor, int theMaxHealth, Color theBaseColor, int theBaseHealth, int theBarWidth, int theBarHeight, int theBarOffsetX, int theBarOffsetY, Color theTextColor, Font* theTextFont, int theTextOffsetY, Color theTextOutlineColor, int theTextOutlineOffset, bool theHasBarOutline);
 };
 extern bool gShownMoreSunTutorial;
 

@@ -9,6 +9,7 @@
 #include "../SexyAppFramework/Font.h"
 #include "../Sexy.TodLib/FilterEffect.h"
 #include "../SexyAppFramework/SexyMatrix.h"
+#include "System/ControllerManager.h"
 
 SeedPacket::SeedPacket()
 {
@@ -942,11 +943,62 @@ void SeedBank::Draw(Graphics* g)
 		g->DrawImage(IMAGE_SEEDBANK, 0, 0);
 		g->DrawImage(IMAGE_SEEDBANK, IMAGE_SEEDBANK->mWidth - 12, 0, theSrcRect);
 	}
-
+	
 	for (int i = 0; i < mNumPackets; i++)
 	{
 		SeedPacket* aSeedPacket = &mSeedPackets[i];
-		if (aSeedPacket->mPacketType != SeedType::SEED_NONE && aSeedPacket->BeginDraw(g))
+		bool aIsControllerSelected = false;
+		for (int j = 0; j < MAX_CONTROLLERS; j++)
+		{
+			aIsControllerSelected = mBoard->mControllerSeedIndex[j] == i;
+			if (aIsControllerSelected)
+				break;
+		}
+		if (aSeedPacket->mPacketType != SeedType::SEED_NONE && !aIsControllerSelected && aSeedPacket->BeginDraw(g))
+		{
+			aSeedPacket->Draw(g);
+			aSeedPacket->EndDraw(g);
+		}
+	}
+	if (!mApp->IsChallengeWithoutSeedBank()) //|| mY > 0 yk to check if its gonna be visisble
+	{
+		for (int i = 0; i < MAX_CONTROLLERS; i++)
+		{
+			if (Controller* aController = mApp->mControllerManager->GetController(i))
+			{
+				int aIndex = mBoard->mControllerSeedIndex[i];
+				if (aIndex == -1 || mBoard->mCutScene->mSeedChoosing)
+					continue;
+				SeedPacket* aSeedPacket = &mSeedPackets[aIndex];
+				float aScale = 1.05;
+				int aSeedSelectorWidth = IMAGE_SEED_SELECTOR->mWidth * aScale;
+				int aSeedSelectorHeight = IMAGE_SEED_SELECTOR->mHeight * aScale;
+				int aOffset = 7;
+				int aPosX = aSeedPacket->mX - aOffset;
+				int aPosY = aSeedPacket->mY - aOffset;
+				if (mBoard->mControllerSeedIndex[0] == aIndex && i != 0)
+					g->SetClipRect(Rect(aPosX, aPosY, aSeedSelectorWidth, aSeedSelectorHeight / 2));
+				Color aOldColor = g->mColor;
+				g->SetColorizeImages(true);
+				g->SetColor(aController->GetColor());
+				TodDrawImageScaledF(g, IMAGE_SEED_SELECTOR, aPosX, aPosY, aScale, aScale);
+				g->SetColor(aOldColor);
+				g->SetColorizeImages(false);
+				g->ClearClipRect();
+			}
+		}
+	}
+	for (int i = 0; i < mNumPackets; i++)
+	{
+		SeedPacket* aSeedPacket = &mSeedPackets[i];
+		bool aIsControllerSelected = false;
+		for (int j = 0; j < MAX_CONTROLLERS; j++)
+		{
+			aIsControllerSelected = mBoard->mControllerSeedIndex[j] == i;
+			if (aIsControllerSelected)
+				break;
+		}
+		if (aSeedPacket->mPacketType != SeedType::SEED_NONE && aIsControllerSelected && aSeedPacket->BeginDraw(g))
 		{
 			aSeedPacket->Draw(g);
 			aSeedPacket->EndDraw(g);

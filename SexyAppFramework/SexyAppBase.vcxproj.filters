@@ -953,6 +953,9 @@
     <ClCompile Include="..\Lawn\Widget\CursorWidget.cpp">
       <Filter>Lawn\Widget\Widget Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\Lawn\System\ControllerManager.cpp">
+      <Filter>Lawn\System\System Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Color.h">
@@ -1640,6 +1643,10 @@
     </ClInclude>
     <ClInclude Include="..\Lawn\Widget\CursorWidget.h">
       <Filter>Lawn\Widget\Widget Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SDL2\include\SDL.h" />
+    <ClInclude Include="..\Lawn\System\ControllerManager.h">
+      <Filter>Lawn\System\System Include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

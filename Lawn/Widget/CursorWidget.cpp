@@ -1,13 +1,13 @@
 #include "CursorWidget.h"
+#include "../../LawnApp.h"
 
-using namespace Sexy;
-
-CursorWidget::CursorWidget(SexyAppBase* theApp)
+CursorWidget::CursorWidget()
 {
-	mApp = theApp;
+	mApp = gLawnApp;
 	mMouseVisible = false;
 	mImage = NULL;
 	mDraw = false;
+	mZOrder = 1000000000;
 }
 
 void CursorWidget::Draw(Graphics* g)

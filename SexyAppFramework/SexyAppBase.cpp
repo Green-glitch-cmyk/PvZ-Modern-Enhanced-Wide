@@ -384,11 +384,8 @@ SexyAppBase::SexyAppBase()
 
 SexyAppBase::~SexyAppBase()
 {
-	if (mCursor)
-	{
-		mWidgetManager->RemoveWidget(mCursor);
-		delete mCursor;
-	}
+	mWidgetManager->RemoveWidget(mCursor);
+	delete mCursor;
 
 	Shutdown();
 
@@ -2255,11 +2252,7 @@ void SexyAppBase::UpdateFrames()
 			++mFPSDirtyCount;
 	}
 
-	if (mCursor)
-	{
-		mCursor->SetImage(IMAGE_MOUSE_CURSOR);
-		mWidgetManager->BringToFront(mCursor);
-	}
+	mCursor->SetImage(IMAGE_MOUSE_CURSOR);
 
 	mMusicInterface->Update();
 	CleanSharedImages();
@@ -4640,11 +4633,13 @@ bool SexyAppBase::ProcessDeferredMessages(bool singleMessage)
 					ClearKeysDown();
 					break;
 				}
+				/*
 				else if ((wParam == 'D') && (mWidgetManager != NULL) && (mWidgetManager->mKeyDown[KEYCODE_CONTROL]) && (mWidgetManager->mKeyDown[KEYCODE_MENU]))
 				{
 					PlaySoundA("c:\\windows\\media\\Windows XP Menu Command.wav", NULL, SND_ASYNC);
 					mDebugKeysEnabled = !mDebugKeysEnabled;
 				}
+				*/
 
 				if (mDebugKeysEnabled)
 				{
@@ -6499,8 +6494,8 @@ void SexyAppBase::Init()
 	}
 
 	InitHook();
-
-	mCursor = new CursorWidget(this);
+	
+	mCursor = new CursorWidget();
 	mWidgetManager->AddWidget(mCursor);
 
 	mInitialized = true;

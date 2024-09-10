@@ -20,6 +20,7 @@
 #include "../Sexy.TodLib/TodParticle.h"
 #include "../Sexy.TodLib/EffectSystem.h"
 #include "../Sexy.TodLib/TodStringFile.h"
+#include "../../Lawn/System/ControllerManager.h"
 
 PlantDefinition gPlantDefs[SeedType::NUM_SEED_TYPES] = {  
     { SeedType::SEED_PEASHOOTER,        nullptr, ReanimationType::REANIM_PEASHOOTER,    0,  100,    750,    PlantSubClass::SUBCLASS_SHOOTER,    150,    _S("PEASHOOTER") },
@@ -4285,6 +4286,7 @@ void Plant::DoSpecial()
 
         mApp->AddTodParticle(aPosX, aPosY, (int)RenderLayer::RENDER_LAYER_TOP, ParticleEffect::PARTICLE_POWIE);
         mBoard->ShakeBoard(3, -4);
+        mApp->mControllerManager->RumbleAll(0.4, 0.4, 500);
 
         Die();
         break;
@@ -4299,6 +4301,7 @@ void Plant::DoSpecial()
         mApp->AddTodParticle(aPosX, aPosY, (int)RenderLayer::RENDER_LAYER_TOP, ParticleEffect::PARTICLE_DOOM);
         mBoard->AddACrater(mPlantCol, mRow)->mGridItemCounter = 18000;
         mBoard->ShakeBoard(3, -4);
+        mApp->mControllerManager->RumbleAll(0.5, 0.5, 1250);
 
         Die();
         break;
@@ -4313,6 +4316,7 @@ void Plant::DoSpecial()
 
         BurnRow(mRow);
         mBoard->mIceTimer[mRow] = 20;
+        mApp->mControllerManager->RumbleAll(0.4, 0.4, 500);
 
         Die();
         break;
@@ -4351,6 +4355,7 @@ void Plant::DoSpecial()
         int aRenderPosition = Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_PARTICLE, mRow, 0);
         mApp->AddTodParticle(aPosX + 20.0f, aPosY, aRenderPosition, ParticleEffect::PARTICLE_POTATO_MINE);
         mBoard->ShakeBoard(3, -4);
+        mApp->mControllerManager->RumbleAll(0.4, 0.4, 500);
 
         Die();
         break;

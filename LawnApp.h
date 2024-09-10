@@ -31,6 +31,7 @@ class TypingCheck;
 class MiniCreditsScreen;
 class AchievementScreen;
 class QuickPlayScreen;
+class ControllerManager;
 
 namespace Sexy
 {
@@ -140,6 +141,7 @@ public:
 	time_t							mStartTime;
 	SexyString                      mDetails;
 	SexyString                      mState;
+	ControllerManager*				mControllerManager;
 
 public:
 	LawnApp();
@@ -347,6 +349,7 @@ public:
 	void							GetAchievement(AchievementType theAchievementType);
 	void							UpdateDiscordState(SexyString theState = "");
 	bool							Is3dAccel();
+	void							LeaveBoard(int theIndex = -1);
 };
 
 SexyString							LawnGetCurrentLevelName();

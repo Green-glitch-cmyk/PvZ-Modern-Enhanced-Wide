@@ -70,7 +70,6 @@ public:
     int                     mSeedsInFlight;                     
     int                     mSeedsInBank;                       
     ToolTipWidget*          mToolTip;                           
-    int                     mToolTipSeed;                       
     int                     mLastMouseX;                        
     int                     mLastMouseY;                        
     SeedChooserState        mChooseState;                       
@@ -82,7 +81,16 @@ public:
     const float             mScrollAccel = 0.1f;
     float					mMaxScrollPosition;
     SeedType                mPreviousType;
-
+    /*
+    ToolTipWidget*          mControllerToolTip[MAX_CONTROLLERS];
+    SeedType                mControllerPreviousSeed[MAX_CONTROLLERS];
+    SeedType                mControllerSeed[MAX_CONTROLLERS];
+    int                     mControllerMove[MAX_CONTROLLERS];
+    int                     mControllerButton[MAX_CONTROLLERS];
+    int                     mControllerArrowStart[MAX_CONTROLLERS];
+    int                     mControllerArrowEnd[MAX_CONTROLLERS];
+    std::vector<std::tuple<int, int, SeedType, SeedType, int, bool>> mControllerDrawSeeds;
+    */
 
 public:
     SeedChooserScreen();
@@ -114,7 +122,7 @@ public:
     void                    ClickedSeedInBank(ChosenSeed& theChosenSeed);
     void                    ClickedSeedInChooser(ChosenSeed& theChosenSeed);
     void                    ShowToolTip();
-    /*inline*/ void         RemoveToolTip();
+    /*inline*/ void         RemoveToolTip(int theIndex = -1);
     /*inline*/ void         CancelLawnView();
     virtual void            MouseUp(int x, int y, int theClickCount);
     bool                    IsImitaterUnselectable(SeedType seedType);
@@ -126,11 +134,15 @@ public:
     virtual void			MouseWheel(int theDelta);
     void                    UpdateAfterPurchase();
     void                    SliderVal(int theId, double theVal);
-    virtual void				RemovedFromManager(WidgetManager* theWidgetManager);
-    virtual void				AddedToManager(WidgetManager* theWidgetManager);
+    virtual void			RemovedFromManager(WidgetManager* theWidgetManager);
+    virtual void			AddedToManager(WidgetManager* theWidgetManager);
     Zombie*                 ZombieHitTest(int x, int y);
     bool                    IsOverImitater(int x, int y);
     void                    ResizeSlider();
+    void                    SetToolTipSeedContents(SeedType theSeedType, int theIndex = -1);
+    void                    GetToolTipPosition(int theIndex, int theSeedX, int theSeedY, SeedType theSeedType, int* theX = nullptr, int* theY = nullptr);
+    void                    SelectSeedType(SeedType theSeedType, int theIndex = -1);
+    int                     GetRows();
 };
 
 #endif

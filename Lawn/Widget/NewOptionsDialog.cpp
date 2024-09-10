@@ -617,19 +617,7 @@ void NewOptionsDialog::ButtonDepress(int theId)
 
     case NewOptionsDialog::NewOptionsDialog_MainMenu:
     {
-        if (mApp->mBoard && mApp->mBoard->NeedSaveGame())
-        {
-            mApp->DoConfirmBackToMain();
-        }
-        else if (mApp->mBoard && mApp->mBoard->mCutScene && mApp->mBoard->mCutScene->IsSurvivalRepick())
-        {
-            mApp->DoConfirmBackToMain();
-        }
-        else
-        {
-            mApp->mBoardResult = BoardResult::BOARDRESULT_QUIT;
-            mApp->DoBackToMain(true);
-        }
+        mApp->LeaveBoard();
         break;
     }
 

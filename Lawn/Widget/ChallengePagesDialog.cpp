@@ -58,30 +58,30 @@ void ChallengePagesDialog::Draw(Graphics* g)
 {
 	LawnDialog::Draw(g);
 	g->SetClipRect(mClipRect);
-	int totalHidden = 0;
-	int maxScroll = 0;
+	int aTotalHidden = 0;
+	int aMaxScroll = 0;
 	for (int aPage = 0; aPage < MAX_CHALLENGE_PAGES; aPage++)
 	{
-		bool isSelected = aPage == mApp->mChallengeScreen->mPageIndex;
+		bool aIsSelected = aPage == mApp->mChallengeScreen->mPageIndex;
 		LawnStoneButton* aPageButton = mPageButtons[aPage];
-		aPageButton->mDisabled = isSelected;
+		aPageButton->mDisabled = aIsSelected;
 		aPageButton->mMouseVisible = mClipRect.Contains(mWidgetManager->mLastMouseX - mX, mWidgetManager->mLastMouseY - mY);
 		aPageButton->mVisible = mApp->mChallengeScreen->IsPageUnlocked((ChallengePage)aPage);
 		int aHeight = 46;
 		int aOffset = 3;
-		mPageButtonRects[aPage] = Rect(mClipRect.mX, mClipRect.mY + ((aPage - totalHidden) * (aHeight + aOffset)) - mScrollPosition, mClipRect.mWidth - (mSlider->mVisible ? mSlider->mWidth : 0), aHeight);
+		mPageButtonRects[aPage] = Rect(mClipRect.mX, mClipRect.mY + ((aPage - aTotalHidden) * (aHeight + aOffset)) - mScrollPosition, mClipRect.mWidth - (mSlider->mVisible ? mSlider->mWidth : 0), aHeight);
 		Rect aPageButtonRect = mPageButtonRects[aPage];
 		aPageButton->Resize(aPageButtonRect);
 		if (aPageButton->mVisible)
 		{
 			DrawStoneButton(g, aPageButtonRect.mX, aPageButtonRect.mY, aPageButtonRect.mWidth, aPageButtonRect.mHeight,
-				(aPageButton->mIsDown && aPageButton->mIsOver && !aPageButton->mDisabled) ^ aPageButton->mInverted, aPageButton->mIsOver, TodStringTranslate(aPageButton->mLabel), isSelected ? 175 : 255);
-			maxScroll += aHeight + aOffset;
+				(aPageButton->mIsDown && aPageButton->mIsOver && !aPageButton->mDisabled) ^ aPageButton->mInverted, aPageButton->mIsOver, TodStringTranslate(aPageButton->mLabel), aIsSelected ? 175 : 255);
+			aMaxScroll += aHeight + aOffset;
 		}
 		else
-			totalHidden++;
+			aTotalHidden++;
 	}
-	mMaxScrollPosition = max(0, maxScroll - mClipRect.mHeight);
+	mMaxScrollPosition = max(0, aMaxScroll - mClipRect.mHeight);
 	g->ClearClipRect();
 	mSlider->SliderDraw(g);
 }

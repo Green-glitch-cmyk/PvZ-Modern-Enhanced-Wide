@@ -46,6 +46,7 @@
 #include "SexyAppFramework/WidgetManager.h"
 #include "SexyAppFramework/ResourceManager.h"
 #include "Lawn/Achievements.h"
+#include "Lawn/System/ControllerManager.h"
 
 #include "Lawn/System/discord_rpc.h"
 #include "SexyAppFramework/Checkbox.h"
@@ -60,8 +61,7 @@ bool gSlowMo = false;
 bool gFastMo = false;  
 LawnApp* gLawnApp = nullptr;  
 int gSlowMoCounter = 0;  
-
-const char* CLIENT_ID = "1261368391885787348";
+const char* gClientId = "1261368391885787348";
 
 bool LawnGetCloseRequest()
 {
@@ -152,6 +152,7 @@ LawnApp::LawnApp()
 	mBigArrowCursor = LoadCursor(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDC_CURSOR1));
 	mDRM = nullptr;
 	mPlayingQuickplay = false;
+	mControllerManager = new ControllerManager();
 }
 
 LawnApp::~LawnApp()
@@ -265,6 +266,7 @@ LawnApp::~LawnApp()
 
 	delete mProfileMgr;
 	delete mLastLevelStats;
+	delete mControllerManager;
 
 	mResourceManager->DeleteResources("");
 #ifdef _DEBUG
@@ -1470,7 +1472,7 @@ void LawnApp::StartDiscord()
 		TodTraceAndLog(errchar);
 	};
 
-	Discord_Initialize(CLIENT_ID, &handlers, 1, NULL);
+	Discord_Initialize(gClientId, &handlers, 1, NULL);
 }
 
 bool LawnApp::DebugKeyDown(int theKey)
@@ -1810,6 +1812,8 @@ void LawnApp::UpdateFrames()
 
 		CheckForGameEnd();
 	}
+
+	mControllerManager->Update();
 
 	static time_t lastUpdateTime = time(NULL);
 	time_t now = time(NULL);
@@ -3652,6 +3656,27 @@ void LawnApp::ToggleDebugMode()
 bool LawnApp::Is3dAccel()
 {
 	return mIs3dAccel;
+}
+
+void LawnApp::LeaveBoard(int theIndex)
+{
+	if (mBoard && mBoard->NeedSaveGame())
+	{
+		DoConfirmBackToMain();
+	}
+	else if (mBoard && mBoard->mCutScene && mBoard->mCutScene->IsSurvivalRepick())
+	{
+		DoConfirmBackToMain();
+	}
+	else
+	{
+		if (theIndex != -1)
+		{
+			//lawndialog confirm (like in xbox version)
+		}
+		mBoardResult = BoardResult::BOARDRESULT_QUIT;
+		DoBackToMain(true);
+	}
 }
 
 
