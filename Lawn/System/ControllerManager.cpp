@@ -359,9 +359,11 @@ void ControllerPlayer::Update()
 					mApp->KillDialog(Dialogs::DIALOG_PAUSED);
 				}
 			}
-			else if (mApp->GetSeedsAvailable() >= mApp->mBoard->mSeedBank->mNumPackets)
+			else
 			{
-				mApp->mSeedChooserScreen->OnStartButton();
+				//crashes when message appears
+				if (!mApp->mSeedChooserScreen->mStartButton->mDisabled)
+					mApp->mSeedChooserScreen->ButtonDepress(mApp->mSeedChooserScreen->mStartButton->mId);
 			}
 		}
 
