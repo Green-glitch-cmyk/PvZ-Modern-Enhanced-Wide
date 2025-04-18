@@ -89,8 +89,8 @@ public:
     int                     mControllerButton[MAX_CONTROLLERS];
     int                     mControllerArrowStart[MAX_CONTROLLERS];
     int                     mControllerArrowEnd[MAX_CONTROLLERS];
-    std::vector<std::tuple<int, int, SeedType, SeedType, int, bool>> mControllerDrawSeeds;
     */
+    std::vector<std::tuple<int, int, SeedType, SeedType, int, bool>> mControllerDrawSeeds;
 
 public:
     SeedChooserScreen();

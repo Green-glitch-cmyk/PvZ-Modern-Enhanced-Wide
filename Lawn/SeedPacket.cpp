@@ -950,7 +950,7 @@ void SeedBank::Draw(Graphics* g)
 		bool aIsControllerSelected = false;
 		for (int j = 0; j < MAX_CONTROLLERS; j++)
 		{
-			aIsControllerSelected = mBoard->mControllerSeedIndex[j] == i;
+			aIsControllerSelected = mBoard->mControllerPlayers[j]->mSeedBankIndex == i;
 			if (aIsControllerSelected)
 				break;
 		}
@@ -966,7 +966,7 @@ void SeedBank::Draw(Graphics* g)
 		{
 			if (Controller* aController = mApp->mControllerManager->GetController(i))
 			{
-				int aIndex = mBoard->mControllerSeedIndex[i];
+				int aIndex = mBoard->mControllerPlayers[i]->mSeedBankIndex;
 				if (aIndex == -1 || mBoard->mCutScene->mSeedChoosing)
 					continue;
 				SeedPacket* aSeedPacket = &mSeedPackets[aIndex];
@@ -976,7 +976,7 @@ void SeedBank::Draw(Graphics* g)
 				int aOffset = 7;
 				int aPosX = aSeedPacket->mX - aOffset;
 				int aPosY = aSeedPacket->mY - aOffset;
-				if (mBoard->mControllerSeedIndex[0] == aIndex && i != 0)
+				if (mBoard->mControllerPlayers[0]->mSeedBankIndex == aIndex && i != 0)
 					g->SetClipRect(Rect(aPosX, aPosY, aSeedSelectorWidth, aSeedSelectorHeight / 2));
 				Color aOldColor = g->mColor;
 				g->SetColorizeImages(true);
@@ -994,7 +994,7 @@ void SeedBank::Draw(Graphics* g)
 		bool aIsControllerSelected = false;
 		for (int j = 0; j < MAX_CONTROLLERS; j++)
 		{
-			aIsControllerSelected = mBoard->mControllerSeedIndex[j] == i;
+			aIsControllerSelected = mBoard->mControllerPlayers[j]->mSeedBankIndex == i;
 			if (aIsControllerSelected)
 				break;
 		}

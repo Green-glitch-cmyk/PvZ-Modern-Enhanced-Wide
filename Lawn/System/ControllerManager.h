@@ -1,11 +1,12 @@
 #ifndef __CONTROLLERMANAGER_H__
 #define __CONTROLLERMANAGER_H__
 
-#include "../../GameConstants.h"
-#include "../../SexyAppFramework/Color.h"
 #include "../../SDL2/include/SDL.h"
-
-class LawnApp;
+#include "../../GameConstants.h"
+#include "../../ConstEnums.h"
+#include "../../SexyAppFramework/Color.h"
+#include "../CursorObject.h"
+#include "../ToolTipWidget.h"
 
 //could add threshold to right joystick and trigger threshold
 
@@ -37,13 +38,44 @@ public:
 	void				Rumble(float theLow, float theHigh, int theDuration);
 };
 
+//actually initialize this class, dont be checking for controllers due to the previous indexes. if it gets deleted, no previous index aswell
+
+class ControllerPlayer
+{
+private:
+	int								mIndex;
+
+public:
+	LawnApp*						mApp;
+	Controller*						mController;
+	int								mBoardX;
+	int								mBoardY;
+	SeedType						mSeedChooserSeed;
+	SeedType						mSeedChooserPrevSeed;
+	int								mSeedBankIndex;
+	int								mSeedBankPrevIndex;
+	CursorObject*					mCursorObject;
+	CursorPreview*					mCursorPreview;
+	ToolTipWidget*					mSeedChooserToolTip;
+	int								mArrowStartMotion;
+	int								mArrowEndMotion;
+	int								mSeedChooserMoveMotion;
+	int								mSeedChooserButtonMotion;
+
+public:
+	ControllerPlayer(int theIndex);
+	~ControllerPlayer();
+
+	void							Update();
+};
+
 class ControllerManager
 {
 private:
-	LawnApp*			mApp;
+	LawnApp* mApp;
 	bool				mIsInitialized;
 	std::map<SDL_JoystickID, int> mControllerMap;
-	Controller*			mController[MAX_CONTROLLERS];
+	Controller* mController[MAX_CONTROLLERS];
 	int					mCurrentMouse;
 
 public:
@@ -52,7 +84,7 @@ public:
 
 	void				Update();
 	bool				IsActive();
-	Controller*			GetController(int theIndex);
+	Controller* GetController(int theIndex);
 	void				RumbleAll(float theLow, float theHigh, int theDuration);
 };
 

@@ -182,7 +182,7 @@ Board::Board(LawnApp* theApp)
 	mRoofPoleOffset = ROOF_POLE_START;
 	mRoofTreeOffset = ROOF_TREE_START;
 	for (int i = 0; i < MAX_CONTROLLERS; i++)
-		mPlayers[i] = new ControllerPlayer(i);
+		mControllerPlayers[i] = new ControllerPlayer(i);
 
 	if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN || mApp->mGameMode == GameMode::GAMEMODE_TREE_OF_WISDOM)
 	{
@@ -263,7 +263,7 @@ Board::~Board()
 	delete mChallenge;
 	for (int i = 0; i < MAX_CONTROLLERS; i++)
 	{
-		delete mPlayers[i];
+		delete mControllerPlayers[i];
 	}
 	mApp->UpdateDiscordState();
 }
@@ -5643,7 +5643,7 @@ void Board::Update()
 	MarkDirty();
 
 	for (int i = 0; i < MAX_CONTROLLERS; i++)
-		mPlayers[i]->Update();
+		mControllerPlayers[i]->Update();
 
 	if (mPaused && mApp->mIsFastMode)
 		mApp->mIsFastMode = false;
@@ -9994,225 +9994,4 @@ void Board::DrawHealthbar(Graphics* g, Rect theRect, Color theMaxColor, int theM
 		g->DrawRect(Rect(aBarX - 1, aBarY - 1, theBarWidth + 1, theBarHeight + 1));
 	}
 	g->SetColor(lastColor);
-}
-
-ControllerPlayer::ControllerPlayer(int theIndex)
-{
-	mApp = gLawnApp;
-	mIndex = theIndex;
-	mActive = false;
-	mBoardX = 0;
-	mBoardY = 0;
-	mSeedChooserSeed = SEED_NONE;
-	mSeedChooserPrevSeed = SEED_NONE;
-	mSeedBankIndex = -1;
-	mSeedBankPrevIndex = -1;
-	mCursorObject = new CursorObject();
-	mCursorPreview = new CursorPreview();
-	mSeedChooserToolTip = new ToolTipWidget();
-	mArrowStartMotion = -1;
-	mArrowEndMotion = -1;
-	mSeedChooserMoveMotion = -1;
-	mSeedChooserButtonMotion = -1;
-}
-
-ControllerPlayer::~ControllerPlayer()
-{
-	delete mCursorObject;
-	delete mCursorPreview;
-	delete mSeedChooserToolTip;
-}
-
-void ControllerPlayer::Update()
-{
-	Controller* aController = mApp->mControllerManager->GetController(mIndex);
-	mActive = aController != nullptr;
-	if (aController)
-	{
-		bool aIsSeedChoosing = !mApp->mBoard->mCutScene->mSeedChoosing;
-		if (aIsSeedChoosing)
-			mSeedChooserToolTip->Update();
-
-		if (mSeedChooserSeed == SEED_NONE)
-		{
-			mSeedChooserSeed = mSeedChooserPrevSeed != SEED_NONE ? mSeedChooserPrevSeed : SEED_PEASHOOTER;
-			mSeedChooserPrevSeed = SEED_NONE;
-		}
-
-		if (mSeedBankIndex == -1 && !aIsSeedChoosing)
-		{
-			mSeedBankIndex = mSeedBankPrevIndex != -1 ? mSeedBankPrevIndex : 0;
-			mSeedBankPrevIndex = -1;
-		}
-
-		if (aController->GetButtonDown(SDL_CONTROLLER_BUTTON_START))
-		{
-			if (!aIsSeedChoosing)
-			{
-				if (mApp->GetDialogCount() == 0)
-				{
-					mApp->mBoard->UpdateCursor();
-					mApp->mBoard->ClearCursor();
-					mApp->PlaySample(Sexy::SOUND_PAUSE);
-					mApp->DoNewOptions(false);
-				}
-				else
-				{
-					mApp->KillNewOptionsDialog();
-					mApp->KillDialog(Dialogs::DIALOG_PAUSED);
-				}
-			}
-			else
-			{
-				if (!mApp->mSeedChooserScreen->mStartButton->mDisabled)
-					mApp->mSeedChooserScreen->ButtonDepress(mApp->mSeedChooserScreen->mStartButton->mId);
-			}
-		}
-
-		if (!mApp->mHasFocus || mApp->mBoard->mPaused)
-			return;
-
-		if (mApp->mGameScene == GameScenes::SCENE_PLAYING)
-		{
-			if (aController->GetButtonDown(SDL_CONTROLLER_BUTTON_LEFTSHOULDER))
-			{
-				mSeedBankIndex--;
-				if (mSeedBankIndex < 0)
-					mSeedBankIndex = mApp->mBoard->mSeedBank->mNumPackets - 1;
-			}
-			if (aController->GetButtonDown(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
-			{
-				mSeedBankIndex++;
-				if (mSeedBankIndex >= mApp->mBoard->mSeedBank->mNumPackets)
-					mSeedBankIndex = 0;
-			}
-		}
-		else if (aIsSeedChoosing)
-		{
-			int aRows = mApp->mSeedChooserScreen->GetRows();
-			bool aButtonDPadLeft = aController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-			bool aButtonDPadRight = aController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
-			bool aButtonDPadUp = aController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP);
-			bool aButtonDPadDown = aController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN);
-			bool aIsAxisXActive = aController->IsAxisActive(SDL_CONTROLLER_AXIS_LEFTX);
-			bool aIsAxisYActive = aController->IsAxisActive(SDL_CONTROLLER_AXIS_LEFTY);
-			if ((mSeedChooserMoveMotion == -1 || mApp->mSeedChooserScreen->mSeedChooserAge >= mSeedChooserMoveMotion) && (aButtonDPadLeft || aButtonDPadRight || aButtonDPadUp || aButtonDPadDown || aIsAxisXActive || aIsAxisYActive))
-			{
-				float aAxisXValue = aController->GetAxisValue(SDL_CONTROLLER_AXIS_LEFTX);
-				float aAxisYValue = aController->GetAxisValue(SDL_CONTROLLER_AXIS_LEFTY);
-				if (aButtonDPadLeft || (aIsAxisXActive && aAxisXValue < 0))
-				{
-					if (!(mSeedChooserSeed % aRows == 0 && mSeedChooserSeed != SEED_IMITATER))
-						mSeedChooserSeed = (SeedType)(mSeedChooserSeed - 1);
-				}
-				if (aButtonDPadRight || (aIsAxisXActive && aAxisXValue > 0))
-				{
-					int aIsLastRow = (mSeedChooserSeed + 1) % aRows == 0;
-					if (aIsLastRow && mApp->SeedTypeAvailable(SEED_IMITATER))
-						mSeedChooserSeed = SEED_IMITATER;
-					else if (!(aIsLastRow && !mApp->SeedTypeAvailable(SEED_IMITATER)))
-						mSeedChooserSeed = (SeedType)(mSeedChooserSeed + 1);
-				}
-				if (aButtonDPadUp || (aIsAxisYActive && aAxisYValue < 0))
-				{
-					if (!(mSeedChooserSeed == SEED_IMITATER || mSeedChooserSeed < aRows))
-						mSeedChooserSeed = (SeedType)(mSeedChooserSeed - aRows);
-				}
-				if (aButtonDPadDown || (aIsAxisYActive && aAxisYValue > 0))
-				{
-					if (!(mSeedChooserSeed >= SEED_IMITATER - aRows))
-						mSeedChooserSeed = (SeedType)(mSeedChooserSeed + aRows);
-				}
-				mSeedChooserSeed = (SeedType)ClampInt(mSeedChooserSeed, SEED_PEASHOOTER, SEED_IMITATER);
-				mSeedChooserMoveMotion = mApp->mSeedChooserScreen->mSeedChooserAge + 9;
-			}
-			else if (!aButtonDPadLeft && !aButtonDPadRight && !aButtonDPadUp && !aButtonDPadDown && !aIsAxisXActive && !aIsAxisYActive)
-				mSeedChooserMoveMotion = -1;
-
-			bool aButtonA = aController->GetButton(SDL_CONTROLLER_BUTTON_A);
-			bool aButtonB = aController->GetButton(SDL_CONTROLLER_BUTTON_B);
-			if ((mSeedChooserButtonMotion == -1 || mApp->mSeedChooserScreen->mSeedChooserAge >= mSeedChooserButtonMotion) && (aButtonA || aButtonB))
-			{
-				if (aButtonA)
-					mApp->mSeedChooserScreen->SelectSeedType(mSeedChooserSeed, mIndex);
-				if (aButtonB)
-				{
-					int aHighestIndex = 0;
-					SeedType aHighestSeedType = SEED_NONE;
-					for (SeedType aSeedType = SEED_PEASHOOTER; aSeedType < NUM_SEEDS_IN_CHOOSER; aSeedType = (SeedType)(aSeedType + 1))
-					{
-						if (mApp->SeedTypeAvailable(aSeedType))
-						{
-							ChosenSeed& aChosenSeed = mApp->mSeedChooserScreen->mChosenSeeds[aSeedType];
-							if (!aChosenSeed.mCrazyDavePicked && aHighestIndex <= aChosenSeed.mSeedIndexInBank && (aChosenSeed.mSeedState == SEED_IN_BANK || aChosenSeed.mSeedState == SEED_FLYING_TO_BANK))
-							{
-								aHighestIndex = aChosenSeed.mSeedIndexInBank;
-								aHighestSeedType = aSeedType;
-							}
-						}
-					}
-					if (aHighestSeedType == SEED_NONE)
-					{
-						mApp->LeaveBoard(mIndex);
-						return;
-					}
-					mApp->mSeedChooserScreen->SelectSeedType(aHighestSeedType, mIndex);
-				}
-				mSeedChooserButtonMotion = mApp->mSeedChooserScreen->mSeedChooserAge + 27;
-			}
-			else if (!aButtonA && !aButtonB)
-				mSeedChooserButtonMotion = -1;
-		}
-	}
-	else if (mSeedBankIndex != -1 || mSeedChooserSeed != SEED_NONE)
-	{
-		mSeedChooserPrevSeed = mSeedChooserSeed;
-		mSeedChooserSeed = SEED_NONE;
-		mSeedBankPrevIndex = mSeedBankIndex;
-		mSeedBankIndex = -1;
-		mArrowStartMotion = -1;
-		mArrowEndMotion = -1;
-		mSeedChooserMoveMotion = -1;
-		mSeedChooserButtonMotion = -1;
-	}
-
-	/*
-	if (mControllerSeedIndex[i] == -1 && !mCutScene->mSeedChoosing)
-			{
-				mControllerSeedIndex[i] = mControllerPrevSeedIndex[i] != -1 ? mControllerPrevSeedIndex[i] : 0;
-				mControllerPrevSeedIndex[i] = -1;
-			}
-
-			if (aController->GetButtonDown(SDL_CONTROLLER_BUTTON_START) && !mCutScene->mSeedChoosing)
-			{
-				if (mApp->GetDialogCount() == 0)
-				{
-					UpdateCursor();
-					ClearCursor();
-					mApp->PlaySample(Sexy::SOUND_PAUSE);
-					mApp->DoNewOptions(false);
-				}
-				else
-				{
-					mApp->KillNewOptionsDialog();
-					mApp->KillDialog(Dialogs::DIALOG_PAUSED);
-				}
-			}
-
-			if (!mApp->mHasFocus || mPaused || mCutScene->mSeedChoosing)
-				continue;
-
-			if (aController->GetButtonDown(SDL_CONTROLLER_BUTTON_LEFTSHOULDER))
-			{
-				mControllerSeedIndex[i]--;
-				if (mControllerSeedIndex[i] < 0)
-					mControllerSeedIndex[i] = mSeedBank->mNumPackets - 1;
-			}
-			if (aController->GetButtonDown(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
-			{
-				mControllerSeedIndex[i]++;
-				if (mControllerSeedIndex[i] >= mSeedBank->mNumPackets)
-					mControllerSeedIndex[i] = 0;
-			}
-	*/
 }

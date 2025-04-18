@@ -37,7 +37,7 @@ class Challenge;
 class Reanimation;
 class DataSync;
 class TodParticleSystem;
-class Controller;
+class ControllerPlayer;
 namespace Sexy
 {
 	class Graphics;
@@ -101,36 +101,6 @@ struct BungeeDropGrid
 {
 	TodWeightedGridArray			mGridArray[MAX_GRID_SIZE_X * MAX_GRID_SIZE_Y];
 	int								mGridArrayCount;
-};
-
-//actually initialize this class, dont be checking for controllers due to the previous indexes. if it gets deleted, no previous index aswell
-
-class ControllerPlayer
-{
-public:
-	LawnApp*						mApp;
-	int								mIndex;
-	bool							mActive;
-	int								mBoardX;
-	int								mBoardY;
-	SeedType						mSeedChooserSeed;
-	SeedType						mSeedChooserPrevSeed;
-	int								mSeedBankIndex;
-	int								mSeedBankPrevIndex;
-	CursorObject*					mCursorObject;
-	CursorPreview*					mCursorPreview;
-	ToolTipWidget*					mSeedChooserToolTip;
-	int								mArrowStartMotion;
-	int								mArrowEndMotion;
-	int								mSeedChooserMoveMotion;
-	int								mSeedChooserButtonMotion;
-	std::vector<std::tuple<int, int, SeedType, SeedType, int, bool>> mSeedChooserSeeds;
-
-public:
-	ControllerPlayer(int theIndex);
-	~ControllerPlayer();
-
-	void							Update();
 };
 
 class Board : public Widget, public ButtonListener
@@ -266,7 +236,7 @@ public:
 	int								mGargantuarsKilled;
 	int								mCoinBankX;
 	int								mCoinBankY;
-	ControllerPlayer*				mPlayers[MAX_CONTROLLERS];
+	ControllerPlayer*				mControllerPlayers[MAX_CONTROLLERS];
 	//int								mControllerSeedIndex[MAX_CONTROLLERS];
 	//int								mControllerPrevSeedIndex[MAX_CONTROLLERS];
 
