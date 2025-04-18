@@ -182,7 +182,7 @@ Board::Board(LawnApp* theApp)
 	mRoofPoleOffset = ROOF_POLE_START;
 	mRoofTreeOffset = ROOF_TREE_START;
 	for (int i = 0; i < MAX_CONTROLLERS; i++)
-		mControllerPlayers[i] = new ControllerPlayer(i);
+		mControllerPlayer[i] = new ControllerPlayer(theApp, i);
 
 	if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN || mApp->mGameMode == GameMode::GAMEMODE_TREE_OF_WISDOM)
 	{
@@ -263,7 +263,7 @@ Board::~Board()
 	delete mChallenge;
 	for (int i = 0; i < MAX_CONTROLLERS; i++)
 	{
-		delete mControllerPlayers[i];
+		delete mControllerPlayer[i];
 	}
 	mApp->UpdateDiscordState();
 }
@@ -5643,7 +5643,7 @@ void Board::Update()
 	MarkDirty();
 
 	for (int i = 0; i < MAX_CONTROLLERS; i++)
-		mControllerPlayers[i]->Update();
+		mControllerPlayer[i]->Update();
 
 	if (mPaused && mApp->mIsFastMode)
 		mApp->mIsFastMode = false;
@@ -9994,4 +9994,9 @@ void Board::DrawHealthbar(Graphics* g, Rect theRect, Color theMaxColor, int theM
 		g->DrawRect(Rect(aBarX - 1, aBarY - 1, theBarWidth + 1, theBarHeight + 1));
 	}
 	g->SetColor(lastColor);
+}
+
+ControllerPlayer* Board::GetControllerPlayer(int theIndex)
+{
+	return mApp->mControllerManager->IsActive() && mControllerPlayer[theIndex] != nullptr && mControllerPlayer[theIndex]->mController ? mControllerPlayer[theIndex] : nullptr;
 }

@@ -43,27 +43,27 @@ public:
 class ControllerPlayer
 {
 private:
-	int								mIndex;
+	int					mIndex;
 
 public:
-	LawnApp*						mApp;
-	Controller*						mController;
-	int								mBoardX;
-	int								mBoardY;
-	SeedType						mSeedChooserSeed;
-	SeedType						mSeedChooserPrevSeed;
-	int								mSeedBankIndex;
-	int								mSeedBankPrevIndex;
-	CursorObject*					mCursorObject;
-	CursorPreview*					mCursorPreview;
-	ToolTipWidget*					mSeedChooserToolTip;
-	int								mArrowStartMotion;
-	int								mArrowEndMotion;
-	int								mSeedChooserMoveMotion;
-	int								mSeedChooserButtonMotion;
+	LawnApp*			mApp;
+	Controller*			mController;
+	int					mBoardX;
+	int					mBoardY;
+	SeedType			mSeedChooserSeed;
+	SeedType			mSeedChooserPrevSeed;
+	int					mSeedBankIndex;
+	int					mSeedBankPrevIndex;
+	CursorObject*		mCursorObject;
+	CursorPreview*		mCursorPreview;
+	ToolTipWidget*		mSeedChooserToolTip;
+	int					mArrowStartMotion;
+	int					mArrowEndMotion;
+	int					mSeedChooserMoveMotion;
+	int					mSeedChooserButtonMotion;
 
 public:
-	ControllerPlayer(int theIndex);
+	ControllerPlayer(LawnApp* theApp, int theIndex);
 	~ControllerPlayer();
 
 	void							Update();
@@ -72,10 +72,10 @@ public:
 class ControllerManager
 {
 private:
-	LawnApp* mApp;
+	LawnApp*			mApp;
 	bool				mIsInitialized;
 	std::map<SDL_JoystickID, int> mControllerMap;
-	Controller* mController[MAX_CONTROLLERS];
+	Controller*			mController[MAX_CONTROLLERS];
 	int					mCurrentMouse;
 
 public:
@@ -84,7 +84,7 @@ public:
 
 	void				Update();
 	bool				IsActive();
-	Controller* GetController(int theIndex);
+	Controller*			GetController(int theIndex);
 	void				RumbleAll(float theLow, float theHigh, int theDuration);
 };
 

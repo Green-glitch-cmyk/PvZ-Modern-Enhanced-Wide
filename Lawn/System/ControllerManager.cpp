@@ -18,7 +18,7 @@ ControllerManager::ControllerManager()
 		mController[i] = nullptr;
 	mCurrentMouse = -1;
 	if (!mIsInitialized)
-		MessageBox(NULL, StrFormat("Couldn't initialize SDL2. Error: %s", SDL_GetError()).c_str(), "SDL2 Error", MB_OK | MB_ICONERROR);
+		MessageBox(NULL, StrFormat("Couldn't initialize SDL2 for the game controllers. Error: %s", SDL_GetError()).c_str(), "SDL2 Error", MB_OK | MB_ICONERROR);
 }
 
 ControllerManager::~ControllerManager()
@@ -41,6 +41,7 @@ void ControllerManager::Update()
 		mApp = gLawnApp;
 		return;
 	}
+
     if (!mIsInitialized)
         return;
 
@@ -289,10 +290,10 @@ void Controller::Rumble(float theLow, float theHigh, int theDuration)
 	SDL_GameControllerRumble(mSDLGameController, ClampFloat(theLow, 0, 1) * 0xFFFF, ClampFloat(theHigh, 0, 1) * 0xFFFF, theDuration);
 }
 
-ControllerPlayer::ControllerPlayer(int theIndex)
+ControllerPlayer::ControllerPlayer(LawnApp* theApp, int theIndex)
 {
+	mApp = theApp;
 	mIndex = theIndex;
-	mApp = nullptr;
 	mController = nullptr;
 	mBoardX = 0;
 	mBoardY = 0;
@@ -318,11 +319,8 @@ ControllerPlayer::~ControllerPlayer()
 
 void ControllerPlayer::Update()
 {
-	if (mApp == nullptr)
-	{
-		mApp = gLawnApp;
+	if (!mApp->mControllerManager->IsActive())
 		return;
-	}
 	mController = mApp->mControllerManager->GetController(mIndex);
 	if (mController != nullptr)
 	{

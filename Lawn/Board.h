@@ -105,6 +105,9 @@ struct BungeeDropGrid
 
 class Board : public Widget, public ButtonListener
 {
+private:
+	ControllerPlayer*				mControllerPlayer[MAX_CONTROLLERS];
+
 public:
 	LawnApp*						mApp;													
 	DataArray<Zombie>				mZombies;												
@@ -236,7 +239,6 @@ public:
 	int								mGargantuarsKilled;
 	int								mCoinBankX;
 	int								mCoinBankY;
-	ControllerPlayer*				mControllerPlayers[MAX_CONTROLLERS];
 	//int								mControllerSeedIndex[MAX_CONTROLLERS];
 	//int								mControllerPrevSeedIndex[MAX_CONTROLLERS];
 
@@ -502,6 +504,7 @@ public:
 	int								CountZombieByType(ZombieType theZombieType);
 	static /*inline*/ bool			IsZombieTypeSpawnedOnly(ZombieType theZombieType);
 	void 							DrawHealthbar(Graphics* g, Rect theRect, Color theMaxColor, int theMaxHealth, Color theBaseColor, int theBaseHealth, int theBarWidth, int theBarHeight, int theBarOffsetX, int theBarOffsetY, Color theTextColor, Font* theTextFont, int theTextOffsetY, Color theTextOutlineColor, int theTextOutlineOffset, bool theHasBarOutline);
+	ControllerPlayer*				GetControllerPlayer(int theIndex);
 };
 extern bool gShownMoreSunTutorial;
 

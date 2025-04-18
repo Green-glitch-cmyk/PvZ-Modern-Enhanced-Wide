@@ -950,7 +950,10 @@ void SeedBank::Draw(Graphics* g)
 		bool aIsControllerSelected = false;
 		for (int j = 0; j < MAX_CONTROLLERS; j++)
 		{
-			aIsControllerSelected = mBoard->mControllerPlayers[j]->mSeedBankIndex == i;
+			ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(j);
+			if (aControllerPlayer == nullptr)
+				continue;
+			aIsControllerSelected = aControllerPlayer->mSeedBankIndex == i;
 			if (aIsControllerSelected)
 				break;
 		}
@@ -964,28 +967,29 @@ void SeedBank::Draw(Graphics* g)
 	{
 		for (int i = 0; i < MAX_CONTROLLERS; i++)
 		{
-			if (Controller* aController = mApp->mControllerManager->GetController(i))
-			{
-				int aIndex = mBoard->mControllerPlayers[i]->mSeedBankIndex;
-				if (aIndex == -1 || mBoard->mCutScene->mSeedChoosing)
-					continue;
-				SeedPacket* aSeedPacket = &mSeedPackets[aIndex];
-				float aScale = 1.05;
-				int aSeedSelectorWidth = IMAGE_SEED_SELECTOR->mWidth * aScale;
-				int aSeedSelectorHeight = IMAGE_SEED_SELECTOR->mHeight * aScale;
-				int aOffset = 7;
-				int aPosX = aSeedPacket->mX - aOffset;
-				int aPosY = aSeedPacket->mY - aOffset;
-				if (mBoard->mControllerPlayers[0]->mSeedBankIndex == aIndex && i != 0)
-					g->SetClipRect(Rect(aPosX, aPosY, aSeedSelectorWidth, aSeedSelectorHeight / 2));
-				Color aOldColor = g->mColor;
-				g->SetColorizeImages(true);
-				g->SetColor(aController->GetColor());
-				TodDrawImageScaledF(g, IMAGE_SEED_SELECTOR, aPosX, aPosY, aScale, aScale);
-				g->SetColor(aOldColor);
-				g->SetColorizeImages(false);
-				g->ClearClipRect();
-			}
+			ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(i);
+			if (aControllerPlayer == nullptr)
+				continue;
+			int aIndex = aControllerPlayer->mSeedBankIndex;
+			if (aIndex <= -1 || mBoard->mCutScene->mSeedChoosing)
+				continue;
+			SeedPacket* aSeedPacket = &mSeedPackets[aIndex];
+			float aScale = 1.05;
+			int aSeedSelectorWidth = IMAGE_SEED_SELECTOR->mWidth * aScale;
+			int aSeedSelectorHeight = IMAGE_SEED_SELECTOR->mHeight * aScale;
+			int aOffset = 7;
+			int aPosX = aSeedPacket->mX - aOffset;
+			int aPosY = aSeedPacket->mY - aOffset;
+			ControllerPlayer* aControllerPlayer0 = mBoard->GetControllerPlayer(i);
+			if (aControllerPlayer0 != nullptr && aControllerPlayer0->mSeedBankIndex == aIndex && i != 0)
+				g->SetClipRect(Rect(aPosX, aPosY, aSeedSelectorWidth, aSeedSelectorHeight / 2));
+			Color aOldColor = g->mColor;
+			g->SetColorizeImages(true);
+			g->SetColor(aControllerPlayer->mController->GetColor());
+			TodDrawImageScaledF(g, IMAGE_SEED_SELECTOR, aPosX, aPosY, aScale, aScale);
+			g->SetColor(aOldColor);
+			g->SetColorizeImages(false);
+			g->ClearClipRect();
 		}
 	}
 	for (int i = 0; i < mNumPackets; i++)
@@ -994,7 +998,10 @@ void SeedBank::Draw(Graphics* g)
 		bool aIsControllerSelected = false;
 		for (int j = 0; j < MAX_CONTROLLERS; j++)
 		{
-			aIsControllerSelected = mBoard->mControllerPlayers[j]->mSeedBankIndex == i;
+			ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(j);
+			if (aControllerPlayer == nullptr)
+				continue;
+			aIsControllerSelected = aControllerPlayer->mSeedBankIndex == i;
 			if (aIsControllerSelected)
 				break;
 		}
