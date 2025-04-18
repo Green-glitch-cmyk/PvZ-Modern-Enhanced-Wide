@@ -182,7 +182,7 @@ Board::Board(LawnApp* theApp)
 	mRoofPoleOffset = ROOF_POLE_START;
 	mRoofTreeOffset = ROOF_TREE_START;
 	for (int i = 0; i < MAX_CONTROLLERS; i++)
-		mControllerPlayer[i] = new ControllerPlayer(theApp, i);
+		mControllerPlayer[i] = new ControllerPlayer(theApp, this, i);
 
 	if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN || mApp->mGameMode == GameMode::GAMEMODE_TREE_OF_WISDOM)
 	{

@@ -436,6 +436,9 @@ void SeedChooserScreen::Draw(Graphics* g)
 		g->ClearClipRect();
 	}
 
+	float aSeedSelectorScale = 1.05;
+	int aSeedSelectorOffset = 7;
+
 	for (int i = 0; i < MAX_CONTROLLERS; i++)
 	{
 		ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(i);
@@ -444,37 +447,28 @@ void SeedChooserScreen::Draw(Graphics* g)
 		SeedType aSeedType = aControllerPlayer->mSeedChooserSeed;
 		if (aSeedType == SEED_NONE)
 			continue;
-		float aScale = 1.05;
-		int aSeedSelectorWidth = IMAGE_SEED_SELECTOR->mWidth * aScale;
-		int aSeedSelectorHeight = IMAGE_SEED_SELECTOR->mHeight * aScale;
+		int aSeedSelectorWidth = IMAGE_SEED_SELECTOR->mWidth * aSeedSelectorScale;
+		int aSeedSelectorHeight = IMAGE_SEED_SELECTOR->mHeight * aSeedSelectorScale;
 		int aPosX, aPosY;
 		GetSeedPositionInChooser(aSeedType, aPosX, aPosY);
-		int aOffset = 7;
-		aPosX -= aOffset;
-		aPosY -= aOffset;
+		aPosX -= aSeedSelectorOffset;
+		aPosY -= aSeedSelectorOffset;
 		ControllerPlayer* aControllerPlayer0 = mBoard->GetControllerPlayer(i);
 		if (aControllerPlayer0 != nullptr && aControllerPlayer0->mSeedChooserSeed == aSeedType && i != 0)
 			g->SetClipRect(Rect(aPosX, aPosY, aSeedSelectorWidth, aSeedSelectorHeight / 2));
 		Color aOldColor = g->mColor;
 		g->SetColorizeImages(true);
 		g->SetColor(aControllerPlayer->mController->GetColor());
-		TodDrawImageScaledF(g, IMAGE_SEED_SELECTOR, aPosX, aPosY, aScale, aScale);
-		if ((aControllerPlayer->mArrowStartMotion == -1 && aControllerPlayer->mArrowEndMotion == -1) || mSeedChooserAge >= aControllerPlayer->mArrowEndMotion)
-		{
-			aControllerPlayer->mArrowStartMotion = mSeedChooserAge;
-			aControllerPlayer->mArrowEndMotion = mSeedChooserAge + 125;
-		}
-		float aOffsetY = TodAnimateCurveFloat(aControllerPlayer->mArrowStartMotion, aControllerPlayer->mArrowEndMotion, mSeedChooserAge, -1, 1, TodCurves::CURVE_SIN_WAVE);
-		g->DrawImageF(IMAGE_BOARD_ARROW, aPosX + aSeedSelectorWidth / 2 - IMAGE_BOARD_ARROW->mWidth / 2, aPosY - 5 + aOffsetY);
+		TodDrawImageScaledF(g, IMAGE_SEED_SELECTOR, aPosX, aPosY, aSeedSelectorScale, aSeedSelectorScale);
 		g->SetColor(aOldColor);
 		g->SetColorizeImages(false);
 		g->ClearClipRect();
 		SexyString aText = "P" + to_string(i + 1);
 		int aTextX = aPosX + 34;
 		ControllerPlayer* aControllerPlayer1 = mBoard->GetControllerPlayer(1);
-		int aTextY = aPosY - 6 + (aControllerPlayer1 != nullptr && aControllerPlayer1->mSeedChooserSeed == aSeedType && i != 1 ? aSeedSelectorHeight + 23 : -2);
+		int aTextY = aPosY - 4 + (aControllerPlayer1 != nullptr && aControllerPlayer1->mSeedChooserSeed == aSeedType && i != 1 ? aSeedSelectorHeight + 25 : -2);
 		TodDrawString(g, aText, aTextX, aTextY, FONT_DWARVENTODCRAFT24, Color(0, 0, 0), DrawStringJustification::DS_ALIGN_CENTER_VERTICAL_MIDDLE);
-		TodDrawString(g, aText, aTextX - 3, aTextY - 3, FONT_DWARVENTODCRAFT24, aControllerPlayer->mController->GetColor(), DrawStringJustification::DS_ALIGN_CENTER_VERTICAL_MIDDLE);
+		TodDrawString(g, aText, aTextX - 2, aTextY - 2, FONT_DWARVENTODCRAFT24, aControllerPlayer->mController->GetColor(), DrawStringJustification::DS_ALIGN_CENTER_VERTICAL_MIDDLE);
 	}
 
 	for (const auto& aSeedData : mControllerDrawSeeds)
@@ -492,6 +486,34 @@ void SeedChooserScreen::Draw(Graphics* g)
 		g->ClearClipRect();
 	}
 	mControllerDrawSeeds.clear();
+
+	for (int i = 0; i < MAX_CONTROLLERS; i++)
+	{
+		ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(i);
+		if (aControllerPlayer == nullptr)
+			continue;
+		SeedType aSeedType = aControllerPlayer->mSeedChooserSeed;
+		if (aSeedType == SEED_NONE)
+			continue;
+		int aSeedSelectorWidth = IMAGE_SEED_SELECTOR->mWidth * aSeedSelectorScale;
+		int aSeedSelectorHeight = IMAGE_SEED_SELECTOR->mHeight * aSeedSelectorScale;
+		int aPosX, aPosY;
+		GetSeedPositionInChooser(aSeedType, aPosX, aPosY);
+		aPosX -= aSeedSelectorOffset;
+		aPosY -= aSeedSelectorOffset;
+		Color aOldColor = g->mColor;
+		g->SetColorizeImages(true);
+		g->SetColor(aControllerPlayer->mController->GetColor());
+		if ((aControllerPlayer->mArrowStartMotion == -1 && aControllerPlayer->mArrowEndMotion == -1) || aControllerPlayer->mArrowAge >= aControllerPlayer->mArrowEndMotion)
+		{
+			aControllerPlayer->mArrowStartMotion = aControllerPlayer->mArrowAge;
+			aControllerPlayer->mArrowEndMotion = aControllerPlayer->mArrowAge + 150;
+		}
+		float aOffsetY = TodAnimateCurveFloat(aControllerPlayer->mArrowStartMotion, aControllerPlayer->mArrowEndMotion, aControllerPlayer->mArrowAge, 0, 2.5, TodCurves::CURVE_SIN_WAVE);
+		g->DrawImageF(IMAGE_BOARD_ARROW, aPosX + aSeedSelectorWidth / 2 - IMAGE_BOARD_ARROW->mWidth / 2, aPosY - 2 + aOffsetY);
+		g->SetColor(aOldColor);
+		g->SetColorizeImages(false);
+	}
 
 	// Draw flying seeds
 	for (SeedType aSeedType = SEED_PEASHOOTER; aSeedType < NUM_SEEDS_IN_CHOOSER; aSeedType = (SeedType)(aSeedType + 1))

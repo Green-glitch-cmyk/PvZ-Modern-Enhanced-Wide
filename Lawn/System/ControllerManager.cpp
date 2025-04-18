@@ -290,9 +290,10 @@ void Controller::Rumble(float theLow, float theHigh, int theDuration)
 	SDL_GameControllerRumble(mSDLGameController, ClampFloat(theLow, 0, 1) * 0xFFFF, ClampFloat(theHigh, 0, 1) * 0xFFFF, theDuration);
 }
 
-ControllerPlayer::ControllerPlayer(LawnApp* theApp, int theIndex)
+ControllerPlayer::ControllerPlayer(LawnApp* theApp, Board* theBoard, int theIndex)
 {
 	mApp = theApp;
+	mBoard = theBoard;
 	mIndex = theIndex;
 	mController = nullptr;
 	mBoardX = 0;
@@ -304,6 +305,7 @@ ControllerPlayer::ControllerPlayer(LawnApp* theApp, int theIndex)
 	mCursorObject = new CursorObject();
 	mCursorPreview = new CursorPreview();
 	mSeedChooserToolTip = new ToolTipWidget();
+	mArrowAge = 0;
 	mArrowStartMotion = -1;
 	mArrowEndMotion = -1;
 	mSeedChooserMoveMotion = -1;
@@ -324,7 +326,7 @@ void ControllerPlayer::Update()
 	mController = mApp->mControllerManager->GetController(mIndex);
 	if (mController != nullptr)
 	{
-		bool aIsSeedChoosing = mApp->mBoard->mCutScene->mSeedChoosing;
+		bool aIsSeedChoosing = mBoard->mCutScene->mSeedChoosing;
 		if (aIsSeedChoosing)
 			mSeedChooserToolTip->Update();
 
@@ -340,14 +342,17 @@ void ControllerPlayer::Update()
 			mSeedBankPrevIndex = -1;
 		}
 
+		if (!mApp->mHasFocus)
+			return;
+
 		if (mController->GetButtonDown(SDL_CONTROLLER_BUTTON_START))
 		{
 			if (!aIsSeedChoosing)
 			{
 				if (mApp->GetDialogCount() == 0)
 				{
-					mApp->mBoard->UpdateCursor();
-					mApp->mBoard->ClearCursor();
+					mBoard->UpdateCursor();
+					mBoard->ClearCursor();
 					mApp->PlaySample(Sexy::SOUND_PAUSE);
 					mApp->DoNewOptions(false);
 				}
@@ -365,8 +370,10 @@ void ControllerPlayer::Update()
 			}
 		}
 
-		if (!mApp->mHasFocus || mApp->mBoard->mPaused)
+		if (mApp->GetDialogCount() != 0)
 			return;
+
+		mArrowAge++;
 
 		if (mApp->mGameScene == GameScenes::SCENE_PLAYING)
 		{
@@ -374,12 +381,12 @@ void ControllerPlayer::Update()
 			{
 				mSeedBankIndex--;
 				if (mSeedBankIndex < 0)
-					mSeedBankIndex = mApp->mBoard->mSeedBank->mNumPackets - 1;
+					mSeedBankIndex = mBoard->mSeedBank->mNumPackets - 1;
 			}
 			if (mController->GetButtonDown(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
 			{
 				mSeedBankIndex++;
-				if (mSeedBankIndex >= mApp->mBoard->mSeedBank->mNumPackets)
+				if (mSeedBankIndex >= mBoard->mSeedBank->mNumPackets)
 					mSeedBankIndex = 0;
 			}
 		}
@@ -466,6 +473,7 @@ void ControllerPlayer::Update()
 		mSeedChooserSeed = SEED_NONE;
 		mSeedBankPrevIndex = mSeedBankIndex;
 		mSeedBankIndex = -1;
+		mArrowAge = 0;
 		mArrowStartMotion = -1;
 		mArrowEndMotion = -1;
 		mSeedChooserMoveMotion = -1;

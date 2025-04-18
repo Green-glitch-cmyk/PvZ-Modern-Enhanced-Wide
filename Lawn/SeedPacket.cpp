@@ -963,7 +963,7 @@ void SeedBank::Draw(Graphics* g)
 			aSeedPacket->EndDraw(g);
 		}
 	}
-	if (!mApp->IsChallengeWithoutSeedBank()) //|| mY > 0 yk to check if its gonna be visisble
+	if (!mApp->IsChallengeWithoutSeedBank() && mBoard->mSeedBank->mY == 0) //return false somehow when cutscene is still active while seedchooser animation
 	{
 		for (int i = 0; i < MAX_CONTROLLERS; i++)
 		{

@@ -42,11 +42,10 @@ public:
 
 class ControllerPlayer
 {
-private:
-	int					mIndex;
-
 public:
 	LawnApp*			mApp;
+	Board*				mBoard;
+	int					mIndex;
 	Controller*			mController;
 	int					mBoardX;
 	int					mBoardY;
@@ -57,13 +56,14 @@ public:
 	CursorObject*		mCursorObject;
 	CursorPreview*		mCursorPreview;
 	ToolTipWidget*		mSeedChooserToolTip;
+	int					mArrowAge;
 	int					mArrowStartMotion;
 	int					mArrowEndMotion;
 	int					mSeedChooserMoveMotion;
 	int					mSeedChooserButtonMotion;
 
 public:
-	ControllerPlayer(LawnApp* theApp, int theIndex);
+	ControllerPlayer(LawnApp* theApp, Board* theBoard, int theIndex);
 	~ControllerPlayer();
 
 	void							Update();
