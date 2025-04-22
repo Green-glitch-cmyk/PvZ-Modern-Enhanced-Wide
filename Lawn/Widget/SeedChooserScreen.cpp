@@ -276,17 +276,7 @@ void SeedChooserScreen::GetSeedPositionInChooser(int theIndex, int& x, int& y)
 		x = theIndex % cSeedPacketRows * 53 + 22;
 		y = theIndex / cSeedPacketRows * (SEED_PACKET_HEIGHT + cSeedPacketYOffset) + (SEED_PACKET_HEIGHT + 53) - mScrollPosition;
 	}
-	bool aIsControllerSelected = false;
-	for (int i = 0; i < MAX_CONTROLLERS; i++)
-	{
-		ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(i);
-		if (aControllerPlayer == nullptr)
-			continue;
-		aIsControllerSelected = aControllerPlayer->mSeedChooserSeed == theIndex;
-		if (aIsControllerSelected)
-			break;
-	}
-	if (aIsControllerSelected)
+	if (mBoard->IsControllerChooserSelected((SeedType)theIndex))
 		y += cControllerOffset;
 }
 
@@ -360,17 +350,6 @@ void SeedChooserScreen::Draw(Graphics* g)
 		if (aSeedType != SEED_IMITATER)
 			g->SetClipRect(cSeedClipRect);
 
-		bool aIsControllerSelected = false;
-		for (int i = 0; i < MAX_CONTROLLERS; i++)
-		{
-			ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(i);
-			if (aControllerPlayer == nullptr)
-				continue;
-			aIsControllerSelected = aControllerPlayer->mSeedChooserSeed == aSeedType;
-			if (aIsControllerSelected)
-				break;
-		}
-
 		int x, y;
 		GetSeedPositionInChooser(aSeedType, x, y);
 
@@ -381,7 +360,7 @@ void SeedChooserScreen::Draw(Graphics* g)
 			{
 				int aGrayness = 55;
 				bool aDrawCost = aSeedType != SEED_IMITATER;
-				if (aIsControllerSelected)
+				if (mBoard->IsControllerChooserSelected(aSeedType))
 					mControllerDrawSeeds.emplace_back(x, y, aSeedType, SEED_NONE, aGrayness, aDrawCost);
 				else
 					DrawSeedPacket(g, x, y, aSeedType, SEED_NONE, 0, aGrayness, aDrawCost, false);
@@ -389,7 +368,7 @@ void SeedChooserScreen::Draw(Graphics* g)
 		}
 		else if (aSeedType != SEED_IMITATER)
 		{
-			if (aIsControllerSelected)
+			if (mBoard->IsControllerChooserSelected(aSeedType))
 				mControllerDrawSeeds.emplace_back(x, y, SEED_NONE, SEED_NONE, 0, false);
 			else
 				g->DrawImage(Sexy::IMAGE_SEEDPACKETSILHOUETTE, x, y);
@@ -427,7 +406,7 @@ void SeedChooserScreen::Draw(Graphics* g)
 			{
 				int aGrayness = aGrayed ? 115 : 255;
 				bool aDrawCost = aSeedType != SEED_IMITATER || aSeedState != SEED_IN_CHOOSER;
-				if (aIsControllerSelected && aSeedState == SEED_IN_CHOOSER)
+				if (mBoard->IsControllerChooserSelected(aSeedType) && aSeedState == SEED_IN_CHOOSER)
 					mControllerDrawSeeds.emplace_back(aPosX, aPosY, aChosenSeed.mSeedType, aChosenSeed.mImitaterType, aGrayness, aDrawCost);
 				else
 					DrawSeedPacket(g, aPosX, aPosY, aChosenSeed.mSeedType, aChosenSeed.mImitaterType, 0, aGrayness, aDrawCost, false);
@@ -441,10 +420,8 @@ void SeedChooserScreen::Draw(Graphics* g)
 
 	for (int i = 0; i < MAX_CONTROLLERS; i++)
 	{
-		ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(i);
-		if (aControllerPlayer == nullptr)
-			continue;
-		SeedType aSeedType = aControllerPlayer->mSeedChooserSeed;
+		ControllerBoard* aControllerBoard = mBoard->mControllerBoardList[i];
+		SeedType aSeedType = aControllerBoard->mSeedChooserSeed;
 		if (aSeedType == SEED_NONE)
 			continue;
 		int aSeedSelectorWidth = IMAGE_SEED_SELECTOR->mWidth * aSeedSelectorScale;
@@ -453,22 +430,12 @@ void SeedChooserScreen::Draw(Graphics* g)
 		GetSeedPositionInChooser(aSeedType, aPosX, aPosY);
 		aPosX -= aSeedSelectorOffset;
 		aPosY -= aSeedSelectorOffset;
-		ControllerPlayer* aControllerPlayer0 = mBoard->GetControllerPlayer(i);
-		if (aControllerPlayer0 != nullptr && aControllerPlayer0->mSeedChooserSeed == aSeedType && i != 0)
-			g->SetClipRect(Rect(aPosX, aPosY, aSeedSelectorWidth, aSeedSelectorHeight / 2));
 		Color aOldColor = g->mColor;
 		g->SetColorizeImages(true);
-		g->SetColor(aControllerPlayer->mController->GetColor());
+		g->SetColor(aControllerBoard->mColor);
 		TodDrawImageScaledF(g, IMAGE_SEED_SELECTOR, aPosX, aPosY, aSeedSelectorScale, aSeedSelectorScale);
 		g->SetColor(aOldColor);
 		g->SetColorizeImages(false);
-		g->ClearClipRect();
-		SexyString aText = "P" + to_string(i + 1);
-		int aTextX = aPosX + 34;
-		ControllerPlayer* aControllerPlayer1 = mBoard->GetControllerPlayer(1);
-		int aTextY = aPosY - 4 + (aControllerPlayer1 != nullptr && aControllerPlayer1->mSeedChooserSeed == aSeedType && i != 1 ? aSeedSelectorHeight + 25 : -2);
-		TodDrawString(g, aText, aTextX, aTextY, FONT_DWARVENTODCRAFT24, Color(0, 0, 0), DrawStringJustification::DS_ALIGN_CENTER_VERTICAL_MIDDLE);
-		TodDrawString(g, aText, aTextX - 2, aTextY - 2, FONT_DWARVENTODCRAFT24, aControllerPlayer->mController->GetColor(), DrawStringJustification::DS_ALIGN_CENTER_VERTICAL_MIDDLE);
 	}
 
 	for (const auto& aSeedData : mControllerDrawSeeds)
@@ -489,10 +456,8 @@ void SeedChooserScreen::Draw(Graphics* g)
 
 	for (int i = 0; i < MAX_CONTROLLERS; i++)
 	{
-		ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(i);
-		if (aControllerPlayer == nullptr)
-			continue;
-		SeedType aSeedType = aControllerPlayer->mSeedChooserSeed;
+		ControllerBoard* aControllerBoard = mBoard->mControllerBoardList[i];
+		SeedType aSeedType = aControllerBoard->mSeedChooserSeed;
 		if (aSeedType == SEED_NONE)
 			continue;
 		int aSeedSelectorWidth = IMAGE_SEED_SELECTOR->mWidth * aSeedSelectorScale;
@@ -501,15 +466,32 @@ void SeedChooserScreen::Draw(Graphics* g)
 		GetSeedPositionInChooser(aSeedType, aPosX, aPosY);
 		aPosX -= aSeedSelectorOffset;
 		aPosY -= aSeedSelectorOffset;
+		bool aIsOverlapping = false;
+		for (int j = i + 1; j < MAX_CONTROLLERS; j++)
+		{
+			aIsOverlapping = mBoard->mControllerBoardList[j]->mSeedChooserSeed == aSeedType;
+			if (aIsOverlapping)
+				break;
+		}
+		if (!aIsOverlapping)
+		{
+			SexyString aText = "P" + to_string(i + 1);
+			int aTextPosX = aPosX + 34;
+			int aTextPosY = aPosY - 4;
+			TodDrawString(g, aText, aTextPosX, aTextPosY, FONT_DWARVENTODCRAFT24, Color(0, 0, 0), DrawStringJustification::DS_ALIGN_CENTER_VERTICAL_MIDDLE);
+			TodDrawString(g, aText, aTextPosX - 2, aTextPosY - 2, FONT_DWARVENTODCRAFT24, aControllerBoard->mColor, DrawStringJustification::DS_ALIGN_CENTER_VERTICAL_MIDDLE);
+		}
+		if (!mApp->SeedTypeAvailable(aSeedType))
+			continue;
 		Color aOldColor = g->mColor;
 		g->SetColorizeImages(true);
-		g->SetColor(aControllerPlayer->mController->GetColor());
-		if ((aControllerPlayer->mArrowStartMotion == -1 && aControllerPlayer->mArrowEndMotion == -1) || aControllerPlayer->mArrowAge >= aControllerPlayer->mArrowEndMotion)
+		g->SetColor(aControllerBoard->mColor);
+		if ((aControllerBoard->mArrowStartMotion == -1 && aControllerBoard->mArrowEndMotion == -1) || mSeedChooserAge >= aControllerBoard->mArrowEndMotion)
 		{
-			aControllerPlayer->mArrowStartMotion = aControllerPlayer->mArrowAge;
-			aControllerPlayer->mArrowEndMotion = aControllerPlayer->mArrowAge + 150;
+			aControllerBoard->mArrowStartMotion = mSeedChooserAge;
+			aControllerBoard->mArrowEndMotion = mSeedChooserAge + 150;
 		}
-		float aOffsetY = TodAnimateCurveFloat(aControllerPlayer->mArrowStartMotion, aControllerPlayer->mArrowEndMotion, aControllerPlayer->mArrowAge, 0, 2.5, TodCurves::CURVE_SIN_WAVE);
+		float aOffsetY = TodAnimateCurveFloat(aControllerBoard->mArrowStartMotion, aControllerBoard->mArrowEndMotion, mSeedChooserAge, 0, 2.5, TodCurves::CURVE_SIN_WAVE);
 		g->DrawImageF(IMAGE_BOARD_ARROW, aPosX + aSeedSelectorWidth / 2 - IMAGE_BOARD_ARROW->mWidth / 2, aPosY - 2 + aOffsetY);
 		g->SetColor(aOldColor);
 		g->SetColorizeImages(false);
@@ -547,12 +529,7 @@ void SeedChooserScreen::Draw(Graphics* g)
 	aBoardFrameG.mTransY -= mY;
 	mMenuButton->Draw(&aBoardFrameG);
 	for (int i = 0; i < MAX_CONTROLLERS; i++)
-	{
-		ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(i);
-		if (aControllerPlayer == nullptr)
-			continue;
-		aControllerPlayer->mSeedChooserToolTip->Draw(g);
-	}
+		mBoard->mControllerBoardList[i]->mSeedChooserToolTip->Draw(g);
 	mToolTip->Draw(g);
 }
 
@@ -1120,10 +1097,8 @@ void SeedChooserScreen::ShowToolTip()
 
 	for (int i = 0; i < MAX_CONTROLLERS; i++)
 	{
-		ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(i);
-		if (aControllerPlayer == nullptr)
-			continue;
-		SeedType aSeedType = aControllerPlayer->mSeedChooserSeed;
+		ControllerBoard* aControllerBoard = mBoard->mControllerBoardList[i];
+		SeedType aSeedType = aControllerBoard->mSeedChooserSeed;
 		if (aSeedType == SEED_NONE)
 		{
 			RemoveToolTip(i);
@@ -1139,9 +1114,9 @@ void SeedChooserScreen::ShowToolTip()
 			bool aIsOverlapping = aHitSeed == aSeedType && aChosenSeed.mSeedState == SEED_IN_CHOOSER;
 			if (!aIsOverlapping && i != 0)
 			{
-				for (int j = 0; j < MAX_CONTROLLERS; j++)
+				for (int i = 0; i < MAX_CONTROLLERS; i++)
 				{
-					aIsOverlapping = aSeedType == aControllerPlayer->mSeedChooserSeed && i != j;
+					aIsOverlapping = aSeedType == aControllerBoard->mSeedChooserSeed && i != i;
 					if (aIsOverlapping)
 						break;
 				}
@@ -1156,7 +1131,7 @@ void SeedChooserScreen::ShowToolTip()
 			GetSeedPositionInChooser(aSeedType, aSeedX, aSeedY);
 			int aX, aY;
 			GetToolTipPosition(i, aSeedX, aSeedY, aSeedType, &aX, &aY);
-			ToolTipWidget* aToolTip = aControllerPlayer->mSeedChooserToolTip;
+			ToolTipWidget* aToolTip = aControllerBoard->mSeedChooserToolTip;
 			aToolTip->mX = aX;
 			aToolTip->mY = aY;
 			aToolTip->mVisible = true;
@@ -1170,12 +1145,9 @@ void SeedChooserScreen::RemoveToolTip(int theIndex)
 	if (theIndex == -1)
 		aToolTip = mToolTip;
 	else
-	{
-		ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(theIndex);
-		if (aControllerPlayer == nullptr)
-			return;
-		aToolTip = aControllerPlayer->mSeedChooserToolTip;
-	}
+		aToolTip = mBoard->mControllerBoardList[theIndex]->mSeedChooserToolTip;
+	if (aToolTip == nullptr)
+		return;
 	aToolTip->mVisible = false;
 	aToolTip->mMaxBottom = BOARD_HEIGHT;
 	aToolTip->mCenter = false;
@@ -1204,12 +1176,9 @@ void SeedChooserScreen::SetToolTipSeedContents(SeedType theSeedType, int theInde
 	if (theIndex == -1)
 		aToolTip = mToolTip;
 	else
-	{
-		ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(theIndex);
-		if (aControllerPlayer == nullptr)
-			return;
-		aToolTip = aControllerPlayer->mSeedChooserToolTip;
-	}
+		aToolTip = mBoard->mControllerBoardList[theIndex]->mSeedChooserToolTip;
+	if (aToolTip == nullptr)
+		return;
 	uint aRecFlags = SeedNotRecommendedToPick(theSeedType);
 	if (SeedNotAllowedToPick(theSeedType))
 	{
@@ -1258,19 +1227,16 @@ void SeedChooserScreen::GetToolTipPosition(int theIndex, int theSeedX, int theSe
 	if (theIndex == -1)
 		aToolTip = mToolTip;
 	else
-	{
-		ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(theIndex);
-		if (aControllerPlayer == nullptr)
-			return;
-		aToolTip = aControllerPlayer->mSeedChooserToolTip;
-	}
+		aToolTip = mBoard->mControllerBoardList[theIndex]->mSeedChooserToolTip;
+	if (aToolTip == nullptr)
+		return;
 	if (theX != nullptr)
 		*theX = ClampInt((SEED_PACKET_WIDTH - aToolTip->mWidth) / 2 + theSeedX, 0, BOARD_WIDTH - aToolTip->mWidth);
 	if (theY != nullptr)
 		*theY = theSeedY + (theSeedType == SEED_IMITATER && (aChosenSeed.mSeedState == SEED_IN_CHOOSER || theIndex != -1) ? -aToolTip->mHeight : SEED_PACKET_HEIGHT);
 }
 
-void SeedChooserScreen::SelectSeedType(SeedType theSeedType, int theIndex)
+void SeedChooserScreen::SelectSeedType(SeedType theSeedType)
 {
 	if (theSeedType != SEED_NONE && !SeedNotAllowedToPick(theSeedType) && mApp->SeedTypeAvailable(theSeedType))
 	{
@@ -1327,19 +1293,13 @@ void SeedChooserScreen::SelectSeedType(SeedType theSeedType, int theIndex)
 				if (aChosenSeed.mCrazyDavePicked)
 				{
 					mApp->PlaySample(Sexy::SOUND_BUZZER);
-					if (theIndex == -1)
-						mToolTip->FlashWarning();
-					else
+					mToolTip->FlashWarning();
+					for (int i = 0; i < MAX_CONTROLLERS; i++)
 					{
-						for (int i = 0; i < MAX_CONTROLLERS; i++)
-						{
-							ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(i);
-							if (aControllerPlayer == nullptr)
-								continue;
-							ToolTipWidget* aToolTip = aControllerPlayer->mSeedChooserToolTip;
-							if (aToolTip->mVisible && aControllerPlayer->mSeedChooserSeed == theSeedType)
-								aToolTip->FlashWarning();
-						}
+						ControllerBoard* aControllerBoard = mBoard->mControllerBoardList[i];
+						ToolTipWidget* aToolTip = aControllerBoard->mSeedChooserToolTip;
+						if (aToolTip->mVisible && aControllerBoard->mSeedChooserSeed == theSeedType)
+							aToolTip->FlashWarning();
 					}
 				}
 				else ClickedSeedInBank(aChosenSeed);

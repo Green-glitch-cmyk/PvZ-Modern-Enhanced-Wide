@@ -80,7 +80,7 @@ Zombie::Zombie()
 {
 }
 
-void Zombie::ZombieInitialize(int theRow, ZombieType theType, bool theVariant, Zombie* theParentZombie, int theFromWave, bool theAnimateBush)
+void Zombie::ZombieInitialize(int theRow, ZombieType theType, bool theVariant, Zombie* theParentZombie, int theFromWave, bool theRustleBush)
 {
     TOD_ASSERT(theType >= 0 && theType <= ZombieType::NUM_ZOMBIE_TYPES);
 
@@ -262,7 +262,7 @@ void Zombie::ZombieInitialize(int theRow, ZombieType theType, bool theVariant, Z
         mZombieRect = Rect(-20, 22, 110, 94);
         mZombieAttackRect = Rect(0, 0, 0, 0);
         mVariant = false;
-        theAnimateBush = false;
+        theRustleBush = false;
         break;
     }
     
@@ -298,7 +298,7 @@ void Zombie::ZombieInitialize(int theRow, ZombieType theType, bool theVariant, Z
             PlayZombieReanim("anim_dig", ReanimLoopType::REANIM_LOOP_FULL_LAST_FRAME, 0, 12.0f);
             PickRandomSpeed();
         }
-        theAnimateBush = false;
+        theRustleBush = false;
         break;
     }
 
@@ -581,7 +581,7 @@ void Zombie::ZombieInitialize(int theRow, ZombieType theType, bool theVariant, Z
         {
             mZombiePhase = ZombiePhase::PHASE_DANCER_DANCING_IN;
             mVelX = 0.5f;
-            mPhaseCounter = 300 + Rand(12) + (theAnimateBush ? 100 : 0);
+            mPhaseCounter = 300 + Rand(12) + (theRustleBush ? 100 : 0);
             PlayZombieReanim("anim_moonwalk", ReanimLoopType::REANIM_LOOP, 0, 24.0f);
         }
         mBodyHealth = 500;
@@ -595,7 +595,7 @@ void Zombie::ZombieInitialize(int theRow, ZombieType theType, bool theVariant, Z
         }
         mZombiePhase = ZombiePhase::PHASE_DANCER_DANCING_LEFT;
         mVariant = false;
-        theAnimateBush = false;
+        theRustleBush = false;
         break;
 
     case ZombieType::ZOMBIE_IMP:  
@@ -821,8 +821,8 @@ void Zombie::ZombieInitialize(int theRow, ZombieType theType, bool theVariant, Z
     {
         PlayZombieAppearSound();
         StartZombieSound();
-        if (theAnimateBush)
-            mBoard->AnimateBush(theRow);
+        if (theRustleBush)
+            mBoard->RustleBush(theRow);
     }
 
     UpdateReanim();

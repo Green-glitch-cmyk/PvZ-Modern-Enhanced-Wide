@@ -947,17 +947,7 @@ void SeedBank::Draw(Graphics* g)
 	for (int i = 0; i < mNumPackets; i++)
 	{
 		SeedPacket* aSeedPacket = &mSeedPackets[i];
-		bool aIsControllerSelected = false;
-		for (int j = 0; j < MAX_CONTROLLERS; j++)
-		{
-			ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(j);
-			if (aControllerPlayer == nullptr)
-				continue;
-			aIsControllerSelected = aControllerPlayer->mSeedBankIndex == i;
-			if (aIsControllerSelected)
-				break;
-		}
-		if (aSeedPacket->mPacketType != SeedType::SEED_NONE && !aIsControllerSelected && aSeedPacket->BeginDraw(g))
+		if (aSeedPacket->mPacketType != SeedType::SEED_NONE && !mBoard->IsControllerSeedBankSelected(i) && aSeedPacket->BeginDraw(g))
 		{
 			aSeedPacket->Draw(g);
 			aSeedPacket->EndDraw(g);
@@ -967,10 +957,8 @@ void SeedBank::Draw(Graphics* g)
 	{
 		for (int i = 0; i < MAX_CONTROLLERS; i++)
 		{
-			ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(i);
-			if (aControllerPlayer == nullptr)
-				continue;
-			int aIndex = aControllerPlayer->mSeedBankIndex;
+			ControllerBoard* aControllerBoard = mBoard->mControllerBoardList[i];
+			int aIndex = aControllerBoard->mSeedBankIndex;
 			if (aIndex <= -1 || mBoard->mCutScene->mSeedChoosing)
 				continue;
 			SeedPacket* aSeedPacket = &mSeedPackets[aIndex];
@@ -980,12 +968,11 @@ void SeedBank::Draw(Graphics* g)
 			int aOffset = 7;
 			int aPosX = aSeedPacket->mX - aOffset;
 			int aPosY = aSeedPacket->mY - aOffset;
-			ControllerPlayer* aControllerPlayer0 = mBoard->GetControllerPlayer(i);
-			if (aControllerPlayer0 != nullptr && aControllerPlayer0->mSeedBankIndex == aIndex && i != 0)
+			if (mBoard->mControllerBoardList[0]->mSeedBankIndex == aIndex && i != 0)
 				g->SetClipRect(Rect(aPosX, aPosY, aSeedSelectorWidth, aSeedSelectorHeight / 2));
 			Color aOldColor = g->mColor;
 			g->SetColorizeImages(true);
-			g->SetColor(aControllerPlayer->mController->GetColor());
+			g->SetColor(aControllerBoard->mColor);
 			TodDrawImageScaledF(g, IMAGE_SEED_SELECTOR, aPosX, aPosY, aScale, aScale);
 			g->SetColor(aOldColor);
 			g->SetColorizeImages(false);
@@ -995,17 +982,7 @@ void SeedBank::Draw(Graphics* g)
 	for (int i = 0; i < mNumPackets; i++)
 	{
 		SeedPacket* aSeedPacket = &mSeedPackets[i];
-		bool aIsControllerSelected = false;
-		for (int j = 0; j < MAX_CONTROLLERS; j++)
-		{
-			ControllerPlayer* aControllerPlayer = mBoard->GetControllerPlayer(j);
-			if (aControllerPlayer == nullptr)
-				continue;
-			aIsControllerSelected = aControllerPlayer->mSeedBankIndex == i;
-			if (aIsControllerSelected)
-				break;
-		}
-		if (aSeedPacket->mPacketType != SeedType::SEED_NONE && aIsControllerSelected && aSeedPacket->BeginDraw(g))
+		if (aSeedPacket->mPacketType != SeedType::SEED_NONE && mBoard->IsControllerSeedBankSelected(i) && aSeedPacket->BeginDraw(g))
 		{
 			aSeedPacket->Draw(g);
 			aSeedPacket->EndDraw(g);

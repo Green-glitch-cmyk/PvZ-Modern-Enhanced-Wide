@@ -12,17 +12,14 @@ using namespace Sexy;
 class Bush : public GameObject
 {
 public:
-    int                     mPosX;
-    int                     mPosY;
-    int                     mID;
-    int                     mBushIndex;
+    int                     mIndex;
     ReanimationID           mReanimID;
 
 public:
-    void                    BushInitialize(int mRow, bool NightMode);
+    void                    BushInitialize(int theRow);
+    void                    Rustle();
     void                    Update();
     void                    Draw(Graphics* g);
-    void                    AnimateBush();
 };
 
 #endif

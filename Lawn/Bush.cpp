@@ -26,22 +26,23 @@ const int cBushPos6Rows[][2] = {
     { 979, 509 }
 };
 
-void Bush::BushInitialize(int theRow, bool theNight)
+void Bush::BushInitialize(int theRow)
 {
-    int aIndex = (theRow + 3) % 3;
-    if (theNight)
-        aIndex += 3;
-    mPosX = mBoard->StageHas6Rows() ? cBushPos6Rows[theRow][0] : cBushPos[theRow][0];
-    mPosY = mBoard->StageHas6Rows() ? cBushPos6Rows[theRow][1] : cBushPos[theRow][1];
-    mID = theRow;
-    mBushIndex = aIndex;
-    mRenderOrder = Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_ZOMBIE, theRow + 1, 0);
-    Reanimation* aBodyReanim = mApp->AddReanimation(mPosX, mPosY, mRenderOrder, cBushReanims[mBushIndex]);
+    mIndex = theRow;
+    mX = mBoard->StageHas6Rows() ? cBushPos6Rows[mIndex][0] : cBushPos[mIndex][0];
+    mY = mBoard->StageHas6Rows() ? cBushPos6Rows[mIndex][1] : cBushPos[mIndex][1];
+    int aBushIndex = (mIndex + 3) % 3;
+    if (mBoard->StageIsNight())
+        aBushIndex += 3;
+    mRenderOrder = Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_ZOMBIE, mIndex + 1, 0);
+    Reanimation* aBodyReanim = mApp->AddReanimation(mX, mY, mRenderOrder, cBushReanims[aBushIndex]);
     mReanimID = mApp->ReanimationGetID(aBodyReanim);
-    aBodyReanim->PlayReanim("base bush", REANIM_PLAY_ONCE_AND_HOLD, 0, 0.001f);
+    aBodyReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
+    aBodyReanim->mFrameStart = 0;
+    aBodyReanim->mFrameCount = 1;
 }
 
-void Bush::AnimateBush()
+void Bush::Rustle()
 {
     Reanimation* aReanim = mApp->ReanimationTryToGet(mReanimID);
     if (aReanim)

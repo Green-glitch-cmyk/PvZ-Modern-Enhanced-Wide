@@ -2,71 +2,34 @@
 #define __CONTROLLERMANAGER_H__
 
 #include "../../SDL2/include/SDL.h"
+#include "../../SexyAppFramework/Common.h"
 #include "../../GameConstants.h"
-#include "../../ConstEnums.h"
-#include "../../SexyAppFramework/Color.h"
-#include "../CursorObject.h"
-#include "../ToolTipWidget.h"
 
-//could add threshold to right joystick and trigger threshold
 
 class Controller
 {
 private:
 	LawnApp*			mApp;
-	SDL_GameController* mSDLGameController;
-	Sexy::Color			mColor;
+	SDL_GameController* mGameController;
 	float				mThreshold;
 	float				mDeadZone;
 	std::map<SDL_GameControllerButton, bool> mButtonStates;
 	std::map<SDL_GameControllerButton, bool> mLastButtonStates;
 
 public:
-	Controller(LawnApp* theApp, SDL_GameController* theController, Sexy::Color theColor, float theThreshold, float theDeadZone);
+	Controller(LawnApp* theApp, SDL_GameController* theGameController, float theThreshold, float theDeadZone);
 	~Controller();
 
-	Sexy::Color			GetColor();
+	void				UpdateButtonStates();
+	void				ClearButtonStates();
 	bool                GetButton(SDL_GameControllerButton theButton);
 	bool				GetButtonDown(SDL_GameControllerButton theButton);
 	bool				GetButtonUp(SDL_GameControllerButton theButton);
-	void				UpdateButtonStates();
-	void				ClearButtonStates();
 	bool				IsAxisActive(SDL_GameControllerAxis theAxis);
 	int					GetAxisRawValue(SDL_GameControllerAxis theAxis);
 	float				GetAxisValue(SDL_GameControllerAxis theAxis);
 	float				GetTriggerAxisValue(SDL_GameControllerAxis theAxis);
 	void				Rumble(float theLow, float theHigh, int theDuration);
-};
-
-//actually initialize this class, dont be checking for controllers due to the previous indexes. if it gets deleted, no previous index aswell
-
-class ControllerPlayer
-{
-public:
-	LawnApp*			mApp;
-	Board*				mBoard;
-	int					mIndex;
-	Controller*			mController;
-	int					mBoardX;
-	int					mBoardY;
-	SeedType			mSeedChooserSeed;
-	SeedType			mSeedChooserPrevSeed;
-	int					mSeedBankIndex;
-	int					mSeedBankPrevIndex;
-	CursorObject*		mCursorObject;
-	CursorPreview*		mCursorPreview;
-	ToolTipWidget*		mSeedChooserToolTip;
-	int					mArrowAge;
-	int					mArrowStartMotion;
-	int					mArrowEndMotion;
-	int					mSeedChooserMoveMotion;
-	int					mSeedChooserButtonMotion;
-
-public:
-	ControllerPlayer(LawnApp* theApp, Board* theBoard, int theIndex);
-	~ControllerPlayer();
-
-	void							Update();
 };
 
 class ControllerManager
@@ -79,7 +42,7 @@ private:
 	int					mCurrentMouse;
 
 public:
-	ControllerManager();
+	ControllerManager(LawnApp* theApp);
 	~ControllerManager();
 
 	void				Update();

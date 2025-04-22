@@ -13,6 +13,7 @@
 #include "LawnMower.h"
 #include "GridItem.h"
 #include "Bush.h"
+#include "ControllerBoard.h"
 
 using namespace Sexy;
 
@@ -37,7 +38,6 @@ class Challenge;
 class Reanimation;
 class DataSync;
 class TodParticleSystem;
-class ControllerPlayer;
 namespace Sexy
 {
 	class Graphics;
@@ -105,9 +105,6 @@ struct BungeeDropGrid
 
 class Board : public Widget, public ButtonListener
 {
-private:
-	ControllerPlayer*				mControllerPlayer[MAX_CONTROLLERS];
-
 public:
 	LawnApp*						mApp;													
 	DataArray<Zombie>				mZombies;												
@@ -117,7 +114,8 @@ public:
 	DataArray<LawnMower>			mLawnMowers;											
 	DataArray<GridItem>				mGridItems;												
 	DataArray<Bush>					mBushes;
-	CursorObject*					mCursorObject;											
+	DataArray<ControllerBoard>		mControllerBoards;
+	CursorObject*					mCursorObject;					
 	CursorPreview*					mCursorPreview;											
 	MessageWidget*					mAdvice;												
 	SeedBank*						mSeedBank;												
@@ -135,6 +133,7 @@ public:
 	int								mGridCelOffset[MAX_GRID_SIZE_X][MAX_GRID_SIZE_Y][2];	
 	int								mGridCelFog[MAX_GRID_SIZE_X][MAX_GRID_SIZE_Y + 1];		
 	Bush*							mBushList[MAX_GRID_SIZE_Y];
+	ControllerBoard*				mControllerBoardList[MAX_CONTROLLERS];
 	bool							mEnableGraveStones;										
 	int								mSpecialGraveStoneX;									
 	int								mSpecialGraveStoneY;									
@@ -148,7 +147,7 @@ public:
 	ParticleSystemID				mIceParticleID[MAX_GRID_SIZE_Y];						
 	TodSmoothArray					mRowPickingArray[MAX_GRID_SIZE_Y];						
 	ZombieType						mZombiesInWave[MAX_ZOMBIE_WAVES][MAX_ZOMBIES_IN_WAVE];	
-	bool							mZombieAllowed[100];									
+	bool							mZombieAllowed[NUM_ZOMBIE_TYPES];									
 	int								mSunCountDown;											
 	int								mNumSunsFallen;											
 	int								mShakeCounter;											
@@ -239,8 +238,6 @@ public:
 	int								mGargantuarsKilled;
 	int								mCoinBankX;
 	int								mCoinBankY;
-	//int								mControllerSeedIndex[MAX_CONTROLLERS];
-	//int								mControllerPrevSeedIndex[MAX_CONTROLLERS];
 
 public:
 	Board(LawnApp* theApp);
@@ -266,6 +263,9 @@ public:
 	ZombieType						PickZombieType(int theZombiePoints, int theWaveIndex, ZombiePicker* theZombiePicker);
 	int								PickRowForNewZombie(ZombieType theZombieType);
 	/*inline*/ Zombie*				AddZombie(ZombieType theZombieType, int theFromWave, bool skipBushAnimation = false);
+	Bush*							AddBush(int theRow);
+	void							RustleBush(int mRow);
+	ControllerBoard*				AddControllerBoard(int theIndex);
 	void							SpawnZombieWave();
 	void							RemoveAllZombies();
 	void							RemoveCutsceneZombies();
@@ -302,8 +302,6 @@ public:
 	/*inline*/ bool					StageHasFog();
 	bool							StageHasGraveStones();
 	/*inline*/ bool					StageHasBushes();
-	void							AddBushes();
-	void							AnimateBush(int mRow);
 	int								PixelToGridX(int theX, int theY);
 	int								PixelToGridY(int theX, int theY);
 	/*inline*/ int					GridToPixelX(int theGridX, int theGridY);
@@ -358,7 +356,10 @@ public:
 	bool							IterateReanimations(Reanimation*& theReanimation);
 	bool							IterateGridItems(GridItem*& theGridItem);
 	bool							IterateBushes(Bush*& theBush);
-	/*inline*/ Zombie*				AddZombieInRow(ZombieType theZombieType, int theRow, int theFromWave, bool skipBushAnimation = false);
+	bool							IterateControllerBoards(ControllerBoard*& theControllerBoard);
+	bool							IsControllerSeedBankSelected(int theIndex);
+	bool							IsControllerChooserSelected(SeedType theSeedType);
+	/*inline*/ Zombie*				AddZombieInRow(ZombieType theZombieType, int theRow, int theFromWave, bool theSkipBushRustling = false);
 	/*inline*/ bool					IsPoolSquare(int theGridX, int theGridY);
 	void							PickZombieWaves();
 	void							StopAllZombieSounds();
@@ -504,7 +505,6 @@ public:
 	int								CountZombieByType(ZombieType theZombieType);
 	static /*inline*/ bool			IsZombieTypeSpawnedOnly(ZombieType theZombieType);
 	void 							DrawHealthbar(Graphics* g, Rect theRect, Color theMaxColor, int theMaxHealth, Color theBaseColor, int theBaseHealth, int theBarWidth, int theBarHeight, int theBarOffsetX, int theBarOffsetY, Color theTextColor, Font* theTextFont, int theTextOffsetY, Color theTextOutlineColor, int theTextOutlineOffset, bool theHasBarOutline);
-	ControllerPlayer*				GetControllerPlayer(int theIndex);
 };
 extern bool gShownMoreSunTutorial;
 

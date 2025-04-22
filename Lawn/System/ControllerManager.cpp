@@ -1,225 +1,40 @@
 #include "ControllerManager.h"
 #include "../../Sexy.TodLib/TodCommon.h"
-#include "../../Resources.h"
 #include "../../LawnApp.h"
 #include "../../Lawn/Board.h"
-#include "../Cutscene.h"
-#include "../../Lawn/Widget/SeedChooserScreen.h"
-#include "../../Lawn/SeedPacket.h"
-#include "../../Lawn/Widget/GameButton.h"
+#include "../../Lawn/ControllerBoard.h"
 
-const Sexy::Color cPredefinedControllerColors[MAX_CONTROLLERS] = { Sexy::Color(255, 242, 0), Sexy::Color(71, 198, 255) };
-
-ControllerManager::ControllerManager()
-{
-	mApp = nullptr;
-	mIsInitialized = SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK) == 0;
-	for (int i = 0; i < MAX_CONTROLLERS; i++)
-		mController[i] = nullptr;
-	mCurrentMouse = -1;
-	if (!mIsInitialized)
-		MessageBox(NULL, StrFormat("Couldn't initialize SDL2 for the game controllers. Error: %s", SDL_GetError()).c_str(), "SDL2 Error", MB_OK | MB_ICONERROR);
-}
-
-ControllerManager::~ControllerManager()
-{
-	for (int i = 0; i < MAX_CONTROLLERS; i++)
-	{
-		if (mController[i] != nullptr)
-		{
-			delete mController[i];
-			mController[i] = nullptr;
-		}
-	}
-	SDL_Quit();
-}
-
-void ControllerManager::Update()
-{
-	if (mApp == nullptr)
-	{
-		mApp = gLawnApp;
-		return;
-	}
-
-    if (!mIsInitialized)
-        return;
-
-    const int aMaxSpeed = 7;
-    static int aMouseX = -1;
-    static int aMouseY = -1;
-    static int aSpeedX = 0;
-    static int aSpeedY = 0;
-
-    if (aSpeedX != 0 || aSpeedY != 0)
-    {
-        if (aMouseX == -1 && aMouseY == -1)
-        {
-            aMouseX = mApp->mWidgetManager->mLastMouseX;
-            aMouseY = mApp->mWidgetManager->mLastMouseY;
-        }
-        aMouseX = ClampInt(aMouseX + aSpeedX, 0, BOARD_WIDTH - 1);
-        aMouseY = ClampInt(aMouseY + aSpeedY, 0, BOARD_HEIGHT - 1);
-        POINT aPoint = { aMouseX, aMouseY };
-        ::ClientToScreen(mApp->mHWnd, &aPoint);
-        ::SetCursorPos(aPoint.x, aPoint.y);
-    }
-    else
-    {
-        aMouseX = -1;
-        aMouseY = -1;
-    }
-
-    for (int i = 0; i < MAX_CONTROLLERS; i++)
-    {
-        if (Controller* aController = mController[i])
-        {
-            if (mApp->mHasFocus)
-                aController->UpdateButtonStates();
-            else
-            {
-                aController->ClearButtonStates();
-                continue;
-            }
-
-            if (aController->GetButtonDown(SDL_CONTROLLER_BUTTON_LEFTSTICK))
-            {
-                if (mCurrentMouse == -1)
-                    mCurrentMouse = i;
-                else if (mCurrentMouse == i)
-                {
-                    mCurrentMouse = -1;
-                    aSpeedX = 0;
-                    aSpeedY = 0;
-                }
-            }
-
-            if (mCurrentMouse == i)
-            {
-                if (aController->IsAxisActive(SDL_CONTROLLER_AXIS_LEFTX))
-                    aSpeedX = aMaxSpeed * aController->GetAxisValue(SDL_CONTROLLER_AXIS_LEFTX);
-                else
-                {
-                    if (aController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT))
-                        aSpeedX = -aMaxSpeed;
-                    else if (aController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT))
-                        aSpeedX = aMaxSpeed;
-                    else
-                        aSpeedX = 0;
-                }
-
-                if (aController->IsAxisActive(SDL_CONTROLLER_AXIS_LEFTY))
-                    aSpeedY = aMaxSpeed * aController->GetAxisValue(SDL_CONTROLLER_AXIS_LEFTY);
-                else
-                {
-                    if (aController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP))
-                        aSpeedY = -aMaxSpeed;
-                    else if (aController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN))
-                        aSpeedY = aMaxSpeed;
-                    else
-                        aSpeedY = 0;
-                }
-
-                if (aController->GetButtonDown(SDL_CONTROLLER_BUTTON_A))
-                    SendMessage(mApp->mHWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(mApp->mWidgetManager->mLastMouseX, mApp->mWidgetManager->mLastMouseY));
-                else if (aController->GetButtonUp(SDL_CONTROLLER_BUTTON_A))
-                    SendMessage(mApp->mHWnd, WM_LBUTTONUP, 0, MAKELPARAM(mApp->mWidgetManager->mLastMouseX, mApp->mWidgetManager->mLastMouseY));
-
-                if (aController->GetButtonDown(SDL_CONTROLLER_BUTTON_B))
-                    SendMessage(mApp->mHWnd, WM_RBUTTONDOWN, MK_RBUTTON, MAKELPARAM(mApp->mWidgetManager->mLastMouseX, mApp->mWidgetManager->mLastMouseY));
-                else if (aController->GetButtonUp(SDL_CONTROLLER_BUTTON_B))
-                    SendMessage(mApp->mHWnd, WM_RBUTTONUP, 0, MAKELPARAM(mApp->mWidgetManager->mLastMouseX, mApp->mWidgetManager->mLastMouseY));
-            }
-        }
-    }
-
-    SDL_Event aEvent;
-    while (SDL_PollEvent(&aEvent))
-    {
-        int aIndex = -1;
-        SDL_JoystickID aID = aEvent.cdevice.which;
-        auto aIt = mControllerMap.find(aID);
-        if (aIt != mControllerMap.end())
-            aIndex = aIt->second;
-        
-        switch (aEvent.type)
-        {
-        case SDL_CONTROLLERDEVICEADDED:
-            if (SDL_GameController* aController = SDL_GameControllerOpen(aID))
-            {
-                if (mControllerMap.find(aID) == mControllerMap.end())
-                {
-                    for (int i = 0; i < MAX_CONTROLLERS; i++)
-                    {
-                        if (mController[i] == nullptr)
-                        {
-                            aIndex = i;
-                            mController[aIndex] = new Controller(mApp, aController, cPredefinedControllerColors[aIndex], 0.2f, 0.85f);
-                            mControllerMap[aID] = aIndex;
-                            break;
-                        }
-                    }
-                }
-                if (aIndex == -1)
-                    SDL_GameControllerClose(aController);
-            }
-            break;
-        case SDL_CONTROLLERDEVICEREMOVED:
-            if (aIndex != -1)
-            {
-                delete mController[aIndex];
-                mController[aIndex] = nullptr;
-                mControllerMap.erase(aIt);
-                if (mCurrentMouse == aIndex)
-                {
-                    mCurrentMouse = -1;
-                    aSpeedX = 0;
-                    aSpeedY = 0;
-                }
-            }
-            break;
-        }
-    }
-}
-
-bool ControllerManager::IsActive()
-{
-    return mIsInitialized;
-}
-
-Controller* ControllerManager::GetController(int theIndex)
-{
-	return mIsInitialized && mCurrentMouse != theIndex && mController[theIndex] != nullptr ? mController[theIndex] : nullptr;
-}
-
-void ControllerManager::RumbleAll(float theLow, float theHigh, int theDuration)
-{
-	if (!mIsInitialized)
-		return;
-	for (int i = 0; i < MAX_CONTROLLERS; i++)
-	{
-		if (Controller* aController = mController[i])
-			aController->Rumble(theLow, theHigh, theDuration);
-	}
-}
-
-Controller::Controller(LawnApp* theApp, SDL_GameController* theController, Sexy::Color theColor, float theThreshold, float theDeadZone)
+Controller::Controller(LawnApp* theApp, SDL_GameController* theGameController, float theThreshold, float theDeadZone)
 {
     mApp = theApp;
-	mSDLGameController = theController;
-	mColor = theColor;
+	mGameController = theGameController;
 	mThreshold = theThreshold;
 	mDeadZone = theDeadZone;
 }
 
 Controller::~Controller()
 {
-	SDL_GameControllerClose(mSDLGameController);
+	SDL_GameControllerClose(mGameController);
 }
 
-Sexy::Color Controller::GetColor()
+void Controller::UpdateButtonStates()
 {
-	return mColor;
+	mLastButtonStates = mButtonStates;
+	for (int i = 0; i < SDL_CONTROLLER_BUTTON_MAX; i++)
+	{
+		SDL_GameControllerButton aButton = (SDL_GameControllerButton)i;
+		mButtonStates[aButton] = SDL_GameControllerGetButton(mGameController, aButton);
+	}
+}
+
+void Controller::ClearButtonStates()
+{
+	for (int i = 0; i < SDL_CONTROLLER_BUTTON_MAX; i++)
+	{
+		SDL_GameControllerButton aButton = (SDL_GameControllerButton)i;
+		mButtonStates[aButton] = false;
+		mLastButtonStates[aButton] = false;
+	}
 }
 
 bool Controller::GetButton(SDL_GameControllerButton theButton)
@@ -237,26 +52,6 @@ bool Controller::GetButtonUp(SDL_GameControllerButton theButton)
     return !GetButton(theButton) && mLastButtonStates[theButton];
 }
 
-void Controller::UpdateButtonStates()
-{
-    mLastButtonStates = mButtonStates;
-    for (int i = 0; i < SDL_CONTROLLER_BUTTON_MAX; i++)
-    {
-        SDL_GameControllerButton aButton = (SDL_GameControllerButton)i;
-        mButtonStates[aButton] = SDL_GameControllerGetButton(mSDLGameController, aButton);
-    }
-}
-
-void Controller::ClearButtonStates()
-{
-    for (int i = 0; i < SDL_CONTROLLER_BUTTON_MAX; i++)
-    {
-        SDL_GameControllerButton aButton = (SDL_GameControllerButton)i;
-        mButtonStates[aButton] = false;
-        mLastButtonStates[aButton] = false;
-    }
-}
-
 bool Controller::IsAxisActive(SDL_GameControllerAxis theAxis)
 {
     if (!mApp->mHasFocus || theAxis == SDL_CONTROLLER_AXIS_TRIGGERLEFT || theAxis == SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
@@ -268,14 +63,14 @@ int Controller::GetAxisRawValue(SDL_GameControllerAxis theAxis)
 {
     if (!mApp->mHasFocus)
         return 0;
-    return (int)SDL_GameControllerGetAxis(mSDLGameController, theAxis);
+    return (int)SDL_GameControllerGetAxis(mGameController, theAxis);
 }
 
 float Controller::GetAxisValue(SDL_GameControllerAxis theAxis)
 {
     if (!mApp->mHasFocus || theAxis == SDL_CONTROLLER_AXIS_TRIGGERLEFT || theAxis == SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
         return 0.0f;
-	return ClampFloat(min((float)GetAxisRawValue(theAxis) / INT16_MAX, mDeadZone) / mDeadZone, -1.0f, 1.0f);
+	return ClampFloat(min((float)GetAxisRawValue(theAxis) / INT16_MAX, mDeadZone) / mDeadZone, -1, 1);
 }
 
 float Controller::GetTriggerAxisValue(SDL_GameControllerAxis theAxis)
@@ -287,196 +82,235 @@ float Controller::GetTriggerAxisValue(SDL_GameControllerAxis theAxis)
 
 void Controller::Rumble(float theLow, float theHigh, int theDuration)
 {
-	SDL_GameControllerRumble(mSDLGameController, ClampFloat(theLow, 0, 1) * 0xFFFF, ClampFloat(theHigh, 0, 1) * 0xFFFF, theDuration);
+	SDL_GameControllerRumble(mGameController, ClampFloat(theLow, 0, 1) * UINT16_MAX, ClampFloat(theHigh, 0, 1) * UINT16_MAX, theDuration);
 }
 
-ControllerPlayer::ControllerPlayer(LawnApp* theApp, Board* theBoard, int theIndex)
+ControllerManager::ControllerManager(LawnApp* theApp)
 {
 	mApp = theApp;
-	mBoard = theBoard;
-	mIndex = theIndex;
-	mController = nullptr;
-	mBoardX = 0;
-	mBoardY = 0;
-	mSeedChooserSeed = SEED_NONE;
-	mSeedChooserPrevSeed = SEED_NONE;
-	mSeedBankIndex = -1;
-	mSeedBankPrevIndex = -1;
-	mCursorObject = new CursorObject();
-	mCursorPreview = new CursorPreview();
-	mSeedChooserToolTip = new ToolTipWidget();
-	mArrowAge = 0;
-	mArrowStartMotion = -1;
-	mArrowEndMotion = -1;
-	mSeedChooserMoveMotion = -1;
-	mSeedChooserButtonMotion = -1;
+	mIsInitialized = SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK) == 0;
+	memset(mController, 0, sizeof(mController));
+	mCurrentMouse = -1;
+	if (!mIsInitialized)
+		MessageBox(NULL, StrFormat("Couldn't initialize SDL2 for the game controllers. Error: %s", SDL_GetError()).c_str(), "SDL2 Error", MB_OK | MB_ICONERROR);
 }
 
-ControllerPlayer::~ControllerPlayer()
+ControllerManager::~ControllerManager()
 {
-	delete mCursorObject;
-	delete mCursorPreview;
-	delete mSeedChooserToolTip;
-}
-
-void ControllerPlayer::Update()
-{
-	if (!mApp->mControllerManager->IsActive())
-		return;
-	mController = mApp->mControllerManager->GetController(mIndex);
-	if (mController != nullptr)
+	for (int i = 0; i < MAX_CONTROLLERS; i++)
 	{
-		bool aIsSeedChoosing = mBoard->mCutScene->mSeedChoosing;
-		if (aIsSeedChoosing)
-			mSeedChooserToolTip->Update();
+		if (mController[i])
+			delete mController[i];
+	}
+	SDL_Quit();
+}
 
-		if (mSeedChooserSeed == SEED_NONE)
+void ControllerManager::Update()
+{
+	if (!mIsInitialized)
+		return;
+
+	const int aMaxSpeed = 7;
+	static int aMouseX = -1;
+	static int aMouseY = -1;
+	static int aSpeedX = 0;
+	static int aSpeedY = 0;
+
+	if (aSpeedX != 0 || aSpeedY != 0)
+	{
+		if (aMouseX == -1 && aMouseY == -1)
 		{
-			mSeedChooserSeed = mSeedChooserPrevSeed != SEED_NONE ? mSeedChooserPrevSeed : SEED_PEASHOOTER;
-			mSeedChooserPrevSeed = SEED_NONE;
+			aMouseX = mApp->mWidgetManager->mLastMouseX;
+			aMouseY = mApp->mWidgetManager->mLastMouseY;
 		}
+		aMouseX = ClampInt(aMouseX + aSpeedX, 0, BOARD_WIDTH - 1);
+		aMouseY = ClampInt(aMouseY + aSpeedY, 0, BOARD_HEIGHT - 1);
+		POINT aPoint = { aMouseX, aMouseY };
+		::ClientToScreen(mApp->mHWnd, &aPoint);
+		::SetCursorPos(aPoint.x, aPoint.y);
+	}
+	else
+	{
+		aMouseX = -1;
+		aMouseY = -1;
+	}
 
-		if (mSeedBankIndex == -1 && !aIsSeedChoosing)
+	for (int i = 0; i < MAX_CONTROLLERS; i++)
+	{
+		Controller* aController = mController[i];
+		if (!aController)
+			continue;
+
+		if (mApp->mHasFocus)
+			aController->UpdateButtonStates();
+		else
 		{
-			mSeedBankIndex = mSeedBankPrevIndex != -1 ? mSeedBankPrevIndex : 0;
-			mSeedBankPrevIndex = -1;
+			aController->ClearButtonStates();
+			continue;
 		}
-
-		if (!mApp->mHasFocus)
-			return;
-
-		if (mController->GetButtonDown(SDL_CONTROLLER_BUTTON_START))
+		if (aController->GetButtonDown(SDL_CONTROLLER_BUTTON_LEFTSTICK))
 		{
-			if (!aIsSeedChoosing)
+			if (mCurrentMouse == -1)
+				mCurrentMouse = i;
+			else if (mCurrentMouse == i)
 			{
-				if (mApp->GetDialogCount() == 0)
-				{
-					mBoard->UpdateCursor();
-					mBoard->ClearCursor();
-					mApp->PlaySample(Sexy::SOUND_PAUSE);
-					mApp->DoNewOptions(false);
-				}
-				else
-				{
-					mApp->KillNewOptionsDialog();
-					mApp->KillDialog(Dialogs::DIALOG_PAUSED);
-				}
+				mCurrentMouse = -1;
+				aSpeedX = 0;
+				aSpeedY = 0;
 			}
+		}
+		if (mCurrentMouse == i)
+		{
+			if (aController->IsAxisActive(SDL_CONTROLLER_AXIS_LEFTX))
+				aSpeedX = aMaxSpeed * aController->GetAxisValue(SDL_CONTROLLER_AXIS_LEFTX);
 			else
 			{
-				//crashes when message appears
-				if (!mApp->mSeedChooserScreen->mStartButton->mDisabled)
-					mApp->mSeedChooserScreen->ButtonDepress(mApp->mSeedChooserScreen->mStartButton->mId);
+				if (aController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT))
+					aSpeedX = -aMaxSpeed;
+				else if (aController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT))
+					aSpeedX = aMaxSpeed;
+				else
+					aSpeedX = 0;
 			}
+			if (aController->IsAxisActive(SDL_CONTROLLER_AXIS_LEFTY))
+				aSpeedY = aMaxSpeed * aController->GetAxisValue(SDL_CONTROLLER_AXIS_LEFTY);
+			else
+			{
+				if (aController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP))
+					aSpeedY = -aMaxSpeed;
+				else if (aController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN))
+					aSpeedY = aMaxSpeed;
+				else
+					aSpeedY = 0;
+			}
+			if (aController->GetButtonDown(SDL_CONTROLLER_BUTTON_A))
+				SendMessage(mApp->mHWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(mApp->mWidgetManager->mLastMouseX, mApp->mWidgetManager->mLastMouseY));
+			else if (aController->GetButtonUp(SDL_CONTROLLER_BUTTON_A))
+				SendMessage(mApp->mHWnd, WM_LBUTTONUP, 0, MAKELPARAM(mApp->mWidgetManager->mLastMouseX, mApp->mWidgetManager->mLastMouseY));
+
+			if (aController->GetButtonDown(SDL_CONTROLLER_BUTTON_B))
+				SendMessage(mApp->mHWnd, WM_RBUTTONDOWN, MK_RBUTTON, MAKELPARAM(mApp->mWidgetManager->mLastMouseX, mApp->mWidgetManager->mLastMouseY));
+			else if (aController->GetButtonUp(SDL_CONTROLLER_BUTTON_B))
+				SendMessage(mApp->mHWnd, WM_RBUTTONUP, 0, MAKELPARAM(mApp->mWidgetManager->mLastMouseX, mApp->mWidgetManager->mLastMouseY));
 		}
+	}
 
-		if (mApp->GetDialogCount() != 0)
-			return;
-
-		mArrowAge++;
-
-		if (mApp->mGameScene == GameScenes::SCENE_PLAYING)
+	SDL_Event aEvent;
+	while (SDL_PollEvent(&aEvent))
+	{
+		int aIndex = -1;
+		SDL_JoystickID aID = aEvent.cdevice.which;
+		auto aIt = mControllerMap.find(aID);
+		if (aIt != mControllerMap.end())
+			aIndex = aIt->second;
+		switch (aEvent.type)
 		{
-			if (mController->GetButtonDown(SDL_CONTROLLER_BUTTON_LEFTSHOULDER))
+		case SDL_CONTROLLERDEVICEADDED:
+			if (SDL_GameController* aGameController = SDL_GameControllerOpen(aID))
 			{
-				mSeedBankIndex--;
-				if (mSeedBankIndex < 0)
-					mSeedBankIndex = mBoard->mSeedBank->mNumPackets - 1;
-			}
-			if (mController->GetButtonDown(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
-			{
-				mSeedBankIndex++;
-				if (mSeedBankIndex >= mBoard->mSeedBank->mNumPackets)
-					mSeedBankIndex = 0;
-			}
-		}
-		else if (aIsSeedChoosing)
-		{
-			int aRows = mApp->mSeedChooserScreen->GetRows();
-			bool aButtonDPadLeft = mController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-			bool aButtonDPadRight = mController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
-			bool aButtonDPadUp = mController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_UP);
-			bool aButtonDPadDown = mController->GetButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN);
-			bool aIsAxisXActive = mController->IsAxisActive(SDL_CONTROLLER_AXIS_LEFTX);
-			bool aIsAxisYActive = mController->IsAxisActive(SDL_CONTROLLER_AXIS_LEFTY);
-			if ((mSeedChooserMoveMotion == -1 || mApp->mSeedChooserScreen->mSeedChooserAge >= mSeedChooserMoveMotion) && (aButtonDPadLeft || aButtonDPadRight || aButtonDPadUp || aButtonDPadDown || aIsAxisXActive || aIsAxisYActive))
-			{
-				float aAxisXValue = mController->GetAxisValue(SDL_CONTROLLER_AXIS_LEFTX);
-				float aAxisYValue = mController->GetAxisValue(SDL_CONTROLLER_AXIS_LEFTY);
-				if (aButtonDPadLeft || (aIsAxisXActive && aAxisXValue < 0))
+				aID = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(aGameController));
+				if (mControllerMap.find(aID) == mControllerMap.end())
 				{
-					if (!(mSeedChooserSeed % aRows == 0 && mSeedChooserSeed != SEED_IMITATER))
-						mSeedChooserSeed = (SeedType)(mSeedChooserSeed - 1);
-				}
-				if (aButtonDPadRight || (aIsAxisXActive && aAxisXValue > 0))
-				{
-					int aIsLastRow = (mSeedChooserSeed + 1) % aRows == 0;
-					if (aIsLastRow && mApp->SeedTypeAvailable(SEED_IMITATER))
-						mSeedChooserSeed = SEED_IMITATER;
-					else if (!(aIsLastRow && !mApp->SeedTypeAvailable(SEED_IMITATER)))
-						mSeedChooserSeed = (SeedType)(mSeedChooserSeed + 1);
-				}
-				if (aButtonDPadUp || (aIsAxisYActive && aAxisYValue < 0))
-				{
-					if (!(mSeedChooserSeed == SEED_IMITATER || mSeedChooserSeed < aRows))
-						mSeedChooserSeed = (SeedType)(mSeedChooserSeed - aRows);
-				}
-				if (aButtonDPadDown || (aIsAxisYActive && aAxisYValue > 0))
-				{
-					if (!(mSeedChooserSeed >= SEED_IMITATER - aRows))
-						mSeedChooserSeed = (SeedType)(mSeedChooserSeed + aRows);
-				}
-				mSeedChooserSeed = (SeedType)ClampInt(mSeedChooserSeed, SEED_PEASHOOTER, SEED_IMITATER);
-				mSeedChooserMoveMotion = mApp->mSeedChooserScreen->mSeedChooserAge + 9;
-			}
-			else if (!aButtonDPadLeft && !aButtonDPadRight && !aButtonDPadUp && !aButtonDPadDown && !aIsAxisXActive && !aIsAxisYActive)
-				mSeedChooserMoveMotion = -1;
-
-			bool aButtonA = mController->GetButton(SDL_CONTROLLER_BUTTON_A);
-			bool aButtonB = mController->GetButton(SDL_CONTROLLER_BUTTON_B);
-			if ((mSeedChooserButtonMotion == -1 || mApp->mSeedChooserScreen->mSeedChooserAge >= mSeedChooserButtonMotion) && (aButtonA || aButtonB))
-			{
-				if (aButtonA)
-					mApp->mSeedChooserScreen->SelectSeedType(mSeedChooserSeed, mIndex);
-				if (aButtonB)
-				{
-					int aHighestIndex = 0;
-					SeedType aHighestSeedType = SEED_NONE;
-					for (SeedType aSeedType = SEED_PEASHOOTER; aSeedType < NUM_SEEDS_IN_CHOOSER; aSeedType = (SeedType)(aSeedType + 1))
+					for (int i = 0; i < MAX_CONTROLLERS; i++)
 					{
-						if (mApp->SeedTypeAvailable(aSeedType))
+						if (!mController[i])
 						{
-							ChosenSeed& aChosenSeed = mApp->mSeedChooserScreen->mChosenSeeds[aSeedType];
-							if (!aChosenSeed.mCrazyDavePicked && aHighestIndex <= aChosenSeed.mSeedIndexInBank && (aChosenSeed.mSeedState == SEED_IN_BANK || aChosenSeed.mSeedState == SEED_FLYING_TO_BANK))
+							aIndex = i;
+							mController[aIndex] = new Controller(mApp, aGameController, 0.2f, 0.85f);
+							mControllerMap[aID] = aIndex;
+							break;
+						}
+					}
+				}
+				if (aIndex == -1)
+					SDL_GameControllerClose(aGameController);
+			}
+			break;
+		case SDL_CONTROLLERDEVICEREMOVED:
+			if (aIndex != -1)
+			{
+				mControllerMap.erase(aIt);
+				delete mController[aIndex];
+				mController[aIndex] = nullptr;
+				if (mCurrentMouse == aIndex)
+				{
+					mCurrentMouse = -1;
+					aSpeedX = 0;
+					aSpeedY = 0;
+				}
+				for (int i = aIndex + 1; i < MAX_CONTROLLERS; i++)
+				{
+					if (mController[i])
+					{
+						mController[i - 1] = mController[i];
+						mController[i] = nullptr;
+						for (auto& pair : mControllerMap)
+						{
+							if (pair.second == i)
 							{
-								aHighestIndex = aChosenSeed.mSeedIndexInBank;
-								aHighestSeedType = aSeedType;
+								pair.second = i - 1;
+								break;
 							}
 						}
 					}
-					if (aHighestSeedType == SEED_NONE)
-					{
-						mApp->LeaveBoard(mIndex);
-						return;
-					}
-					mApp->mSeedChooserScreen->SelectSeedType(aHighestSeedType, mIndex);
 				}
-				mSeedChooserButtonMotion = mApp->mSeedChooserScreen->mSeedChooserAge + 27;
+				if (mApp->mBoard)
+				{
+					ControllerBoard* aOldControllerBoard = mApp->mBoard->mControllerBoardList[aIndex];
+					mApp->mBoard->mControllerBoardList[aIndex] = nullptr;
+					for (int i = aIndex + 1; i < MAX_CONTROLLERS; i++)
+					{
+						if (mApp->mBoard->mControllerBoardList[i])
+						{
+							mApp->mBoard->mControllerBoardList[i - 1] = mApp->mBoard->mControllerBoardList[i];
+							mApp->mBoard->mControllerBoardList[i] = nullptr;
+							ControllerBoard* aControllerBoard = mApp->mBoard->mControllerBoardList[i - 1];
+							aControllerBoard->mIndex--;
+							mApp->mBoard->mControllerBoardList[i - 1]->UpdateColor();
+						}
+					}
+					if (aOldControllerBoard)
+					{
+						int aNewIndex = -1;
+						for (int i = 0; i < MAX_CONTROLLERS; i++)
+						{
+							if (!mApp->mBoard->mControllerBoardList[i])
+							{
+								aNewIndex = i;
+								break;
+							}
+						}
+						if (aNewIndex != -1)
+						{
+							mApp->mBoard->mControllerBoardList[aNewIndex] = aOldControllerBoard;
+							aOldControllerBoard->mIndex = aNewIndex;
+							aOldControllerBoard->UpdateColor();
+						}
+					}
+				}
 			}
-			else if (!aButtonA && !aButtonB)
-				mSeedChooserButtonMotion = -1;
+			break;
 		}
 	}
-	else if (mSeedBankIndex != -1 || mSeedChooserSeed != SEED_NONE)
+}
+
+bool ControllerManager::IsActive()
+{
+	return mIsInitialized;
+}
+
+Controller* ControllerManager::GetController(int theIndex)
+{
+	return mIsInitialized && mCurrentMouse != theIndex && mController[theIndex] != nullptr ? mController[theIndex] : nullptr;
+}
+
+void ControllerManager::RumbleAll(float theLow, float theHigh, int theDuration)
+{
+	if (!mIsInitialized)
+		return;
+	for (int i = 0; i < MAX_CONTROLLERS; i++)
 	{
-		mSeedChooserPrevSeed = mSeedChooserSeed;
-		mSeedChooserSeed = SEED_NONE;
-		mSeedBankPrevIndex = mSeedBankIndex;
-		mSeedBankIndex = -1;
-		mArrowAge = 0;
-		mArrowStartMotion = -1;
-		mArrowEndMotion = -1;
-		mSeedChooserMoveMotion = -1;
-		mSeedChooserButtonMotion = -1;
+		if (Controller* aController = mController[i])
+			aController->Rumble(theLow, theHigh, theDuration);
 	}
 }

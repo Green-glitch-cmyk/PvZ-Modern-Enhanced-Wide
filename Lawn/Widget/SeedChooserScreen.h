@@ -81,15 +81,6 @@ public:
     const float             mScrollAccel = 0.1f;
     float					mMaxScrollPosition;
     SeedType                mPreviousType;
-    /*
-    ToolTipWidget*          mControllerToolTip[MAX_CONTROLLERS];
-    SeedType                mControllerPreviousSeed[MAX_CONTROLLERS];
-    SeedType                mControllerSeed[MAX_CONTROLLERS];
-    int                     mControllerMove[MAX_CONTROLLERS];
-    int                     mControllerButton[MAX_CONTROLLERS];
-    int                     mControllerArrowStart[MAX_CONTROLLERS];
-    int                     mControllerArrowEnd[MAX_CONTROLLERS];
-    */
     std::vector<std::tuple<int, int, SeedType, SeedType, int, bool>> mControllerDrawSeeds;
 
 public:
@@ -141,7 +132,7 @@ public:
     void                    ResizeSlider();
     void                    SetToolTipSeedContents(SeedType theSeedType, int theIndex = -1);
     void                    GetToolTipPosition(int theIndex, int theSeedX, int theSeedY, SeedType theSeedType, int* theX = nullptr, int* theY = nullptr);
-    void                    SelectSeedType(SeedType theSeedType, int theIndex = -1);
+    void                    SelectSeedType(SeedType theSeedType);
     int                     GetRows();
 };
 

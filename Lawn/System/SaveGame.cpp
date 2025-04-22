@@ -15,10 +15,11 @@
 #include "../../Sexy.TodLib/TodParticle.h"
 #include "../../Sexy.TodLib/EffectSystem.h"
 #include "../Bush.h"
+#include "ControllerManager.h"
 
 static const char* FILE_COMPILE_TIME_STRING = "Feb 16 200923:03:38";
 static const unsigned int SAVE_FILE_MAGIC_NUMBER = 0xFEEDDEAD;
-static const unsigned int SAVE_FILE_VERSION = 2U;
+static const unsigned int SAVE_FILE_VERSION = 3U;
 static unsigned int SAVE_FILE_DATE = crc32(0, (Bytef*)FILE_COMPILE_TIME_STRING, strlen(FILE_COMPILE_TIME_STRING));  
 
 void SaveGameContext::SyncBytes(void* theDest, int theReadSize)
@@ -356,12 +357,13 @@ void SyncBoard(SaveGameContext& theContext, Board* theBoard)
 	theContext.SyncBytes(&theBoard->mPaused, sizeof(Board) - offsetof(Board, mPaused));
 
 	SyncDataArray(theContext, theBoard->mZombies);													
-	SyncDataArray(theContext, theBoard->mBushes);
 	SyncDataArray(theContext, theBoard->mPlants);													
 	SyncDataArray(theContext, theBoard->mProjectiles);												
 	SyncDataArray(theContext, theBoard->mCoins);													
 	SyncDataArray(theContext, theBoard->mLawnMowers);												
-	SyncDataArray(theContext, theBoard->mGridItems);												
+	SyncDataArray(theContext, theBoard->mGridItems);	
+	SyncDataArray(theContext, theBoard->mBushes);
+	SyncDataArray(theContext, theBoard->mControllerBoards);
 	SyncDataArray(theContext, theBoard->mApp->mEffectSystem->mParticleHolder->mParticleSystems);	
 	SyncDataArray(theContext, theBoard->mApp->mEffectSystem->mParticleHolder->mEmitters);			
 	SyncDataArray(theContext, theBoard->mApp->mEffectSystem->mParticleHolder->mParticles);			
@@ -474,7 +476,18 @@ void FixBoardAfterLoad(Board* theBoard)
 			aBush->mBoard = theBoard;
 		}
 	}
-
+	{
+		ControllerBoard* aControllerBoard = nullptr;
+		while (theBoard->mControllerBoards.IterateNext(aControllerBoard))
+		{
+			aControllerBoard->mApp = theBoard->mApp;
+			aControllerBoard->mBoard = theBoard;
+			aControllerBoard->mCursorObject->mApp = theBoard->mApp;
+			aControllerBoard->mCursorObject->mBoard = theBoard;
+			aControllerBoard->mCursorPreview->mApp = theBoard->mApp;
+			aControllerBoard->mCursorPreview->mBoard = theBoard;
+		}
+	}
 
 	theBoard->mAdvice->mApp = theBoard->mApp;
 	theBoard->mCursorObject->mApp = theBoard->mApp;

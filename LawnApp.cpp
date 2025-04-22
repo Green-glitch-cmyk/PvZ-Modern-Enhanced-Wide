@@ -124,7 +124,7 @@ LawnApp::LawnApp()
 	mAutoStartLoadingThread = false;
 	mDebugKeysEnabled = false;
 	mIsFastMode = false;
-	mVersion = "wide-v4.3";
+	mVersion = "wide-v4.4";
 	mReconVersion = "PvZ: QE " + mVersion;
 	mTitle = _S("Plants vs. Zombies: Quality Enhanced " + mVersion);
 	mCustomCursorsEnabled = false;
@@ -152,7 +152,6 @@ LawnApp::LawnApp()
 	mBigArrowCursor = LoadCursor(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDC_CURSOR1));
 	mDRM = nullptr;
 	mPlayingQuickplay = false;
-	mControllerManager = new ControllerManager();
 }
 
 LawnApp::~LawnApp()
@@ -1368,6 +1367,7 @@ void LawnApp::Init()
 	mWidgetManager->SetFocus(mTitleScreen);
 	mAchievements = new Achievements(this);
 	mAchievements->InitAchievement();
+	mControllerManager = new ControllerManager(this);
 
 #ifdef _DEBUG
 	int aDuration = aTimer.GetDuration();
@@ -1472,7 +1472,7 @@ void LawnApp::StartDiscord()
 		TodTraceAndLog(errchar);
 	};
 
-	Discord_Initialize(gClientId, &handlers, 1, NULL);
+	Discord_Initialize(gClientId, &handlers, 0, 0);
 }
 
 bool LawnApp::DebugKeyDown(int theKey)

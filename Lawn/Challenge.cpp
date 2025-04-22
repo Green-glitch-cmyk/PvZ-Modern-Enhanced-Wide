@@ -5510,11 +5510,11 @@ bool Challenge::TreeOfWisdomHitTest(int theX, int theY, HitResult* theHitResult)
 {
 	Rect aTreeRect;
 	int aTreeSize = TreeOfWisdomGetSize();
-	int aOffsetY = BOARD_OFFSET_Y * 2;
-	if (aTreeSize <= 1)			aTreeRect = Rect(310 + BOARD_ADDITIONAL_WIDTH, 275 - aOffsetY, 175, 175 + aOffsetY);
-	else if (aTreeSize < 7)		aTreeRect = Rect(290 + BOARD_ADDITIONAL_WIDTH, 255 - aOffsetY, 205, 195 + aOffsetY);
-	else if (aTreeSize < 12)	aTreeRect = Rect(290 + BOARD_ADDITIONAL_WIDTH, 215 - aOffsetY, 205, 225 + aOffsetY);
-	else						aTreeRect = Rect(280 + BOARD_ADDITIONAL_WIDTH, 155 - aOffsetY, 225, 305 + aOffsetY);
+	int aOffsetY = BOARD_OFFSET_Y;
+	if (aTreeSize <= 1)			aTreeRect = Rect(310 + BOARD_ADDITIONAL_WIDTH, 275 - aOffsetY, 175, 175 + aOffsetY * 2);
+	else if (aTreeSize < 7)		aTreeRect = Rect(290 + BOARD_ADDITIONAL_WIDTH, 255 - aOffsetY, 205, 195 + aOffsetY * 2);
+	else if (aTreeSize < 12)	aTreeRect = Rect(290 + BOARD_ADDITIONAL_WIDTH, 215 - aOffsetY, 205, 225 + aOffsetY * 2);
+	else						aTreeRect = Rect(280 + BOARD_ADDITIONAL_WIDTH, 155 - aOffsetY, 225, 305 + aOffsetY * 2);
 
 	if (aTreeRect.Contains(theX, theY))
 	{

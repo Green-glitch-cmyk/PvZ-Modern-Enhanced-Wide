@@ -47,14 +47,13 @@ Board::Board(LawnApp* theApp)
 	TodHesitationTrace("preboard");
 
 	mZombies.DataArrayInitialize(1024U, "zombies");
-	mBushes.DataArrayInitialize(32U, "bushes");
-	for (int i = 0; i < MAX_GRID_SIZE_Y; i++)
-		mBushList[i] = mBushes.DataArrayAlloc();
 	mPlants.DataArrayInitialize(1024U, "plants");
 	mProjectiles.DataArrayInitialize(1024U, "projectiles");
 	mCoins.DataArrayInitialize(1024U, "coins");
 	mLawnMowers.DataArrayInitialize(32U, "lawnmowers");
 	mGridItems.DataArrayInitialize(128U, "griditems");
+	mBushes.DataArrayInitialize(16U, "bushes");
+	mControllerBoards.DataArrayInitialize(128U, "controllerboards");
 	TodHesitationTrace("board dataarrays");
 
 	mApp->mEffectSystem->EffectSystemFreeAll();
@@ -86,6 +85,8 @@ Board::Board(LawnApp* theApp)
 			mGridCelFog[i][k] = 0;
 		}
 	}
+	memset(mBushList, 0, sizeof(mBushList));
+	memset(mControllerBoardList, 0, sizeof(mControllerBoardList));
 	mFogOffset = 0.0f;
 	mSunCountDown = 0;
 	mShakeCounter = 0;
@@ -181,8 +182,6 @@ Board::Board(LawnApp* theApp)
 	mGargantuarsKilled = 0;
 	mRoofPoleOffset = ROOF_POLE_START;
 	mRoofTreeOffset = ROOF_TREE_START;
-	for (int i = 0; i < MAX_CONTROLLERS; i++)
-		mControllerPlayer[i] = new ControllerPlayer(theApp, this, i);
 
 	if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN || mApp->mGameMode == GameMode::GAMEMODE_TREE_OF_WISDOM)
 	{
@@ -245,12 +244,13 @@ Board::~Board()
 		delete mFastButton;
 	}
 	mZombies.DataArrayDispose();
-	mBushes.DataArrayDispose();
 	mPlants.DataArrayDispose();
 	mProjectiles.DataArrayDispose();
 	mCoins.DataArrayDispose();
 	mLawnMowers.DataArrayDispose();
 	mGridItems.DataArrayDispose();
+	mBushes.DataArrayDispose();
+	mControllerBoards.DataArrayDispose();
 	if (mToolTip)
 	{
 		delete mToolTip;
@@ -261,10 +261,6 @@ Board::~Board()
 	}
 	delete mCutScene;
 	delete mChallenge;
-	for (int i = 0; i < MAX_CONTROLLERS; i++)
-	{
-		delete mControllerPlayer[i];
-	}
 	mApp->UpdateDiscordState();
 }
 
@@ -384,19 +380,29 @@ bool Board::LoadGame(const string& theFileName)
 	UpdateLayers();
 	if (mApp->mGameScene == GameScenes::SCENE_PLAYING)
 		mFastButton->mBtnNoDraw = false;
-	for (int bushIndex = 0; bushIndex < MAX_GRID_SIZE_Y; bushIndex++)
+	for (int i = 0; i < MAX_GRID_SIZE_Y; i++)
 	{
-		Bush* loadedBush = nullptr;
-		while (IterateBushes(loadedBush))
-		{
-			if (loadedBush->mID == bushIndex)
-				mBushList[bushIndex] = loadedBush;
-		}
-		if (mBushList[bushIndex] == nullptr)
-		{
-			AddBushes();
+		if (!StageHasBushes())
 			break;
+		Bush* aBush = nullptr;
+		while (IterateBushes(aBush))
+		{
+			if (aBush->mIndex == i)
+				mBushList[i] = aBush;
 		}
+		if (!mBushList[i])
+			AddBush(i);
+	}
+	for (int i = 0; i < MAX_CONTROLLERS; i++)
+	{
+		ControllerBoard* aControllerBoard = nullptr;
+		while (IterateControllerBoards(aControllerBoard))
+		{
+			if (aControllerBoard->mIndex == i)
+				mControllerBoardList[i] = aControllerBoard;
+		}
+		if (!mControllerBoardList[i])
+			AddControllerBoard(i);
 	}
 	return true;
 }
@@ -1152,15 +1158,13 @@ void Board::PickBackground()
 		}
 	}
 	PickSpecialGraveStone();
-
 	if (StageHasBushes())
-		AddBushes();
-}
-
-void Board::AddBushes() 
-{
-	for (int i = 0; i < MAX_GRID_SIZE_Y; i++)
-		mBushList[i]->BushInitialize(i, StageIsNight());
+	{
+		for (int i = 0; i < MAX_GRID_SIZE_Y; i++)
+			AddBush(i);
+	}
+	for (int i = 0; i < MAX_CONTROLLERS; i++)
+		AddControllerBoard(i);
 }
 
 void Board::InitZombieWavesForLevel(int theForLevel)
@@ -2639,9 +2643,9 @@ bool Board::CanAddBobSled()
 	return false;
 }
 
-Zombie* Board::AddZombieInRow(ZombieType theZombieType, int theRow, int theFromWave, bool skipBushAnimation)
+Zombie* Board::AddZombieInRow(ZombieType theZombieType, int theRow, int theFromWave, bool theSkipBushRustling)
 {
-	if (mZombies.mSize >= mZombies.mMaxSize - 1)
+	if (mZombies.mSize >= mZombies.mMaxSize)
 	{
 		TodTrace("Too many zombies!!");
 		return nullptr;
@@ -2650,7 +2654,7 @@ Zombie* Board::AddZombieInRow(ZombieType theZombieType, int theRow, int theFromW
 		mApp->GetAchievement(ACHIEVEMENT_ZOMBOLOGIST);
 	bool aVariant = !Rand(5);
 	Zombie* aZombie = mZombies.DataArrayAlloc();
-	aZombie->ZombieInitialize(theRow, theZombieType, aVariant, nullptr, theFromWave, !skipBushAnimation && StageHasBushes() && mApp->mGameScene == GameScenes::SCENE_PLAYING);
+	aZombie->ZombieInitialize(theRow, theZombieType, aVariant, nullptr, theFromWave, !theSkipBushRustling && StageHasBushes() && mApp->mGameScene == GameScenes::SCENE_PLAYING);
 	if (theZombieType == ZombieType::ZOMBIE_BOBSLED && aZombie->IsOnBoard())
 	{
 		for (int _i = 0; _i < 3; _i++)
@@ -2666,17 +2670,48 @@ Zombie* Board::AddZombie(ZombieType theZombieType, int theFromWave, bool skipBus
 	return AddZombieInRow(theZombieType, PickRowForNewZombie(theZombieType), theFromWave, skipBushAnimation);
 }
 
-void Board::AnimateBush(int mRow) {
-	Bush* aBush = mBushList[mRow];
-	if (aBush == nullptr || mApp->mGameMode == GAMEMODE_CHALLENGE_INVISIGHOUL || !StageHasBushes())
-		return;
+Bush* Board::AddBush(int theRow)
+{
+	if (mBushes.mSize >= mBushes.mMaxSize)
+	{
+		TodTrace("Too many bushes!!");
+		return nullptr;
+	}
+	if (mBushList[theRow])
+		return nullptr;
+	Bush* aBush = mBushes.DataArrayAlloc();
+	aBush->BushInitialize(theRow);
+	mBushList[theRow] = aBush;
+	return aBush;
+}
 
-	aBush->AnimateBush();
+void Board::RustleBush(int mRow) 
+{
+	if (!StageHasBushes() || mApp->mGameMode == GAMEMODE_CHALLENGE_INVISIGHOUL)
+		return;
+	Bush* aBush = mBushList[mRow];
+	if (aBush == nullptr)
+		return;
+	aBush->Rustle();
 	if (!StageHas6Rows() && mRow == 4)
 	{
 		aBush = mBushList[mRow + 1];
-		aBush->AnimateBush();
+		aBush->Rustle();
 	}
+}
+ControllerBoard* Board::AddControllerBoard(int theIndex)
+{
+	if (mControllerBoards.mSize >= mControllerBoards.mMaxSize)
+	{
+		TodTrace("Too many controllers!!");
+		return nullptr;
+	}
+	if (mControllerBoardList[theIndex])
+		return nullptr;
+	ControllerBoard* aControllerBoard = mControllerBoards.DataArrayAlloc();
+	aControllerBoard->ControllerBoardInitialize(theIndex);
+	mControllerBoardList[theIndex] = aControllerBoard;
+	return aControllerBoard;
 }
 void Board::RemoveAllZombies()
 {
@@ -4916,12 +4951,6 @@ void Board::UpdateGameObjects()
 		aZombie->Update();
 	}
 
-	Bush* aBush = nullptr;
-	while (IterateBushes(aBush))
-	{
-		aBush->Update();
-	}
-
 	Projectile* aProjectile = nullptr;
 	while (IterateProjectiles(aProjectile))
 	{
@@ -4938,6 +4967,12 @@ void Board::UpdateGameObjects()
 	while (IterateLawnMowers(aLawnMower))
 	{
 		aLawnMower->Update();
+	}
+
+	Bush* aBush = nullptr;
+	while (IterateBushes(aBush))
+	{
+		aBush->Update();
 	}
 
 	mCursorPreview->Update();
@@ -5642,9 +5677,6 @@ void Board::Update()
 	Widget::Update();
 	MarkDirty();
 
-	for (int i = 0; i < MAX_CONTROLLERS; i++)
-		mControllerPlayer[i]->Update();
-
 	if (mPaused && mApp->mIsFastMode)
 		mApp->mIsFastMode = false;
 
@@ -5693,6 +5725,12 @@ void Board::Update()
 	if (IsScaryPotterDaveTalking())
 	{
 		mApp->UpdateCrazyDave();
+	}
+
+	ControllerBoard* aControllerBoard = nullptr;
+	while (IterateControllerBoards(aControllerBoard))
+	{
+		aControllerBoard->Update();
 	}
 
 	if (mPaused)
@@ -7146,6 +7184,7 @@ void Board::DrawDebugText(Graphics* g)
 		aText += StrFormat(_S("lawn mowers %d\n"), mLawnMowers.mSize);
 		aText += StrFormat(_S("grid items %d\n"), mGridItems.mSize);
 		aText += StrFormat(_S("bushes %d\n"), mBushes.mSize);
+		aText += StrFormat(_S("controller boards %d\n"), mControllerBoards.mSize);
 		break;
 
 	case DebugTextMode::DEBUG_TEXT_COLLISION:
@@ -8805,16 +8844,6 @@ void Board::ProcessDeleteQueue()
 			}
 		}
 	}
-	{
-		Bush* aBush = nullptr;
-		while (mBushes.IterateNext(aBush))
-		{
-			if (aBush == nullptr)
-			{
-				mBushes.DataArrayFree(aBush);
-			}
-		}
-	}
 }
 
 bool Board::HasConveyorBeltSeedBank()
@@ -9360,21 +9389,6 @@ bool Board::IterateGridItems(GridItem*& theGridItem)
 	return false;
 }
 
-bool Board::IterateBushes(Bush*& theBush)
-{
-	while (mBushes.IterateNext(theBush))
-	{
-		if (theBush != nullptr)
-		{
-			return true;
-		}
-	}
-
-	theBush = (Bush*)-1;
-	return false;
-}
-
-
 bool Board::IterateParticles(TodParticleSystem*& theParticle)
 {
 	while (mApp->mEffectSystem->mParticleHolder->mParticleSystems.IterateNext(theParticle))
@@ -9400,6 +9414,56 @@ bool Board::IterateReanimations(Reanimation*& theReanimation)
 	}
 
 	theReanimation = (Reanimation*)-1;
+	return false;
+}
+
+bool Board::IterateBushes(Bush*& theBush)
+{
+	while (mBushes.IterateNext(theBush))
+	{
+		if (theBush != nullptr)
+		{
+			return true;
+		}
+	}
+
+	theBush = (Bush*)-1;
+	return false;
+}
+
+bool Board::IterateControllerBoards(ControllerBoard*& theControllerBoard)
+{
+	while (mControllerBoards.IterateNext(theControllerBoard))
+	{
+		if (theControllerBoard != nullptr)
+		{
+			return true;
+		}
+	}
+
+	theControllerBoard = (ControllerBoard*)-1;
+	return false;
+}
+
+bool Board::IsControllerSeedBankSelected(int theIndex)
+{
+	ControllerBoard* aControllerBoard = nullptr;
+	while (IterateControllerBoards(aControllerBoard))
+	{
+		if (aControllerBoard->mSeedBankIndex == theIndex)
+			return true;
+	}
+	return false;
+}
+
+bool Board::IsControllerChooserSelected(SeedType theSeedType)
+{
+	ControllerBoard* aControllerBoard = nullptr;
+	while (IterateControllerBoards(aControllerBoard))
+	{
+		if (aControllerBoard->mSeedChooserSeed == theSeedType)
+			return true;
+	}
 	return false;
 }
 
@@ -9994,9 +10058,4 @@ void Board::DrawHealthbar(Graphics* g, Rect theRect, Color theMaxColor, int theM
 		g->DrawRect(Rect(aBarX - 1, aBarY - 1, theBarWidth + 1, theBarHeight + 1));
 	}
 	g->SetColor(lastColor);
-}
-
-ControllerPlayer* Board::GetControllerPlayer(int theIndex)
-{
-	return mApp->mControllerManager->IsActive() && mControllerPlayer[theIndex] != nullptr && mControllerPlayer[theIndex]->mController ? mControllerPlayer[theIndex] : nullptr;
 }

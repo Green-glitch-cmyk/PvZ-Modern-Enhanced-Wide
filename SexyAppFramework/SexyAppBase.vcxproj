@@ -122,6 +122,7 @@
     <ClCompile Include="..\Lawn\Bush.cpp" />
     <ClCompile Include="..\Lawn\Challenge.cpp" />
     <ClCompile Include="..\Lawn\Coin.cpp" />
+    <ClCompile Include="..\Lawn\ControllerBoard.cpp" />
     <ClCompile Include="..\Lawn\CursorObject.cpp" />
     <ClCompile Include="..\Lawn\CutScene.cpp" />
     <ClCompile Include="..\Lawn\LawnMower.cpp" />
@@ -653,6 +654,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Lawn\ControllerBoard.h" />
     <ClInclude Include="..\Lawn\System\ControllerManager.h" />
     <ClInclude Include="..\DiscordRPC\backoff.h" />
     <ClInclude Include="..\DiscordRPC\connection.h" />
@@ -699,8 +701,6 @@
     <ClInclude Include="..\Lawn\Achievements.h" />
     <ClInclude Include="..\Lawn\Bush.h" />
     <ClInclude Include="..\Lawn\System\DataSync.h" />
-    <ClInclude Include="..\Lawn\System\discord_register.h" />
-    <ClInclude Include="..\Lawn\System\discord_rpc.h" />
     <ClInclude Include="..\Lawn\System\ProfileMgr.h" />
     <ClInclude Include="..\Lawn\System\ReanimationLawn.h" />
     <ClInclude Include="..\Lawn\System\SaveGame.h" />
@@ -1155,9 +1155,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\main_icon.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\DiscordRPC\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\SDL2\lib\SDL2.lib" />

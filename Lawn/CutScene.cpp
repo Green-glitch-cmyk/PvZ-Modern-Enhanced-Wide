@@ -1712,6 +1712,7 @@ void CutScene::ClearUpsellBoard()
 	mBoard->mGridItems.DataArrayFreeAll();
 	mBoard->mLawnMowers.DataArrayFreeAll();
 	mBoard->mBushes.DataArrayFreeAll();
+	mBoard->mControllerBoards.DataArrayFreeAll();
 
 	TodParticleSystem* aParticle = nullptr;
 	while (mBoard->IterateParticles(aParticle))
@@ -1795,8 +1796,7 @@ void CutScene::LoadIntroBoard()
 	if (mBoard->StageHasBushes())
 	{
 		for (int i = 0; i < MAX_GRID_SIZE_Y; i++)
-			mBoard->mBushList[i] = mBoard->mBushes.DataArrayAlloc();
-		mBoard->AddBushes();
+			mBoard->AddBush(i);
 	}
 
 	mPreUpdatingBoard = true;
@@ -1856,8 +1856,7 @@ void CutScene::LoadUpsellBoardPool()
 	if (mBoard->StageHasBushes())
 	{
 		for (int i = 0; i < MAX_GRID_SIZE_Y; i++)
-			mBoard->mBushList[i] = mBoard->mBushes.DataArrayAlloc();
-		mBoard->AddBushes();
+			mBoard->AddBush(i);
 	}
 
 	mPreUpdatingBoard = true;
@@ -1916,9 +1915,8 @@ void CutScene::LoadUpsellBoardFog()
 	AddUpsellZombie(ZombieType::ZOMBIE_NORMAL, 740 + BOARD_ADDITIONAL_WIDTH, 5);
 	if (mBoard->StageHasBushes())
 	{
-		for (int i = 0; i < MAX_GRID_SIZE_Y; i++)
-			mBoard->mBushList[i] = mBoard->mBushes.DataArrayAlloc();
-		mBoard->AddBushes();
+		for (int i = 0; i < MAX_GRID_SIZE_Y; i++)			
+			mBoard->AddBush(i);
 	}
 
 	mPreUpdatingBoard = true;
@@ -2031,8 +2029,7 @@ void CutScene::LoadUpsellBoardRoof()
 	if (mBoard->StageHasBushes())
 	{
 		for (int i = 0; i < MAX_GRID_SIZE_Y; i++)
-			mBoard->mBushList[i] = mBoard->mBushes.DataArrayAlloc();
-		mBoard->AddBushes();
+			mBoard->AddBush(i);
 	}
 
 	mPreUpdatingBoard = true;
