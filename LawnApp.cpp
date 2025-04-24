@@ -46,7 +46,6 @@
 #include "SexyAppFramework/WidgetManager.h"
 #include "SexyAppFramework/ResourceManager.h"
 #include "Lawn/Achievements.h"
-#include "Lawn/System/ControllerManager.h"
 
 #include "Lawn/System/discord_rpc.h"
 #include "SexyAppFramework/Checkbox.h"
@@ -265,7 +264,7 @@ LawnApp::~LawnApp()
 
 	delete mProfileMgr;
 	delete mLastLevelStats;
-	delete mControllerManager;
+	delete mGamepadManager;
 
 	mResourceManager->DeleteResources("");
 #ifdef _DEBUG
@@ -1367,7 +1366,7 @@ void LawnApp::Init()
 	mWidgetManager->SetFocus(mTitleScreen);
 	mAchievements = new Achievements(this);
 	mAchievements->InitAchievement();
-	mControllerManager = new ControllerManager(this);
+	mGamepadManager = new GamepadManager(this);
 
 #ifdef _DEBUG
 	int aDuration = aTimer.GetDuration();
@@ -1813,7 +1812,7 @@ void LawnApp::UpdateFrames()
 		CheckForGameEnd();
 	}
 
-	mControllerManager->Update();
+	mGamepadManager->Update();
 
 	static time_t lastUpdateTime = time(NULL);
 	time_t now = time(NULL);

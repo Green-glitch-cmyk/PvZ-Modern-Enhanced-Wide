@@ -76,8 +76,8 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Winmm.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Link>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\SDL2\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\SDL\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -106,8 +106,8 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Winmm.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Link>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\SDL2\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\SDL\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -122,12 +122,12 @@
     <ClCompile Include="..\Lawn\Bush.cpp" />
     <ClCompile Include="..\Lawn\Challenge.cpp" />
     <ClCompile Include="..\Lawn\Coin.cpp" />
-    <ClCompile Include="..\Lawn\ControllerBoard.cpp" />
+    <ClCompile Include="..\Lawn\GamepadPlayer.cpp" />
     <ClCompile Include="..\Lawn\CursorObject.cpp" />
     <ClCompile Include="..\Lawn\CutScene.cpp" />
     <ClCompile Include="..\Lawn\LawnMower.cpp" />
     <ClCompile Include="..\Lawn\Projectile.cpp" />
-    <ClCompile Include="..\Lawn\System\ControllerManager.cpp" />
+    <ClCompile Include="..\Lawn\System\GamepadManager.cpp" />
     <ClCompile Include="..\Lawn\System\DataSync.cpp" />
     <ClCompile Include="..\Lawn\System\Music.cpp" />
     <ClCompile Include="..\Lawn\System\PlayerInfo.cpp" />
@@ -654,8 +654,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Lawn\ControllerBoard.h" />
-    <ClInclude Include="..\Lawn\System\ControllerManager.h" />
+    <ClInclude Include="..\Lawn\GamepadPlayer.h" />
+    <ClInclude Include="..\Lawn\System\GamepadManager.h" />
     <ClInclude Include="..\DiscordRPC\backoff.h" />
     <ClInclude Include="..\DiscordRPC\connection.h" />
     <ClInclude Include="..\DiscordRPC\msg_queue.h" />
@@ -721,84 +721,91 @@
     <ClInclude Include="..\Lawn\Widget\QuickPlayScreen.h" />
     <ClInclude Include="..\Lawn\Widget\TitleScreen.h" />
     <ClInclude Include="..\Lawn\Widget\UserDialog.h" />
-    <ClInclude Include="..\SDL2\include\begin_code.h" />
-    <ClInclude Include="..\SDL2\include\close_code.h" />
-    <ClInclude Include="..\SDL2\include\SDL.h" />
-    <ClInclude Include="..\SDL2\include\SDL_assert.h" />
-    <ClInclude Include="..\SDL2\include\SDL_atomic.h" />
-    <ClInclude Include="..\SDL2\include\SDL_audio.h" />
-    <ClInclude Include="..\SDL2\include\SDL_bits.h" />
-    <ClInclude Include="..\SDL2\include\SDL_blendmode.h" />
-    <ClInclude Include="..\SDL2\include\SDL_clipboard.h" />
-    <ClInclude Include="..\SDL2\include\SDL_config.h" />
-    <ClInclude Include="..\SDL2\include\SDL_cpuinfo.h" />
-    <ClInclude Include="..\SDL2\include\SDL_egl.h" />
-    <ClInclude Include="..\SDL2\include\SDL_endian.h" />
-    <ClInclude Include="..\SDL2\include\SDL_error.h" />
-    <ClInclude Include="..\SDL2\include\SDL_events.h" />
-    <ClInclude Include="..\SDL2\include\SDL_filesystem.h" />
-    <ClInclude Include="..\SDL2\include\SDL_gamecontroller.h" />
-    <ClInclude Include="..\SDL2\include\SDL_gesture.h" />
-    <ClInclude Include="..\SDL2\include\SDL_guid.h" />
-    <ClInclude Include="..\SDL2\include\SDL_haptic.h" />
-    <ClInclude Include="..\SDL2\include\SDL_hidapi.h" />
-    <ClInclude Include="..\SDL2\include\SDL_hints.h" />
-    <ClInclude Include="..\SDL2\include\SDL_joystick.h" />
-    <ClInclude Include="..\SDL2\include\SDL_keyboard.h" />
-    <ClInclude Include="..\SDL2\include\SDL_keycode.h" />
-    <ClInclude Include="..\SDL2\include\SDL_loadso.h" />
-    <ClInclude Include="..\SDL2\include\SDL_locale.h" />
-    <ClInclude Include="..\SDL2\include\SDL_log.h" />
-    <ClInclude Include="..\SDL2\include\SDL_main.h" />
-    <ClInclude Include="..\SDL2\include\SDL_messagebox.h" />
-    <ClInclude Include="..\SDL2\include\SDL_metal.h" />
-    <ClInclude Include="..\SDL2\include\SDL_misc.h" />
-    <ClInclude Include="..\SDL2\include\SDL_mouse.h" />
-    <ClInclude Include="..\SDL2\include\SDL_mutex.h" />
-    <ClInclude Include="..\SDL2\include\SDL_name.h" />
-    <ClInclude Include="..\SDL2\include\SDL_opengl.h" />
-    <ClInclude Include="..\SDL2\include\SDL_opengles.h" />
-    <ClInclude Include="..\SDL2\include\SDL_opengles2.h" />
-    <ClInclude Include="..\SDL2\include\SDL_opengles2_gl2.h" />
-    <ClInclude Include="..\SDL2\include\SDL_opengles2_gl2ext.h" />
-    <ClInclude Include="..\SDL2\include\SDL_opengles2_gl2platform.h" />
-    <ClInclude Include="..\SDL2\include\SDL_opengles2_khrplatform.h" />
-    <ClInclude Include="..\SDL2\include\SDL_opengl_glext.h" />
-    <ClInclude Include="..\SDL2\include\SDL_pixels.h" />
-    <ClInclude Include="..\SDL2\include\SDL_platform.h" />
-    <ClInclude Include="..\SDL2\include\SDL_power.h" />
-    <ClInclude Include="..\SDL2\include\SDL_quit.h" />
-    <ClInclude Include="..\SDL2\include\SDL_rect.h" />
-    <ClInclude Include="..\SDL2\include\SDL_render.h" />
-    <ClInclude Include="..\SDL2\include\SDL_revision.h" />
-    <ClInclude Include="..\SDL2\include\SDL_rwops.h" />
-    <ClInclude Include="..\SDL2\include\SDL_scancode.h" />
-    <ClInclude Include="..\SDL2\include\SDL_sensor.h" />
-    <ClInclude Include="..\SDL2\include\SDL_shape.h" />
-    <ClInclude Include="..\SDL2\include\SDL_stdinc.h" />
-    <ClInclude Include="..\SDL2\include\SDL_surface.h" />
-    <ClInclude Include="..\SDL2\include\SDL_system.h" />
-    <ClInclude Include="..\SDL2\include\SDL_syswm.h" />
-    <ClInclude Include="..\SDL2\include\SDL_test.h" />
-    <ClInclude Include="..\SDL2\include\SDL_test_assert.h" />
-    <ClInclude Include="..\SDL2\include\SDL_test_common.h" />
-    <ClInclude Include="..\SDL2\include\SDL_test_compare.h" />
-    <ClInclude Include="..\SDL2\include\SDL_test_crc32.h" />
-    <ClInclude Include="..\SDL2\include\SDL_test_font.h" />
-    <ClInclude Include="..\SDL2\include\SDL_test_fuzzer.h" />
-    <ClInclude Include="..\SDL2\include\SDL_test_harness.h" />
-    <ClInclude Include="..\SDL2\include\SDL_test_images.h" />
-    <ClInclude Include="..\SDL2\include\SDL_test_log.h" />
-    <ClInclude Include="..\SDL2\include\SDL_test_md5.h" />
-    <ClInclude Include="..\SDL2\include\SDL_test_memory.h" />
-    <ClInclude Include="..\SDL2\include\SDL_test_random.h" />
-    <ClInclude Include="..\SDL2\include\SDL_thread.h" />
-    <ClInclude Include="..\SDL2\include\SDL_timer.h" />
-    <ClInclude Include="..\SDL2\include\SDL_touch.h" />
-    <ClInclude Include="..\SDL2\include\SDL_types.h" />
-    <ClInclude Include="..\SDL2\include\SDL_version.h" />
-    <ClInclude Include="..\SDL2\include\SDL_video.h" />
-    <ClInclude Include="..\SDL2\include\SDL_vulkan.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_assert.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_asyncio.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_atomic.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_audio.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_begin_code.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_bits.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_blendmode.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_camera.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_clipboard.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_close_code.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_copying.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_cpuinfo.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_dialog.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_egl.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_endian.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_error.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_events.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_filesystem.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_gamepad.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_gpu.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_guid.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_haptic.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_hidapi.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_hints.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_init.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_intrin.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_iostream.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_joystick.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_keyboard.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_keycode.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_loadso.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_locale.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_log.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_main.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_main_impl.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_messagebox.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_metal.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_misc.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_mouse.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_mutex.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_oldnames.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_opengl.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_opengles.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_opengles2.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_opengles2_gl2.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_opengles2_gl2ext.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_opengles2_gl2platform.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_opengles2_khrplatform.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_opengl_glext.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_pen.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_pixels.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_platform.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_platform_defines.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_power.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_process.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_properties.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_rect.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_render.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_revision.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_scancode.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_sensor.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_stdinc.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_storage.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_surface.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_system.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_test.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_test_assert.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_test_common.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_test_compare.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_test_crc32.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_test_font.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_test_fuzzer.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_test_harness.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_test_log.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_test_md5.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_test_memory.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_thread.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_time.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_timer.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_touch.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_tray.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_version.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_video.h" />
+    <ClInclude Include="..\SDL3\include\SDL3\SDL_vulkan.h" />
     <ClInclude Include="..\Sexy.TodLib\Attachment.h" />
     <ClInclude Include="..\Lawn\Board.h" />
     <ClInclude Include="..\Lawn\BoardInclude.h" />
@@ -1155,11 +1162,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\main_icon.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\SDL2\lib\SDL2.lib" />
-    <Library Include="..\SDL2\lib\SDL2main.lib" />
-    <Library Include="..\SDL2\lib\SDL2test.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

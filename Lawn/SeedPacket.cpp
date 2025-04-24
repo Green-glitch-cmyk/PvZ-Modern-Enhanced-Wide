@@ -9,7 +9,6 @@
 #include "../SexyAppFramework/Font.h"
 #include "../Sexy.TodLib/FilterEffect.h"
 #include "../SexyAppFramework/SexyMatrix.h"
-#include "System/ControllerManager.h"
 
 SeedPacket::SeedPacket()
 {
@@ -955,10 +954,10 @@ void SeedBank::Draw(Graphics* g)
 	}
 	if (!mApp->IsChallengeWithoutSeedBank() && mBoard->mSeedBank->mY == 0) //return false somehow when cutscene is still active while seedchooser animation
 	{
-		for (int i = 0; i < MAX_CONTROLLERS; i++)
+		for (int i = 0; i < MAX_GAMEPADS; i++)
 		{
-			ControllerBoard* aControllerBoard = mBoard->mControllerBoardList[i];
-			int aIndex = aControllerBoard->mSeedBankIndex;
+			GamepadPlayer* aGamepadPlayer = mBoard->mGamepadPlayerList[i];
+			int aIndex = aGamepadPlayer->mSeedBankIndex;
 			if (aIndex <= -1 || mBoard->mCutScene->mSeedChoosing)
 				continue;
 			SeedPacket* aSeedPacket = &mSeedPackets[aIndex];
@@ -968,15 +967,12 @@ void SeedBank::Draw(Graphics* g)
 			int aOffset = 7;
 			int aPosX = aSeedPacket->mX - aOffset;
 			int aPosY = aSeedPacket->mY - aOffset;
-			if (mBoard->mControllerBoardList[0]->mSeedBankIndex == aIndex && i != 0)
-				g->SetClipRect(Rect(aPosX, aPosY, aSeedSelectorWidth, aSeedSelectorHeight / 2));
 			Color aOldColor = g->mColor;
 			g->SetColorizeImages(true);
-			g->SetColor(aControllerBoard->mColor);
+			g->SetColor(aGamepadPlayer->mColor);
 			TodDrawImageScaledF(g, IMAGE_SEED_SELECTOR, aPosX, aPosY, aScale, aScale);
 			g->SetColor(aOldColor);
 			g->SetColorizeImages(false);
-			g->ClearClipRect();
 		}
 	}
 	for (int i = 0; i < mNumPackets; i++)

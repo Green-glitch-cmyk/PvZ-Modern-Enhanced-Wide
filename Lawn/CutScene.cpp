@@ -1712,7 +1712,7 @@ void CutScene::ClearUpsellBoard()
 	mBoard->mGridItems.DataArrayFreeAll();
 	mBoard->mLawnMowers.DataArrayFreeAll();
 	mBoard->mBushes.DataArrayFreeAll();
-	mBoard->mControllerBoards.DataArrayFreeAll();
+	mBoard->mGamepadPlayers.DataArrayFreeAll();
 
 	TodParticleSystem* aParticle = nullptr;
 	while (mBoard->IterateParticles(aParticle))

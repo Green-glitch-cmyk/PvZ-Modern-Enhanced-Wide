@@ -93,4 +93,4 @@ const bool			USE_OLD_STYLE_SEEDPACKET = false; // PC : true - Console : false
 const bool			USE_OLD_STYLE_TOOLTIP = false; // PC : true - Console : false
 const bool			USE_ZOMBIE_SEED_VARIANT = true;
 const bool			USE_CONSOLE_SEED_VARIANTS = true; // PC: false - Console : true
-const int			MAX_CONTROLLERS = 2;
+const int			MAX_GAMEPADS = 2;

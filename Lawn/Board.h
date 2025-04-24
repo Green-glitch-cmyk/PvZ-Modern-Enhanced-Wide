@@ -13,7 +13,7 @@
 #include "LawnMower.h"
 #include "GridItem.h"
 #include "Bush.h"
-#include "ControllerBoard.h"
+#include "GamepadPlayer.h"
 
 using namespace Sexy;
 
@@ -114,7 +114,7 @@ public:
 	DataArray<LawnMower>			mLawnMowers;											
 	DataArray<GridItem>				mGridItems;												
 	DataArray<Bush>					mBushes;
-	DataArray<ControllerBoard>		mControllerBoards;
+	DataArray<GamepadPlayer>		mGamepadPlayers;
 	CursorObject*					mCursorObject;					
 	CursorPreview*					mCursorPreview;											
 	MessageWidget*					mAdvice;												
@@ -133,7 +133,7 @@ public:
 	int								mGridCelOffset[MAX_GRID_SIZE_X][MAX_GRID_SIZE_Y][2];	
 	int								mGridCelFog[MAX_GRID_SIZE_X][MAX_GRID_SIZE_Y + 1];		
 	Bush*							mBushList[MAX_GRID_SIZE_Y];
-	ControllerBoard*				mControllerBoardList[MAX_CONTROLLERS];
+	GamepadPlayer*					mGamepadPlayerList[MAX_GAMEPADS];
 	bool							mEnableGraveStones;										
 	int								mSpecialGraveStoneX;									
 	int								mSpecialGraveStoneY;									
@@ -265,7 +265,7 @@ public:
 	/*inline*/ Zombie*				AddZombie(ZombieType theZombieType, int theFromWave, bool skipBushAnimation = false);
 	Bush*							AddBush(int theRow);
 	void							RustleBush(int mRow);
-	ControllerBoard*				AddControllerBoard(int theIndex);
+	GamepadPlayer*					AddGamepadPlayer(int theIndex);
 	void							SpawnZombieWave();
 	void							RemoveAllZombies();
 	void							RemoveCutsceneZombies();
@@ -356,7 +356,7 @@ public:
 	bool							IterateReanimations(Reanimation*& theReanimation);
 	bool							IterateGridItems(GridItem*& theGridItem);
 	bool							IterateBushes(Bush*& theBush);
-	bool							IterateControllerBoards(ControllerBoard*& theControllerBoard);
+	bool							IterateGamepadPlayers(GamepadPlayer*& theGamepadPlayer);
 	bool							IsControllerSeedBankSelected(int theIndex);
 	bool							IsControllerChooserSelected(SeedType theSeedType);
 	/*inline*/ Zombie*				AddZombieInRow(ZombieType theZombieType, int theRow, int theFromWave, bool theSkipBushRustling = false);

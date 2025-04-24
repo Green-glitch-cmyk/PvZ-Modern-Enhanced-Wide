@@ -29,7 +29,6 @@
 #include "../SexyAppFramework/ButtonWidget.h"
 #include "../SexyAppFramework/WidgetManager.h"
 #include "../SexyAppFramework/SoundInstance.h"
-#include "System/ControllerManager.h";
 
 #define SEXY_PERF_ENABLED
 #include "../SexyAppFramework/PerfTimer.h"
@@ -53,7 +52,7 @@ Board::Board(LawnApp* theApp)
 	mLawnMowers.DataArrayInitialize(32U, "lawnmowers");
 	mGridItems.DataArrayInitialize(128U, "griditems");
 	mBushes.DataArrayInitialize(16U, "bushes");
-	mControllerBoards.DataArrayInitialize(128U, "controllerboards");
+	mGamepadPlayers.DataArrayInitialize(512U, "gamepadplayers");
 	TodHesitationTrace("board dataarrays");
 
 	mApp->mEffectSystem->EffectSystemFreeAll();
@@ -86,7 +85,7 @@ Board::Board(LawnApp* theApp)
 		}
 	}
 	memset(mBushList, 0, sizeof(mBushList));
-	memset(mControllerBoardList, 0, sizeof(mControllerBoardList));
+	memset(mGamepadPlayerList, 0, sizeof(mGamepadPlayerList));
 	mFogOffset = 0.0f;
 	mSunCountDown = 0;
 	mShakeCounter = 0;
@@ -250,7 +249,7 @@ Board::~Board()
 	mLawnMowers.DataArrayDispose();
 	mGridItems.DataArrayDispose();
 	mBushes.DataArrayDispose();
-	mControllerBoards.DataArrayDispose();
+	mGamepadPlayers.DataArrayDispose();
 	if (mToolTip)
 	{
 		delete mToolTip;
@@ -393,16 +392,16 @@ bool Board::LoadGame(const string& theFileName)
 		if (!mBushList[i])
 			AddBush(i);
 	}
-	for (int i = 0; i < MAX_CONTROLLERS; i++)
+	for (int i = 0; i < MAX_GAMEPADS; i++)
 	{
-		ControllerBoard* aControllerBoard = nullptr;
-		while (IterateControllerBoards(aControllerBoard))
+		GamepadPlayer* aGamepadPlayer = nullptr;
+		while (IterateGamepadPlayers(aGamepadPlayer))
 		{
-			if (aControllerBoard->mIndex == i)
-				mControllerBoardList[i] = aControllerBoard;
+			if (aGamepadPlayer->mIndex == i)
+				mGamepadPlayerList[i] = aGamepadPlayer;
 		}
-		if (!mControllerBoardList[i])
-			AddControllerBoard(i);
+		if (!mGamepadPlayerList[i])
+			AddGamepadPlayer(i);
 	}
 	return true;
 }
@@ -1163,8 +1162,8 @@ void Board::PickBackground()
 		for (int i = 0; i < MAX_GRID_SIZE_Y; i++)
 			AddBush(i);
 	}
-	for (int i = 0; i < MAX_CONTROLLERS; i++)
-		AddControllerBoard(i);
+	for (int i = 0; i < MAX_GAMEPADS; i++)
+		AddGamepadPlayer(i);
 }
 
 void Board::InitZombieWavesForLevel(int theForLevel)
@@ -2699,19 +2698,19 @@ void Board::RustleBush(int mRow)
 		aBush->Rustle();
 	}
 }
-ControllerBoard* Board::AddControllerBoard(int theIndex)
+GamepadPlayer* Board::AddGamepadPlayer(int theIndex)
 {
-	if (mControllerBoards.mSize >= mControllerBoards.mMaxSize)
+	if (mGamepadPlayers.mSize >= mGamepadPlayers.mMaxSize)
 	{
-		TodTrace("Too many controllers!!");
+		TodTrace("Too many gamepad players!!");
 		return nullptr;
 	}
-	if (mControllerBoardList[theIndex])
+	if (mGamepadPlayerList[theIndex])
 		return nullptr;
-	ControllerBoard* aControllerBoard = mControllerBoards.DataArrayAlloc();
-	aControllerBoard->ControllerBoardInitialize(theIndex);
-	mControllerBoardList[theIndex] = aControllerBoard;
-	return aControllerBoard;
+	GamepadPlayer* aGamepadPlayer = mGamepadPlayers.DataArrayAlloc();
+	aGamepadPlayer->GamepadPlayerInitialize(theIndex);
+	mGamepadPlayerList[theIndex] = aGamepadPlayer;
+	return aGamepadPlayer;
 }
 void Board::RemoveAllZombies()
 {
@@ -5727,10 +5726,10 @@ void Board::Update()
 		mApp->UpdateCrazyDave();
 	}
 
-	ControllerBoard* aControllerBoard = nullptr;
-	while (IterateControllerBoards(aControllerBoard))
+	GamepadPlayer* aGamepadPlayer = nullptr;
+	while (IterateGamepadPlayers(aGamepadPlayer))
 	{
-		aControllerBoard->Update();
+		aGamepadPlayer->Update();
 	}
 
 	if (mPaused)
@@ -6338,6 +6337,13 @@ void Board::DrawGameObjects(Graphics* g)
 		AddUIRenderItem(aRenderList, aRenderItemCount, RenderObjectType::RENDER_ITEM_STORM, MakeRenderOrder(RenderLayer::RENDER_LAYER_FOG, 0, 3));
 	}
 	AddGameObjectRenderItemCursorPreview(aRenderList, aRenderItemCount, RenderObjectType::RENDER_ITEM_CURSOR_PREVIEW, mCursorPreview);
+	/*
+	ControllerBoard* aGamepadPlayer = nullptr;
+	while (IterateControllerBoards(aGamepadPlayer))
+	{
+		AddGameObjectRenderItemCursorPreview(aRenderList, aRenderItemCount, RenderObjectType::RENDER_ITEM_CURSOR_PREVIEW, aGamepadPlayer->mCursorPreview);
+	}
+	*/
 
 	TodHesitationTrace("start sort");
 	std::sort(aRenderList, aRenderList + aRenderItemCount, RenderItemSortFunc);
@@ -7184,7 +7190,7 @@ void Board::DrawDebugText(Graphics* g)
 		aText += StrFormat(_S("lawn mowers %d\n"), mLawnMowers.mSize);
 		aText += StrFormat(_S("grid items %d\n"), mGridItems.mSize);
 		aText += StrFormat(_S("bushes %d\n"), mBushes.mSize);
-		aText += StrFormat(_S("controller boards %d\n"), mControllerBoards.mSize);
+		aText += StrFormat(_S("gamepad players %d\n"), mGamepadPlayers.mSize);
 		break;
 
 	case DebugTextMode::DEBUG_TEXT_COLLISION:
@@ -9431,26 +9437,26 @@ bool Board::IterateBushes(Bush*& theBush)
 	return false;
 }
 
-bool Board::IterateControllerBoards(ControllerBoard*& theControllerBoard)
+bool Board::IterateGamepadPlayers(GamepadPlayer*& theGamepadPlayer)
 {
-	while (mControllerBoards.IterateNext(theControllerBoard))
+	while (mGamepadPlayers.IterateNext(theGamepadPlayer))
 	{
-		if (theControllerBoard != nullptr)
+		if (theGamepadPlayer != nullptr)
 		{
 			return true;
 		}
 	}
 
-	theControllerBoard = (ControllerBoard*)-1;
+	theGamepadPlayer = (GamepadPlayer*)-1;
 	return false;
 }
 
 bool Board::IsControllerSeedBankSelected(int theIndex)
 {
-	ControllerBoard* aControllerBoard = nullptr;
-	while (IterateControllerBoards(aControllerBoard))
+	GamepadPlayer* aGamepadPlayer = nullptr;
+	while (IterateGamepadPlayers(aGamepadPlayer))
 	{
-		if (aControllerBoard->mSeedBankIndex == theIndex)
+		if (aGamepadPlayer->mSeedBankIndex == theIndex)
 			return true;
 	}
 	return false;
@@ -9458,10 +9464,10 @@ bool Board::IsControllerSeedBankSelected(int theIndex)
 
 bool Board::IsControllerChooserSelected(SeedType theSeedType)
 {
-	ControllerBoard* aControllerBoard = nullptr;
-	while (IterateControllerBoards(aControllerBoard))
+	GamepadPlayer* aGamepadPlayer = nullptr;
+	while (IterateGamepadPlayers(aGamepadPlayer))
 	{
-		if (aControllerBoard->mSeedChooserSeed == theSeedType)
+		if (aGamepadPlayer->mSeedChooserSeed == theSeedType)
 			return true;
 	}
 	return false;

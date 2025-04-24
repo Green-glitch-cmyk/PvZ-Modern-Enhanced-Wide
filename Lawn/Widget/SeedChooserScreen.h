@@ -70,8 +70,6 @@ public:
     int                     mSeedsInFlight;                     
     int                     mSeedsInBank;                       
     ToolTipWidget*          mToolTip;                           
-    int                     mLastMouseX;                        
-    int                     mLastMouseY;                        
     SeedChooserState        mChooseState;                       
     int                     mViewLawnTime;                      
     float                   mScrollPosition;
@@ -82,6 +80,8 @@ public:
     float					mMaxScrollPosition;
     SeedType                mPreviousType;
     std::vector<std::tuple<int, int, SeedType, SeedType, int, bool>> mControllerDrawSeeds;
+    int					    mArrowTimeStartMotion;
+    int					    mArrowTimeEndMotion;
 
 public:
     SeedChooserScreen();

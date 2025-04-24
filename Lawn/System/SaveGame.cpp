@@ -14,8 +14,6 @@
 #include "../../Sexy.TodLib/Reanimator.h"
 #include "../../Sexy.TodLib/TodParticle.h"
 #include "../../Sexy.TodLib/EffectSystem.h"
-#include "../Bush.h"
-#include "ControllerManager.h"
 
 static const char* FILE_COMPILE_TIME_STRING = "Feb 16 200923:03:38";
 static const unsigned int SAVE_FILE_MAGIC_NUMBER = 0xFEEDDEAD;
@@ -363,7 +361,7 @@ void SyncBoard(SaveGameContext& theContext, Board* theBoard)
 	SyncDataArray(theContext, theBoard->mLawnMowers);												
 	SyncDataArray(theContext, theBoard->mGridItems);	
 	SyncDataArray(theContext, theBoard->mBushes);
-	SyncDataArray(theContext, theBoard->mControllerBoards);
+	SyncDataArray(theContext, theBoard->mGamepadPlayers);
 	SyncDataArray(theContext, theBoard->mApp->mEffectSystem->mParticleHolder->mParticleSystems);	
 	SyncDataArray(theContext, theBoard->mApp->mEffectSystem->mParticleHolder->mEmitters);			
 	SyncDataArray(theContext, theBoard->mApp->mEffectSystem->mParticleHolder->mParticles);			
@@ -477,15 +475,15 @@ void FixBoardAfterLoad(Board* theBoard)
 		}
 	}
 	{
-		ControllerBoard* aControllerBoard = nullptr;
-		while (theBoard->mControllerBoards.IterateNext(aControllerBoard))
+		GamepadPlayer* aGamepadPlayer = nullptr;
+		while (theBoard->mGamepadPlayers.IterateNext(aGamepadPlayer))
 		{
-			aControllerBoard->mApp = theBoard->mApp;
-			aControllerBoard->mBoard = theBoard;
-			aControllerBoard->mCursorObject->mApp = theBoard->mApp;
-			aControllerBoard->mCursorObject->mBoard = theBoard;
-			aControllerBoard->mCursorPreview->mApp = theBoard->mApp;
-			aControllerBoard->mCursorPreview->mBoard = theBoard;
+			aGamepadPlayer->mApp = theBoard->mApp;
+			aGamepadPlayer->mBoard = theBoard;
+			aGamepadPlayer->mCursorObject->mApp = theBoard->mApp;
+			aGamepadPlayer->mCursorObject->mBoard = theBoard;
+			aGamepadPlayer->mCursorPreview->mApp = theBoard->mApp;
+			aGamepadPlayer->mCursorPreview->mBoard = theBoard;
 		}
 	}
 

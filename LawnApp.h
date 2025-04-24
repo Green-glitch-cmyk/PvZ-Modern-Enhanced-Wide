@@ -3,6 +3,7 @@
 
 #include "ConstEnums.h"
 #include "SexyAppFramework/SexyApp.h"
+#include "Lawn/System/GamepadManager.h"
 
 class Board;
 class GameSelector;
@@ -31,7 +32,6 @@ class TypingCheck;
 class MiniCreditsScreen;
 class AchievementScreen;
 class QuickPlayScreen;
-class ControllerManager;
 
 namespace Sexy
 {
@@ -141,7 +141,7 @@ public:
 	time_t							mStartTime;
 	SexyString                      mDetails;
 	SexyString                      mState;
-	ControllerManager*				mControllerManager;
+	GamepadManager*					mGamepadManager;
 
 public:
 	LawnApp();
