@@ -78,11 +78,11 @@ void Gamepad::Rumble(float theLow, float theHigh, int theDuration)
 GamepadManager::GamepadManager(LawnApp* theApp)
 {
 	mApp = theApp;
-	mIsInitialized = SDL_Init(SDL_INIT_GAMEPAD | SDL_INIT_JOYSTICK);
+	mInit = SDL_Init(SDL_INIT_GAMEPAD | SDL_INIT_JOYSTICK);
 	mCurrentMouse = -1;
 	mLastUsedType = SDL_GAMEPAD_TYPE_UNKNOWN;
-	if (!mIsInitialized)
-		MessageBox(NULL, StrFormat("Couldn't initialize SDL for the gamepads. Error: %s", SDL_GetError()).c_str(), "SDL Error", MB_OK | MB_ICONERROR);
+	if (!mInit)
+		MessageBox(mApp->mHWnd, StrFormat("Couldn't initialize SDL for the gamepads. Error: %s", SDL_GetError()).c_str(), "SDL Error", MB_OK | MB_ICONERROR);
 }
 
 GamepadManager::~GamepadManager()
@@ -94,7 +94,7 @@ GamepadManager::~GamepadManager()
 
 void GamepadManager::Update()
 {
-	if (!mIsInitialized)
+	if (!mInit)
 		return;
 
 	static int aMouseX = -1;
@@ -262,7 +262,7 @@ void GamepadManager::Update()
 
 Gamepad* GamepadManager::GetGamepad(int theIndex)
 {
-	if (!mIsInitialized)
+	if (!mInit)
 		return nullptr;
 	for (const auto& aPair : mGamepads)
 	{
@@ -282,7 +282,7 @@ SDL_GamepadType GamepadManager::GetLastUsedType()
 
 void GamepadManager::RumbleAll(float theLow, float theHigh, int theDuration)
 {
-	if (!mIsInitialized)
+	if (!mInit)
 		return;
 	for (const auto& aPair : mGamepads)
 		aPair.second->Rumble(theLow, theHigh, theDuration);

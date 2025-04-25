@@ -35,7 +35,7 @@ class GamepadManager
 {
 private:
 	LawnApp*				mApp;
-	bool                    mIsInitialized;
+	bool                    mInit;
 	std::map<SDL_JoystickID, Gamepad*> mGamepads;
 	int                     mCurrentMouse;
 	SDL_GamepadType         mLastUsedType;
