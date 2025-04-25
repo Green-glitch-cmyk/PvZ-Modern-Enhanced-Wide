@@ -7,11 +7,12 @@
 
 const int cMouseMaxSpeed = 7;
 
-Gamepad::Gamepad(LawnApp* theApp, SDL_Gamepad* theGamepad, float theThreshold)
+Gamepad::Gamepad()
 {
-    mApp = theApp;
-	mSDLGamepad = theGamepad;
-	mThreshold = theThreshold;
+    mApp = nullptr;
+	mIndex = -1;
+	mSDLGamepad = nullptr;
+	mThreshold = 0.0f;
 	memset(mButtons, 0, sizeof(mButtons));
 	memset(mLastButtons, 0, sizeof(mLastButtons));
 }
@@ -19,24 +20,6 @@ Gamepad::Gamepad(LawnApp* theApp, SDL_Gamepad* theGamepad, float theThreshold)
 Gamepad::~Gamepad()
 {
 	SDL_CloseGamepad(mSDLGamepad);
-}
-
-bool Gamepad::UpdateButtons()
-{
-	bool aHasInput = false;
-	for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT; i++)
-	{
-		mLastButtons[i] = mButtons[i];
-		mButtons[i] = SDL_GetGamepadButton(mSDLGamepad, (SDL_GamepadButton)i);
-		if (!aHasInput)
-			aHasInput = mButtons[i];
-	}
-	return aHasInput;
-}
-
-SDL_Gamepad* Gamepad::GetSDLGamepad()
-{
-	return mSDLGamepad;
 }
 
 bool Gamepad::GetButton(SDL_GamepadButton theButton)
@@ -104,8 +87,8 @@ GamepadManager::GamepadManager(LawnApp* theApp)
 
 GamepadManager::~GamepadManager()
 {
-	for (const auto& aPair : mGamepadControllers)
-		delete aPair.second.second;
+	for (const auto& aPair : mGamepads)
+		delete aPair.second;
 	SDL_Quit();
 }
 
@@ -138,13 +121,14 @@ void GamepadManager::Update()
 		aMouseY = -1;
 	}
 
-	for (const auto& aPair : mGamepadControllers)
+	for (const auto& aPair : mGamepads)
 	{
 		if (!mApp->mHasFocus)
 			break;
 
-		int aIndex = aPair.second.first;
-		Gamepad* aGamepad = aPair.second.second;
+		Gamepad* aGamepad = aPair.second;
+		int aIndex = aGamepad->mIndex;
+		SDL_Gamepad* aSDLGamepad = aGamepad->mSDLGamepad;
 
 		float aAxisLeftX = aGamepad->GetAxisValue(SDL_GAMEPAD_AXIS_LEFTX);
 		float aAxisLeftY = aGamepad->GetAxisValue(SDL_GAMEPAD_AXIS_LEFTY);
@@ -153,8 +137,17 @@ void GamepadManager::Update()
 		float aAxisLeftTrigger = aGamepad->GetTriggerAxisValue(SDL_GAMEPAD_AXIS_LEFT_TRIGGER);
 		float aAxisRightTrigger = aGamepad->GetTriggerAxisValue(SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
 
-		if (aGamepad->UpdateButtons() || aAxisLeftX != 0 || aAxisLeftY != 0 || aAxisRightX != 0 || aAxisRightY != 0 || aAxisLeftTrigger != 0 || aAxisRightTrigger != 0)
-			mLastUsedType = SDL_GetGamepadType(aGamepad->GetSDLGamepad());
+		bool aHasInput = false;
+		for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT; i++)
+		{
+			aGamepad->mLastButtons[i] = aGamepad->mButtons[i];
+			aGamepad->mButtons[i] = SDL_GetGamepadButton(aSDLGamepad, (SDL_GamepadButton)i);
+			if (!aHasInput)
+				aHasInput = aGamepad->mButtons[i];
+		}
+
+		if (aHasInput || aAxisLeftX != 0 || aAxisLeftY != 0 || aAxisRightX != 0 || aAxisRightY != 0 || aAxisLeftTrigger != 0 || aAxisRightTrigger != 0)
+			mLastUsedType = SDL_GetGamepadType(aSDLGamepad);
 
 		if (aGamepad->GetButtonDown(SDL_GAMEPAD_BUTTON_LEFT_STICK))
 		{
@@ -211,22 +204,22 @@ void GamepadManager::Update()
 	{
 		int aIndex = -1;
 		SDL_JoystickID aID = aEvent.gdevice.which;
-		auto aIt = mGamepadControllers.find(aID);
-		if (aIt != mGamepadControllers.end())
-			aIndex = aIt->second.first;
+		auto aIt = mGamepads.find(aID);
+		if (aIt != mGamepads.end())
+			aIndex = aIt->second->mIndex;
 		switch (aEvent.type)
 		{
 		case SDL_EVENT_GAMEPAD_ADDED:
-			if (SDL_Gamepad* aGameController = SDL_OpenGamepad(aID))
+			if (SDL_Gamepad* aSDLGamepad = SDL_OpenGamepad(aID))
 			{
-				if (mGamepadControllers.find(aID) == mGamepadControllers.end())
+				if (mGamepads.find(aID) == mGamepads.end())
 				{
 					for (int i = 0; i < MAX_GAMEPADS; i++)
 					{
 						bool aHasIndex = false;
-						for (const auto& aPair : mGamepadControllers) 
+						for (const auto& aPair : mGamepads)
 						{
-							if (aPair.second.first == i) 
+							if (aPair.second->mIndex == i) 
 							{
 								aHasIndex = true;
 								break;
@@ -235,26 +228,32 @@ void GamepadManager::Update()
 						if (!aHasIndex)
 						{
 							aIndex = i;
-							mGamepadControllers[aID] = std::make_pair(aIndex, new Gamepad(mApp, aGameController, 0.4f));
+							Gamepad* aGamepad = new Gamepad();
+							aGamepad->mApp = mApp;
+							aGamepad->mIndex = aIndex;
+							aGamepad->mSDLGamepad = aSDLGamepad;
+							aGamepad->mThreshold = 0.4f;
+							mGamepads[aID] = aGamepad;
 							break;
 						}
 					}
 				}
 				if (aIndex == -1)
-					SDL_CloseGamepad(aGameController);
+					SDL_CloseGamepad(aSDLGamepad);
 			}
 			break;
 		case SDL_EVENT_GAMEPAD_REMOVED:
 			if (aIndex != -1)
 			{
-				delete aIt->second.second;
-				mGamepadControllers.erase(aIt);
+				delete aIt->second;
+				mGamepads.erase(aIt);
 				if (mCurrentMouse == aIndex)
 				{
 					mCurrentMouse = -1;
 					aSpeedX = 0;
 					aSpeedY = 0;
 				}
+				//reassigning is planned
 			}
 			break;
 		}
@@ -265,11 +264,12 @@ Gamepad* GamepadManager::GetGamepad(int theIndex)
 {
 	if (!mIsInitialized)
 		return nullptr;
-	for (const auto& aPair : mGamepadControllers)
+	for (const auto& aPair : mGamepads)
 	{
-		int aIndex = aPair.second.first;
+		Gamepad* aGamepad = aPair.second;
+		int aIndex = aGamepad->mIndex;
 		if (aIndex == theIndex && mCurrentMouse != aIndex)
-			return aPair.second.second;
+			return aGamepad;
 	}
 	return nullptr;
 }
@@ -284,6 +284,6 @@ void GamepadManager::RumbleAll(float theLow, float theHigh, int theDuration)
 {
 	if (!mIsInitialized)
 		return;
-	for (const auto& aPair : mGamepadControllers)
-		aPair.second.second->Rumble(theLow, theHigh, theDuration);
+	for (const auto& aPair : mGamepads)
+		aPair.second->Rumble(theLow, theHigh, theDuration);
 }

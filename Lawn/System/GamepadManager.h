@@ -4,25 +4,24 @@
 #include "../../SDL/include/SDL3/SDL.h"
 #include "../../SexyAppFramework/Common.h"
 
-using namespace std;
-
 class LawnApp;
 
 class Gamepad
 {
+	friend class			GamepadManager;
+
 private:
 	LawnApp*				mApp;
+	int						mIndex;
 	SDL_Gamepad*			mSDLGamepad;
 	float                   mThreshold;
 	bool					mButtons[SDL_GAMEPAD_BUTTON_COUNT];
 	bool					mLastButtons[SDL_GAMEPAD_BUTTON_COUNT];
 
 public:
-	Gamepad(LawnApp* theApp, SDL_Gamepad* theGamepad, float theThreshold);
+	Gamepad();
 	~Gamepad();
 
-	bool                    UpdateButtons();
-	SDL_Gamepad*			GetSDLGamepad();
 	bool                    GetButton(SDL_GamepadButton theButton);
 	bool                    GetButtonDown(SDL_GamepadButton theButton);
 	bool                    GetButtonUp(SDL_GamepadButton theButton);
@@ -37,7 +36,7 @@ class GamepadManager
 private:
 	LawnApp*				mApp;
 	bool                    mIsInitialized;
-	std::map<SDL_JoystickID, std::pair<int, Gamepad*>> mGamepadControllers;
+	std::map<SDL_JoystickID, Gamepad*> mGamepads;
 	int                     mCurrentMouse;
 	SDL_GamepadType         mLastUsedType;
 
