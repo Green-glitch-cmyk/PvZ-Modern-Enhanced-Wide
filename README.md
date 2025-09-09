@@ -1,6 +1,5 @@
-# PvZ Quality Enhanced Wide
-A edit of the PvZ Decompile/Reconstruction that adds MORE QoL features.
+# PvZ Modern Enchanced
+A new version for PvZ Quality Enhanced - adding more features!
 
-# Credits:
-Electr0Gunner,
-Ultra Wide Expansion Team
+# Credits
+BULL3BOT (original)
